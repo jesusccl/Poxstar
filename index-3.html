@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PoxStar — Independent Game Studio</title>
+<meta name="description" content="Estudio independiente de videojuegos. Mecánicas raras, mundos honestos. Juega Carrera Loca, nuestro endless racer." />
+<meta name="theme-color" content="#FF4A1C" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF4A1C' d='M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* Tweakable */
+  --accent: #FF4A1C;
+  --ink: #0F0F0F;
+  --paper: #F5F0E8;
+  --paper-2: #ECE6DA;
+
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-text:    'Space Grotesk', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  --motion: 1; /* 1 on, 0 off */
+}
+html[data-theme="dark"]{
+  --paper: #0B0B0B;
+  --paper-2: #141414;
+  --ink: #F5F0E8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);
+  font-family:var(--font-text); -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+/* ── Layout primitives ─────────────────────────────────────────── */
+.wrap{max-width:1440px;margin:0 auto;padding:0 32px}
+@media (max-width:720px){.wrap{padding:0 20px}}
+
+.eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:500;color:var(--ink);opacity:.7}
+
+.rule{height:1px;background:currentColor;opacity:.18;border:0;margin:0}
+
+/* ── Top bar ───────────────────────────────────────────────────── */
+.top{position:sticky;top:0;z-index:40;background:var(--accent);
+  border-bottom:1px solid color-mix(in srgb,var(--ink) 18%, transparent)}
+.top .brand,.top .nav a{color:var(--ink)}
+.top .cta{background:var(--ink);color:#fff}
+.top .cta .dot{background:var(--accent)}
+.top .cta:hover{background:#fff;color:var(--ink)}
+.top .cta:hover .dot{background:var(--accent)}
+.top-inner{display:flex;align-items:center;justify-content:space-between;
+  height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);
+  font-weight:900;letter-spacing:-.02em;font-size:22px}
+.brand .mark{width:30px;height:30px;border-radius:7px;background:var(--ink);
+  display:grid;place-items:center;transform:rotate(-6deg);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.brand:hover .mark{transform:rotate(8deg) scale(1.05)}
+.brand .mark svg{width:18px;height:18px}
+.nav{display:flex;align-items:center;gap:30px;font-size:13.5px;font-weight:500}
+.nav a{position:relative;padding:6px 0;color:var(--ink)}
+.nav a::after{content:"";position:absolute;left:0;right:100%;bottom:2px;
+  height:1px;background:var(--accent);
+  transition:right .35s cubic-bezier(.2,.8,.2,1)}
+.nav a:hover::after{right:0}
+.nav a.active::after{right:0;background:var(--ink)}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--ink);
+  color:var(--paper);padding:10px 16px;border-radius:999px;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:500;cursor:pointer;
+  transition:transform .25s cubic-bezier(.2,.8,.2,1), background .2s}
+.cta:hover{background:var(--accent);color:#fff;transform:translateY(-1px)}
+.cta .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cta:hover .dot{background:#fff}
+@media (max-width:880px){.nav{display:none}}
+
+/* ── Hero ──────────────────────────────────────────────────────── */
+.hero{padding:80px 0 40px;position:relative;background:var(--accent);color:var(--ink);
+  border-bottom:1px solid color-mix(in srgb,var(--ink) 14%, transparent)}
+.hero .eyebrow{color:var(--ink);opacity:.78}
+.hero-meta{display:grid;grid-template-columns:1fr auto 1fr;gap:24px;
+  align-items:center;margin-bottom:120px}
+.hero-meta .l{justify-self:start}
+.hero-meta .c{justify-self:center;text-align:center}
+.hero-meta .r{justify-self:end;text-align:right}
+
+.logo-lockup{display:flex;flex-direction:column;align-items:center;
+  gap:36px;text-align:center}
+.logo-mark{width:108px;height:108px;border-radius:22px;background:var(--ink);
+  display:grid;place-items:center;transform:rotate(-6deg);
+  box-shadow:0 18px 40px -16px rgba(0,0,0,.35);
+  transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.hero:hover .logo-mark{transform:rotate(8deg) scale(1.04)}
+.logo-mark svg{width:58%;height:58%}
+.wordmark{font-family:var(--font-display);font-weight:900;
+  letter-spacing:-.045em;line-height:.86;color:var(--ink);
+  font-size:clamp(80px,15vw,220px);margin:0}
+.logo-caption{font-family:var(--font-mono);font-size:13px;
+  letter-spacing:.22em;text-transform:uppercase;font-weight:500;
+  color:var(--ink);opacity:.85;margin:0}
+
+.hero-sub{margin:64px auto 0;max-width:680px;text-align:center;
+  font-size:clamp(17px,1.5vw,20px);line-height:1.5;
+  color:color-mix(in srgb,var(--ink) 82%, transparent)}
+.hero-sub strong{font-weight:600;color:var(--ink);
+  background:color-mix(in srgb,#fff 35%, transparent);
+  padding:0 .12em;border-radius:2px}
+
+.hero-actions{display:flex;gap:14px;justify-content:center;margin-top:36px;
+  flex-wrap:wrap}
+.hero .btn{border-color:color-mix(in srgb,var(--ink) 28%, transparent);color:var(--ink)}
+.hero .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.hero .btn.primary:hover{background:#fff;color:var(--ink);border-color:#fff}
+.hero .btn.ghost:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+  border-radius:999px;font-weight:600;font-size:14px;
+  border:1px solid color-mix(in srgb,var(--ink) 16%, transparent);
+  background:transparent;color:var(--ink);cursor:pointer;
+  transition:transform .25s cubic-bezier(.2,.8,.2,1), background .2s, color .2s, border-color .2s}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn .arrow{transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.btn:hover .arrow{transform:translateX(4px)}
+
+/* Hero ticker */
+.ticker{margin-top:120px;border-top:1px solid color-mix(in srgb,var(--ink) 18%, transparent);
+  overflow:hidden;background:var(--accent);color:var(--ink)}
+.ticker-track{display:flex;gap:48px;padding:18px 0;width:max-content;
+  animation:tick 38s linear infinite;
+  font-family:var(--font-display);font-weight:800;letter-spacing:-.02em;
+  font-size:34px;text-transform:lowercase}
+html[data-motion="0"] .ticker-track{animation:none}
+.ticker-track span{display:inline-flex;align-items:center;gap:48px}
+.ticker-track .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);
+  flex-shrink:0;display:inline-block}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── Section header ────────────────────────────────────────────── */
+.sect{padding:120px 0}
+.sect-head{display:grid;grid-template-columns:1fr auto;gap:24px;
+  align-items:end;margin-bottom:56px}
+.sect-head h2{font-family:var(--font-display);font-weight:900;
+  letter-spacing:-.04em;line-height:.92;
+  font-size:clamp(44px,7vw,96px);margin:0}
+.sect-head h2 em{font-family:'Instrument Serif',serif;font-style:italic;
+  font-weight:400;color:var(--accent)}
+.sect-head .index{font-family:var(--font-mono);font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;opacity:.7;
+  display:flex;flex-direction:column;align-items:flex-end;gap:6px;
+  text-align:right;line-height:1.3}
+.sect-head .index b{color:var(--accent);font-weight:500}
+
+/* ── Games grid ────────────────────────────────────────────────── */
+.games{display:grid;grid-template-columns:repeat(12,1fr);gap:24px}
+.game{grid-column:span 12;
+  transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+@media (max-width:640px){.game{grid-column:span 12}}
+
+.game .art{position:relative;aspect-ratio:16/9;border-radius:8px;
+  overflow:hidden;background:var(--paper-2);
+  transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.game:hover .art{transform:translateY(-4px)}
+.game .art .num{position:absolute;top:14px;left:16px;z-index:3;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;
+  color:#fff;mix-blend-mode:difference;font-weight:500}
+.game .art .tag{position:absolute;top:14px;right:16px;z-index:3;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;background:#fff;color:#000;
+  padding:4px 8px;border-radius:999px;font-weight:500}
+.game .art .tag.hot{background:var(--accent);color:#fff}
+
+.game .meta{display:flex;justify-content:space-between;align-items:baseline;
+  margin-top:18px;gap:16px}
+.game h3{font-family:var(--font-display);font-weight:800;
+  letter-spacing:-.025em;font-size:32px;margin:0;line-height:1.05}
+.game .yr{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;
+  opacity:.6;flex-shrink:0}
+.game p{margin:6px 0 0;font-size:15px;line-height:1.5;
+  color:color-mix(in srgb,var(--ink) 70%, transparent);max-width:60ch}
+.game .genres{margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;
+  align-items:center}
+.game .genres span{font-family:var(--font-mono);font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 8px;border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--ink) 18%, transparent)}
+.game .genres .play-link{margin-left:auto;font-family:var(--font-mono);
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:500;color:var(--accent);cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:gap .3s cubic-bezier(.2,.8,.2,1)}
+.game .genres .play-link:hover{gap:14px}
+
+/* Abstract art compositions — pure CSS/SVG */
+.art-canvas{position:absolute;inset:0;display:grid;place-items:center}
+.art-canvas svg{width:100%;height:100%;display:block}
+.art .scrim{position:absolute;inset:0;
+  background:linear-gradient(180deg, transparent 50%, color-mix(in srgb,var(--ink) 60%, transparent) 100%);
+  opacity:0;transition:opacity .4s}
+.game:hover .art .scrim{opacity:1}
+.art .float{position:absolute;left:16px;bottom:14px;z-index:4;color:#fff;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;opacity:0;transform:translateY(6px);
+  transition:opacity .35s, transform .35s}
+.game:hover .art .float{opacity:1;transform:translateY(0)}
+
+/* ── Play-now / Featured ─────────────────────────────────────── */
+.featured{background:var(--ink);color:var(--paper);position:relative;
+  overflow:hidden}
+.featured .wrap{padding-top:120px;padding-bottom:120px}
+.featured .top-row{display:flex;justify-content:space-between;
+  align-items:flex-start;gap:24px;margin-bottom:48px}
+.featured .badge{display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent);color:#fff;padding:6px 12px;border-radius:999px;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:500}
+.featured .badge .pulse{width:6px;height:6px;border-radius:50%;background:#fff;
+  animation:pulse 1.4s ease-in-out infinite}
+html[data-motion="0"] .featured .badge .pulse{animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.featured .countdown{font-family:var(--font-mono);font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;opacity:.6;
+  display:flex;gap:18px;align-items:center}
+.featured .countdown b{font-weight:500;color:var(--paper);font-size:24px;
+  letter-spacing:-.01em;text-transform:none;font-family:var(--font-display);
+  font-weight:800}
+
+.featured-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:64px;
+  align-items:center}
+@media (max-width:920px){.featured-grid{grid-template-columns:1fr;gap:40px}}
+
+.featured h3{font-family:var(--font-display);font-weight:900;
+  letter-spacing:-.045em;line-height:.88;margin:0;
+  font-size:clamp(56px,9vw,120px)}
+.featured h3 em{font-family:'Instrument Serif',serif;font-style:italic;
+  font-weight:400;color:var(--accent)}
+.featured .lead{margin:24px 0 0;max-width:48ch;
+  font-size:17px;line-height:1.5;
+  color:color-mix(in srgb,var(--paper) 75%, transparent)}
+.featured .specs{margin-top:40px;display:grid;
+  grid-template-columns:repeat(2,1fr);gap:20px 32px;max-width:480px}
+.featured .spec{border-top:1px solid color-mix(in srgb,var(--paper) 22%, transparent);
+  padding-top:12px}
+.featured .spec .k{font-family:var(--font-mono);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:color-mix(in srgb,var(--paper) 50%, transparent);margin-bottom:4px}
+.featured .spec .v{font-family:var(--font-display);font-weight:700;
+  font-size:18px;letter-spacing:-.01em}
+.featured .actions{margin-top:40px;display:flex;gap:12px;flex-wrap:wrap}
+.featured .btn{border-color:color-mix(in srgb,var(--paper) 25%, transparent);
+  color:var(--paper)}
+.featured .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.featured .btn.ghost:hover{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.featured .btn.primary:hover{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+
+/* Embedded playable game */
+.featured .play-frame{position:relative;background:#0a0a0a;
+  border-radius:12px;overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--paper) 18%, transparent);
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.featured .play-frame .label{position:absolute;top:14px;left:18px;z-index:5;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:#fff;opacity:.7;
+  background:rgba(0,0,0,.5);padding:5px 10px;border-radius:4px;
+  pointer-events:none}
+.featured .play-frame .label .led{width:6px;height:6px;border-radius:50%;
+  background:#22c55e;display:inline-block;margin-right:8px;
+  animation:pulse 1.4s ease-in-out infinite;vertical-align:middle}
+.featured .play-frame iframe{display:block;width:100%;
+  aspect-ratio:2/3;border:0;background:#0a0a0a}
+.featured .play-frame .frame-foot{display:flex;justify-content:space-between;
+  padding:10px 18px;font-family:var(--font-mono);font-size:10.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:#fff;opacity:.55;
+  background:#000;border-top:1px solid color-mix(in srgb,var(--paper) 12%, transparent)}
+.featured .play-frame .frame-foot a{color:var(--accent);font-weight:600;
+  cursor:pointer;opacity:1}
+.featured .play-frame .frame-foot a:hover{color:#fff}
+
+/* ── Studio strip ──────────────────────────────────────────────── */
+.studio{padding:120px 0;border-top:1px solid color-mix(in srgb,var(--ink) 14%, transparent)}
+.studio-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:80px}
+@media (max-width:880px){.studio-grid{grid-template-columns:1fr;gap:40px}}
+.studio h2{font-family:var(--font-display);font-weight:900;
+  letter-spacing:-.04em;line-height:.95;font-size:clamp(36px,5vw,64px);
+  margin:0 0 24px}
+.studio h2 em{font-family:'Instrument Serif',serif;font-style:italic;
+  font-weight:400;color:var(--accent)}
+.studio p{font-size:17px;line-height:1.55;
+  color:color-mix(in srgb,var(--ink) 78%, transparent);margin:0 0 16px;
+  max-width:60ch}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+  margin-top:48px;padding-top:32px;
+  border-top:1px solid color-mix(in srgb,var(--ink) 14%, transparent)}
+.stat .k{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;opacity:.6;margin-bottom:8px}
+.stat .v{font-family:var(--font-display);font-weight:900;
+  font-size:48px;letter-spacing:-.03em;line-height:1}
+.stat .v sup{font-size:.45em;font-weight:600;letter-spacing:0;
+  vertical-align:top;margin-left:4px;color:var(--accent)}
+
+/* ── Community ─────────────────────────────────────────────────── */
+.community{background:var(--accent);color:#fff;position:relative;overflow:hidden}
+.community .wrap{padding:120px 32px}
+.community .star-bg{position:absolute;right:-80px;top:50%;
+  transform:translateY(-50%) rotate(-12deg);width:520px;height:520px;
+  opacity:.16;pointer-events:none}
+html[data-motion="1"] .community .star-bg{
+  animation:slowSpin 60s linear infinite}
+@keyframes slowSpin{to{transform:translateY(-50%) rotate(348deg)}}
+.community-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;
+  align-items:end;position:relative;z-index:1}
+@media (max-width:880px){.community-grid{grid-template-columns:1fr}}
+.community .eyebrow{color:#fff;opacity:.85}
+.community h2{font-family:var(--font-display);font-weight:900;
+  letter-spacing:-.045em;line-height:.9;
+  font-size:clamp(48px,8vw,112px);margin:24px 0 0;color:#fff}
+.community h2 em{font-family:'Instrument Serif',serif;font-style:italic;
+  font-weight:400;color:var(--ink)}
+.community .right{display:flex;flex-direction:column;gap:20px;
+  max-width:440px;justify-self:end}
+@media (max-width:880px){.community .right{justify-self:start}}
+.community .right p{font-size:17px;line-height:1.5;margin:0;
+  color:color-mix(in srgb,#fff 88%, transparent)}
+.community .channels{display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  margin-top:8px}
+.channel{display:flex;flex-direction:column;gap:6px;padding:18px;
+  background:color-mix(in srgb,#fff 14%, transparent);border-radius:10px;
+  cursor:default;transition:background .25s, transform .25s cubic-bezier(.2,.8,.2,1)}
+.channel:hover{background:#fff;color:var(--ink);transform:translateY(-3px)}
+.channel .name{font-family:var(--font-display);font-weight:800;font-size:18px;
+  letter-spacing:-.01em}
+.channel .members{font-family:var(--font-mono);font-size:10.5px;
+  letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+.channel:hover .members{opacity:.55}
+
+/* Newsletter inline */
+.subscribe{display:flex;gap:0;margin-top:8px;background:#fff;
+  border-radius:999px;padding:6px;align-items:center}
+.subscribe input{flex:1;border:0;background:transparent;outline:none;
+  padding:10px 14px;font:inherit;font-size:14px;color:var(--ink);
+  font-family:var(--font-text)}
+.subscribe input::placeholder{color:color-mix(in srgb,var(--ink) 50%, transparent)}
+.subscribe button{appearance:none;border:0;background:var(--ink);color:#fff;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:500;
+  padding:10px 18px;border-radius:999px;cursor:pointer;
+  transition:background .2s}
+.subscribe button:hover{background:var(--accent);box-shadow:0 0 0 2px #fff inset}
+
+/* ── Footer ────────────────────────────────────────────────────── */
+.foot{padding:48px 0 36px;border-top:1px solid color-mix(in srgb,var(--ink) 14%, transparent)}
+.foot-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;
+  margin-bottom:48px}
+@media (max-width:880px){.foot-top{grid-template-columns:1fr 1fr}}
+.foot-col h4{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:500;margin:0 0 16px;opacity:.6}
+.foot-col ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.foot-col a{font-size:14px;font-weight:500;display:inline-block;
+  position:relative}
+.foot-col a:hover{color:var(--accent)}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;
+  padding-top:24px;border-top:1px solid color-mix(in srgb,var(--ink) 14%, transparent);
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;opacity:.6;flex-wrap:wrap;gap:12px}
+.foot .big-mark{font-family:var(--font-display);font-weight:900;
+  letter-spacing:-.05em;font-size:clamp(80px,16vw,220px);line-height:.85;
+  margin:0 0 48px;display:flex;align-items:center;gap:.1em;
+  color:color-mix(in srgb,var(--ink) 92%, transparent)}
+.foot .big-mark .star{display:inline-block;width:.78em;height:.78em;
+  background:var(--accent);border-radius:.18em;display:grid;place-items:center;
+  transform:rotate(-8deg);
+  transition:transform .6s cubic-bezier(.2,.8,.2,1);flex-shrink:0}
+.foot .big-mark:hover .star{transform:rotate(15deg) scale(1.06)}
+.foot .big-mark .star svg{width:62%;height:62%}
+
+/* ── Editor reveal: simple intersection on first paint ─────────── */
+.reveal{opacity:0;transform:translateY(14px);
+  transition:opacity .8s cubic-bezier(.2,.8,.2,1),
+             transform .8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+html[data-motion="0"] .reveal{opacity:1;transform:none;transition:none}
+
+/* ── Cursor accent on hover for .game art ──────────────────────── */
+.game .art:hover{box-shadow:0 18px 40px -16px color-mix(in srgb,var(--ink) 35%, transparent)}
+
+/* ── responsive ────────────────────────────────────────────────── */
+@media (max-width:640px){
+  .hero-meta{grid-template-columns:1fr;text-align:left}
+  .hero-meta .c,.hero-meta .r{justify-self:start;text-align:left}
+  .sect{padding:80px 0}
+  .featured .wrap{padding-top:80px;padding-bottom:80px}
+  .community .wrap{padding-top:80px;padding-bottom:80px}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── Top bar ────────────────────────────────────────────────── -->
+<header class="top">
+  <div class="wrap top-inner">
+    <a href="#" class="brand" aria-label="PoxStar inicio">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"
+                fill="#F5F0E8"/>
+        </svg>
+      </span>
+      <span>poxstar</span>
+    </a>
+    <nav class="nav">
+      <a href="#juegos">Juegos</a>
+      <a href="#jugar">Jugar</a>
+      <a href="#estudio">Estudio</a>
+      <a href="#comunidad">Comunidad</a>
+    </nav>
+    <a href="#jugar" class="cta"><span class="dot"></span>Jugar ahora</a>
+  </div>
+</header>
+
+<!-- ─── Hero ──────────────────────────────────────────────────── -->
+<section class="hero" data-screen-label="01 Hero">
+  <div class="wrap">
+
+    <div class="hero-meta">
+      <div class="l eyebrow">Stacked · Accent</div>
+      <div class="c eyebrow">// Estudio independiente</div>
+      <div class="r eyebrow">Catálogo / 01 título</div>
+    </div>
+
+    <div class="logo-lockup">
+      <div class="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"
+                fill="#FFFFFF"/>
+        </svg>
+      </div>
+      <h1 class="wordmark">poxstar</h1>
+      <p class="logo-caption">// Since 2026</p>
+    </div>
+
+    <p class="hero-sub">
+      Construimos <strong>juegos pequeños con ideas grandes</strong>. Mecánicas
+      raras, mundos honestos, soundtracks que se quedan. Sin loot boxes, sin
+      atajos, sin prisa.
+    </p>
+
+    <div class="hero-actions">
+      <a class="btn primary" href="#jugar">
+        Jugar ahora
+        <span class="arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="btn ghost" href="#juegos">
+        Ver catálogo
+      </a>
+    </div>
+  </div>
+
+  <!-- ticker -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>jugar diferente <i class="dot"></i> indie game studio <i class="dot"></i> since 2026 <i class="dot"></i> 1 título · 1 visión <i class="dot"></i> hecho a mano <i class="dot"></i> jugar diferente <i class="dot"></i> indie game studio <i class="dot"></i> since 2026 <i class="dot"></i> 1 título · 1 visión <i class="dot"></i> hecho a mano <i class="dot"></i></span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Catálogo ──────────────────────────────────────────────── -->
+<section id="juegos" class="sect" data-screen-label="02 Catálogo">
+  <div class="wrap">
+    <div class="sect-head">
+      <h2>Catálogo<br/><em>completo</em></h2>
+      <div class="index">
+        <span>SECCIÓN / 02</span>
+        <span><b>01</b> juego publicado</span>
+        <span>2026</span>
+      </div>
+    </div>
+
+    <div class="games">
+
+      <!-- Carrera Loca — único juego real, jugable -->
+      <article class="game reveal">
+        <a href="carrera-loca.html" aria-label="Jugar a Carrera Loca">
+          <div class="art">
+            <span class="num">001</span>
+            <span class="tag hot">Disponible</span>
+            <div class="art-canvas" style="background:radial-gradient(ellipse at center, #1a1a2e 0%, #050510 100%)">
+              <svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+                <!-- carretera con perspectiva -->
+                <defs>
+                  <linearGradient id="road" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0" stop-color="#1a1a2e"/>
+                    <stop offset="1" stop-color="#2a2a3e"/>
+                  </linearGradient>
+                  <linearGradient id="speedlines" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0" stop-color="#FF4A1C" stop-opacity="0"/>
+                    <stop offset=".5" stop-color="#FF4A1C" stop-opacity=".6"/>
+                    <stop offset="1" stop-color="#FF4A1C" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <!-- pista trapezoidal -->
+                <path d="M280 100 L520 100 L700 450 L100 450 Z" fill="url(#road)"/>
+                <!-- líneas centrales -->
+                <g stroke="#F5F0E8" stroke-width="3" stroke-dasharray="20 25" opacity=".4">
+                  <line x1="350" y1="100" x2="250" y2="450"/>
+                  <line x1="450" y1="100" x2="550" y2="450"/>
+                </g>
+                <!-- Bordes -->
+                <line x1="280" y1="100" x2="100" y2="450" stroke="#FF4A1C" stroke-width="3" opacity=".7"/>
+                <line x1="520" y1="100" x2="700" y2="450" stroke="#FF4A1C" stroke-width="3" opacity=".7"/>
+                <!-- Auto rival lejano -->
+                <g transform="translate(370 175)">
+                  <rect x="-12" y="-8" width="24" height="20" rx="3" fill="#9b59b6"/>
+                  <rect x="-10" y="-5" width="20" height="6" fill="#000" opacity=".5"/>
+                </g>
+                <!-- Auto rival medio -->
+                <g transform="translate(470 250)">
+                  <rect x="-16" y="-10" width="32" height="26" rx="4" fill="#f39c12"/>
+                  <rect x="-13" y="-7" width="26" height="8" fill="#000" opacity=".5"/>
+                </g>
+                <!-- Auto del jugador (azul, en primer plano) -->
+                <g transform="translate(400 360)">
+                  <!-- speed lines detrás -->
+                  <rect x="-30" y="-50" width="6" height="40" fill="url(#speedlines)"/>
+                  <rect x="24" y="-50" width="6" height="40" fill="url(#speedlines)"/>
+                  <!-- carrocería -->
+                  <rect x="-22" y="-16" width="44" height="38" rx="6" fill="#3aa6ff"/>
+                  <rect x="-18" y="-12" width="36" height="14" fill="#000" opacity=".55"/>
+                  <rect x="-20" y="16" width="40" height="3" fill="#fff" opacity=".4"/>
+                  <circle cx="-15" cy="20" r="4" fill="#222"/>
+                  <circle cx="15" cy="20" r="4" fill="#222"/>
+                </g>
+                <!-- humo / particulas -->
+                <g fill="#FF4A1C" opacity=".7">
+                  <circle cx="385" cy="395" r="3"/>
+                  <circle cx="415" cy="400" r="2.5"/>
+                  <circle cx="375" cy="410" r="2"/>
+                  <circle cx="425" cy="412" r="2"/>
+                </g>
+              </svg>
+            </div>
+            <div class="scrim"></div>
+            <span class="float">Jugar →</span>
+          </div>
+        </a>
+        <div class="meta">
+          <h3>Carrera Loca</h3>
+          <span class="yr">2026</span>
+        </div>
+        <p>Endless racer top-down. Esquiva tráfico infinito, sube de nivel, bate tu récord. Más arriba pisas el acelerador, más rápido vas — y más fácil es pegársela. Tres vidas, cero excusas.</p>
+        <div class="genres">
+          <span>Arcade</span><span>Racing</span><span>Endless</span>
+          <a class="play-link" href="carrera-loca.html">Jugar ahora <span aria-hidden="true">→</span></a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── Jugar ahora (juego embebido) ───────────────────────────── -->
+<section id="jugar" class="featured" data-screen-label="03 Jugar">
+  <div class="wrap">
+
+    <div class="top-row">
+      <span class="badge"><span class="pulse"></span>Juega aquí mismo</span>
+      <div class="countdown">
+        <span>v0.7</span>
+        <span>·</span>
+        <b>Live</b>
+      </div>
+    </div>
+
+    <div class="featured-grid">
+      <div>
+        <h3>Carrera <em>Loca</em></h3>
+        <p class="lead">
+          Tráfico infinito, tres vidas, un coche azul. La pista no acaba: cuanto
+          más lejos llegas, más rápido va todo. Más arriba pisas, más rápido
+          vas, más fácil es pegársela. Sin tutoriales, sin menús: pulsa y corre.
+        </p>
+
+        <div class="specs">
+          <div class="spec"><div class="k">Género</div><div class="v">Arcade / Endless</div></div>
+          <div class="spec"><div class="k">Plataforma</div><div class="v">Navegador</div></div>
+          <div class="spec"><div class="k">Modo</div><div class="v">Infinito · vs IA</div></div>
+          <div class="spec"><div class="k">Récord</div><div class="v">Tu mejor marca</div></div>
+        </div>
+
+        <div class="actions">
+          <a class="btn primary" href="carrera-loca.html" target="_blank" rel="noopener">
+            Pantalla completa
+            <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="btn ghost" href="#juegos">Ver ficha</a>
+        </div>
+      </div>
+
+      <!-- Juego embebido -->
+      <div class="play-frame">
+        <span class="label"><span class="led"></span>CARRERA.LOCA // LIVE</span>
+        <iframe src="carrera-loca.html"
+                title="Carrera Loca"
+                loading="lazy"
+                allow="fullscreen"></iframe>
+        <div class="frame-foot">
+          <span>FPS 60</span>
+          <span>← → / A D · ↑ ↓ / W S</span>
+          <a href="carrera-loca.html" target="_blank" rel="noopener">↗ abrir</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Estudio ───────────────────────────────────────────────── -->
+<section id="estudio" class="studio" data-screen-label="04 Estudio">
+  <div class="wrap">
+    <div class="studio-grid">
+      <div>
+        <span class="eyebrow">// Sobre PoxStar</span>
+        <h2>Una <em>idea</em> obsesiva.</h2>
+      </div>
+      <div>
+        <p>
+          PoxStar es un estudio independiente autofinanciado. Publicamos a
+          nuestro propio ritmo, sin editor, sin presión de inversor.
+        </p>
+        <p>
+          No creemos en el crunch. Tampoco en los juegos como servicio. Creemos
+          en mecánicas que respetan tu tiempo y en que un buen videojuego
+          puede caber en una tarde de domingo — o en una partida de tres minutos.
+        </p>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="k">Fundado</div>
+            <div class="v">2026</div>
+          </div>
+          <div class="stat">
+            <div class="k">Publicados</div>
+            <div class="v">01<sup>★</sup></div>
+          </div>
+          <div class="stat">
+            <div class="k">Plataforma</div>
+            <div class="v">Web</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Community ─────────────────────────────────────────────── -->
+<section id="comunidad" class="community" data-screen-label="05 Comunidad">
+  <svg class="star-bg" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"
+          fill="#0F0F0F"/>
+  </svg>
+  <div class="wrap">
+    <div class="community-grid">
+
+      <div>
+        <span class="eyebrow">// Comunidad / 05</span>
+        <h2>Síguenos<br/>de <em>cerca</em>.</h2>
+      </div>
+
+      <div class="right">
+        <p>
+          Devlogs, prototipos, builds tempranas. Sin egos, sin moderación
+          tóxica, sin spoilers. Sólo lo que hacemos y por qué lo hacemos.
+        </p>
+
+        <div class="channels">
+          <div class="channel">
+            <span class="name">discord.gg/poxstar</span>
+            <span class="members">Servidor · activo</span>
+          </div>
+          <div class="channel">
+            <span class="name">@poxstar_studio</span>
+            <span class="members">Devlogs · semanales</span>
+          </div>
+        </div>
+
+        <p style="margin-top:8px">O suscríbete al boletín de domingo:</p>
+        <form class="subscribe" onsubmit="event.preventDefault(); this.querySelector('button').textContent='✓ apuntado'; this.querySelector('button').style.background='#0F0F0F';">
+          <input type="email" placeholder="tu@correo.com" required />
+          <button type="submit">suscribir</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ────────────────────────────────────────────────── -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="big-mark">
+      poxs<span class="star" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z" fill="var(--paper)"/></svg>
+      </span>tar
+    </div>
+
+    <div class="foot-top">
+      <div class="foot-col">
+        <h4>Estudio</h4>
+        <p style="margin:0 0 12px;font-size:14px;line-height:1.5;max-width:36ch;
+          color:color-mix(in srgb,var(--ink) 70%, transparent)">
+          Hacemos juegos pequeños con ideas grandes.
+        </p>
+        <p style="margin:0;font-size:14px;font-weight:500">hola@poxstar.studio</p>
+      </div>
+      <div class="foot-col">
+        <h4>Juegos</h4>
+        <ul>
+          <li><a href="carrera-loca.html">Carrera Loca</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Estudio</h4>
+        <ul>
+          <li><a href="#estudio">Sobre PoxStar</a></li>
+          <li><a href="#comunidad">Comunidad</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Síguenos</h4>
+        <ul>
+          <li><a href="#">Discord</a></li>
+          <li><a href="#">Bluesky</a></li>
+          <li><a href="#">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <span>© 2026 PoxStar Studio</span>
+      <span>v0.7.2</span>
+      <span>Privacidad / Cookies</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ─── Reveal observer ───────────────────────────────────────── -->
+<script>
+(function(){
+  if (!('IntersectionObserver' in window)) {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:.15, rootMargin:'0px 0px -10% 0px'});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+})();
+</script>
+
+<!-- ─── Tweaks ────────────────────────────────────────────────── -->
+<div id="tweaks-root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="tweaks.jsx"></script>
+
+</body>
+</html>
