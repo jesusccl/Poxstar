@@ -1,10 +1,10 @@
 # PoxStar 🌟
 
-Página oficial de **PoxStar**, estudio indie de videojuegos. Sitio estático servido desde GitHub Pages, incluye nuestro juego *Carrera Loca* embebido y jugable.
+Página oficial de **PoxStar**, estudio indie de videojuegos. Sitio estático servido desde GitHub Pages, incluye nuestro juego *Furious Cars 1* embebido y jugable.
 
 ## 🎮 Juego incluido
 
-**Carrera Loca** — Endless racer top-down. Tres vidas, tráfico infinito, récord persistente.
+**Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito, récord persistente.
 
 - ← → / A D — moverse lateral
 - ↑ ↓ / W S — adelantar/frenar (más arriba = más rápido)
@@ -16,7 +16,7 @@ Página oficial de **PoxStar**, estudio indie de videojuegos. Sitio estático se
 ```
 .
 ├── index.html          # Página principal de PoxStar
-├── carrera-loca.html   # Juego (standalone, también embebido en index)
+├── furious-cars.html   # Juego (standalone, también embebido en index)
 ├── tweaks.jsx          # Lógica del panel de tweaks
 ├── tweaks-panel.jsx    # Componente UI del panel
 ├── .nojekyll           # Desactiva Jekyll en GitHub Pages
@@ -79,4 +79,4 @@ Luego abre `http://localhost:8000`.
 ## 📝 Licencia
 
 Código del sitio: MIT.
-Carrera Loca: © PoxStar 2026.
+Furious Cars 1: © PoxStar 2026.
