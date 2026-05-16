@@ -140,6 +140,68 @@
   }
   #muteBtn:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
   #muteBtn.muted { color: #ff5555; }
+  #pauseBtn {
+    position: absolute;
+    bottom: 10px; left: 56px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.15s, transform 0.15s;
+    display: none;
+  }
+  #pauseBtn:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
+  #pauseBtn.visible { display: block; }
+  #pauseOverlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    background: rgba(0,0,0,0.86);
+    border-radius: 8px;
+    z-index: 20;
+    padding: 20px;
+  }
+  #pauseOverlay h2 {
+    font-size: 44px;
+    color: #ffaa00;
+    text-shadow: 0 0 15px #ffaa00;
+    margin: 0 0 14px;
+    letter-spacing: 4px;
+    font-weight: bold;
+  }
+  #pauseOverlay .pause-stats {
+    color: #fff;
+    opacity: 0.7;
+    margin-bottom: 26px;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+  }
+  .pause-action {
+    margin: 5px;
+    padding: 12px 30px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    font-weight: bold;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    min-width: 180px;
+  }
+  .pause-action:hover {
+    background: #ff3838;
+    border-color: #ff3838;
+    transform: scale(1.04);
+  }
+  .pause-action.primary { background: #ff3838; border-color: #ff3838; }
+  .pause-action.primary:hover { background: #ff5555; }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -158,6 +220,13 @@
     <div class="best-value"><span id="best">0</span> m</div>
   </div>
   <button id="muteBtn" title="Mute (M)" aria-label="Mute">🔊</button>
+  <button id="pauseBtn" title="Pause (P / ESC)" aria-label="Pause">⏸</button>
+  <div id="pauseOverlay" class="hidden">
+    <h2>PAUSED</h2>
+    <p id="pauseStats" class="pause-stats"></p>
+    <button class="pause-action primary" id="resumeBtn" type="button">▶ RESUME</button>
+    <button class="pause-action" id="quitBtn" type="button">⌂ EXIT TO MENU</button>
+  </div>
   <div id="overlay">
     <h1 id="title">FURIOUS CARS 1</h1>
     <p id="msg">Endless mode. Survive as long as you can.</p>
@@ -165,6 +234,7 @@
     <p class="controls">← → / A D to steer</p>
     <p class="controls">↑ ↓ / W S — higher = faster</p>
     <p class="controls">📱 Mobile: drag your finger (higher = faster)</p>
+    <p class="controls">⏸ ESC / P — pause &amp; exit</p>
     <div class="color-picker">
       <span class="label">CAR COLOR</span>
       <div class="color-swatches" id="swatches"></div>
@@ -496,6 +566,8 @@ function startGame() {
   reset();
   overlay.classList.add('hidden');
   extraEl.classList.add('hidden');
+  pauseOverlay.classList.add('hidden');
+  pauseBtn.classList.add('visible');
   gameState = 'countdown';
   Sound.startEngine();
   countdownStep(3);
@@ -624,7 +696,7 @@ function checkCollisions() {
 }
 
 function update(dt) {
-  if (gameState === 'idle' || gameState === 'gameover') return;
+  if (gameState === 'idle' || gameState === 'gameover' || gameState === 'paused') return;
 
   updatePlayer();
   for (const r of rivals) updateRival(r);
@@ -849,6 +921,7 @@ function showOverlay(title, msg, btn, extra) {
 
 function endRun() {
   Sound.stopEngine();
+  pauseBtn.classList.remove('visible');
   setTimeout(() => {
     const distance = Math.floor(player.worldY / 10);
     const isRecord = distance > bestScore;
@@ -892,12 +965,77 @@ muteBtn.addEventListener('click', () => {
   refreshMuteUI();
 });
 
+// Pause / Resume / Exit
+const pauseBtn = document.getElementById('pauseBtn');
+const pauseOverlay = document.getElementById('pauseOverlay');
+const pauseStats = document.getElementById('pauseStats');
+const resumeBtn = document.getElementById('resumeBtn');
+const quitBtn = document.getElementById('quitBtn');
+
+function pauseGame() {
+  if (gameState !== 'racing' && gameState !== 'countdown') return;
+  gameState = 'paused';
+  Sound.stopEngine();
+  const distance = player ? Math.floor(player.worldY / 10) : 0;
+  pauseStats.textContent = `Distance: ${distance} m · Level ${level}`;
+  pauseOverlay.classList.remove('hidden');
+}
+
+function resumeGame() {
+  if (gameState !== 'paused') return;
+  gameState = 'racing';
+  pauseOverlay.classList.add('hidden');
+  // Clear any stuck input keys before resuming
+  for (const k of ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown']) keys[k] = false;
+  Sound.startEngine();
+}
+
+function exitToMenu() {
+  Sound.stopEngine();
+  pauseOverlay.classList.add('hidden');
+  pauseBtn.classList.remove('visible');
+  reset();
+  // Show start overlay
+  titleEl.textContent = 'FURIOUS CARS 1';
+  msgEl.textContent = 'Endless mode. Survive as long as you can.';
+  startBtn.textContent = 'START';
+  extraEl.classList.add('hidden');
+  extraEl.classList.remove('new-record');
+  overlay.classList.remove('hidden');
+}
+
+pauseBtn.addEventListener('click', () => {
+  Sound.resume();
+  Sound.uiClick();
+  pauseGame();
+});
+resumeBtn.addEventListener('click', () => {
+  Sound.resume();
+  Sound.uiClick();
+  resumeGame();
+});
+quitBtn.addEventListener('click', () => {
+  Sound.resume();
+  Sound.uiClick();
+  exitToMenu();
+});
+
 document.addEventListener('keydown', e => {
   keys[e.key] = true;
   if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
   if (e.key === 'm' || e.key === 'M') {
     Sound.toggleMute();
     refreshMuteUI();
+  }
+  if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+    e.preventDefault();
+    if (gameState === 'racing' || gameState === 'countdown') {
+      Sound.uiClick();
+      pauseGame();
+    } else if (gameState === 'paused') {
+      Sound.uiClick();
+      resumeGame();
+    }
   }
 });
 document.addEventListener('keyup', e => { keys[e.key] = false; });
