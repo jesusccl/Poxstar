@@ -277,6 +277,13 @@ html[data-motion="0"] .featured .badge .pulse{animation:none}
   animation:pulse 1.4s ease-in-out infinite;vertical-align:middle}
 .featured .play-frame iframe{display:block;width:100%;
   aspect-ratio:2/3;border:0;background:#0a0a0a}
+@media (max-width:720px){
+  .featured .play-frame iframe{
+    aspect-ratio:auto;
+    height:62vh;
+    max-height:560px
+  }
+}
 .featured .play-frame .frame-foot{display:flex;justify-content:space-between;
   padding:10px 18px;font-family:var(--font-mono);font-size:10.5px;
   letter-spacing:.14em;text-transform:uppercase;color:#fff;opacity:.55;
