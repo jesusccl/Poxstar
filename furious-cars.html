@@ -225,7 +225,7 @@
     <h2>PAUSED</h2>
     <p id="pauseStats" class="pause-stats"></p>
     <button class="pause-action primary" id="resumeBtn" type="button">▶ RESUME</button>
-    <button class="pause-action" id="quitBtn" type="button">⌂ EXIT TO MENU</button>
+    <button class="pause-action" id="quitBtn" type="button">🏠 EXIT TO MAIN PAGE</button>
   </div>
   <div id="overlay">
     <h1 id="title">FURIOUS CARS 1</h1>
@@ -990,12 +990,31 @@ function resumeGame() {
   Sound.startEngine();
 }
 
-function exitToMenu() {
+function exitToMainPage() {
   Sound.stopEngine();
   pauseOverlay.classList.add('hidden');
   pauseBtn.classList.remove('visible');
+
+  const embedded = window.self !== window.top;
+
+  if (!embedded) {
+    // Standalone — navigate straight to the main page
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // Embedded in PoxStar — scroll the parent page to its top (back to hero)
+  let scrolled = false;
+  try {
+    window.parent.scrollTo({ top: 0, behavior: 'smooth' });
+    scrolled = true;
+  } catch (e) {
+    // Cross-origin fallback: replace top window with the main page
+    try { window.top.location.href = 'index.html'; return; } catch (e2) {}
+  }
+
+  // Reset overlay to start screen so the game is fresh if they come back
   reset();
-  // Show start overlay
   titleEl.textContent = 'FURIOUS CARS 1';
   msgEl.textContent = 'Endless mode. Survive as long as you can.';
   startBtn.textContent = 'START';
@@ -1017,7 +1036,7 @@ resumeBtn.addEventListener('click', () => {
 quitBtn.addEventListener('click', () => {
   Sound.resume();
   Sound.uiClick();
-  exitToMenu();
+  exitToMainPage();
 });
 
 document.addEventListener('keydown', e => {
