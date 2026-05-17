@@ -125,6 +125,41 @@
     box-shadow: 0 0 12px currentColor, 0 0 0 2px rgba(255,255,255,0.4) inset;
     transform: scale(1.15);
   }
+  .mode-picker {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .mode-picker .label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    opacity: 0.55;
+  }
+  .mode-options {
+    display: flex;
+    gap: 8px;
+  }
+  .mode-btn {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.25);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mode-btn:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
+  .mode-btn.active {
+    background: #ff3838;
+    border-color: #ff3838;
+    box-shadow: 0 0 14px rgba(255,56,56,0.5);
+  }
   #muteBtn {
     position: absolute;
     bottom: 10px; left: 10px;
@@ -156,6 +191,26 @@
   }
   #pauseBtn:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
   #pauseBtn.visible { display: block; }
+  #carBtn {
+    position: absolute;
+    bottom: 56px; right: 10px;
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.15s, transform 0.15s;
+    display: none;
+  }
+  #carBtn:hover { background: rgba(0,0,0,0.85); transform: scale(1.05); }
+  #carBtn.visible { display: block; }
+  #carBtn.disabled { opacity: 0.5; cursor: not-allowed; }
   #pauseOverlay {
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
@@ -221,6 +276,7 @@
   </div>
   <button id="muteBtn" title="Mute (M)" aria-label="Mute">🔊</button>
   <button id="pauseBtn" title="Pause (P / ESC)" aria-label="Pause">⏸</button>
+  <button id="carBtn" title="Exit / Enter car (E)" aria-label="Toggle car">🚪 EXIT CAR</button>
   <div id="pauseOverlay" class="hidden">
     <h2>PAUSED</h2>
     <p id="pauseStats" class="pause-stats"></p>
@@ -235,6 +291,13 @@
     <p class="controls">↑ ↓ / W S — higher = faster</p>
     <p class="controls">📱 Mobile: drag your finger (higher = faster)</p>
     <p class="controls">⏸ ESC / P — pause &amp; exit</p>
+    <div class="mode-picker">
+      <span class="label">GAME MODE</span>
+      <div class="mode-options">
+        <button class="mode-btn" data-mode="race" id="modeRace" type="button">🏁 RACE</button>
+        <button class="mode-btn" data-mode="free" id="modeFree" type="button">🌴 FREE ROAM</button>
+      </div>
+    </div>
     <div class="color-picker">
       <span class="label">CAR COLOR</span>
       <div class="color-swatches" id="swatches"></div>
@@ -503,6 +566,72 @@ function buildSwatches() {
 }
 buildSwatches();
 
+// ─── Game mode (race / free) ──────────────────────────────────
+let gameMode;
+try { gameMode = localStorage.getItem('furiousCarsMode') || 'race'; }
+catch (e) { gameMode = 'race'; }
+if (gameMode !== 'race' && gameMode !== 'free') gameMode = 'race';
+
+const modeRaceBtn = document.getElementById('modeRace');
+const modeFreeBtn = document.getElementById('modeFree');
+function refreshModeButtons() {
+  modeRaceBtn.classList.toggle('active', gameMode === 'race');
+  modeFreeBtn.classList.toggle('active', gameMode === 'free');
+  // Update description based on mode
+  if (gameMode === 'free') {
+    msgEl.textContent = 'Explore the city and the beach. Avoid the sea!';
+  } else {
+    msgEl.textContent = 'Endless mode. Survive as long as you can.';
+  }
+}
+refreshModeButtons();
+function pickMode(mode) {
+  if (mode !== 'race' && mode !== 'free') return;
+  gameMode = mode;
+  try { localStorage.setItem('furiousCarsMode', mode); } catch (e) {}
+  refreshModeButtons();
+  Sound.resume();
+  Sound.uiClick();
+}
+modeRaceBtn.addEventListener('click', () => pickMode('race'));
+modeFreeBtn.addEventListener('click', () => pickMode('free'));
+
+// ─── Free-roam world definition ───────────────────────────────
+const FREE_WORLD = (() => {
+  const buildings = [];
+  // City grid: 4 cols × 3 rows of buildings
+  const palette = ['#5a5a6a', '#6a5a5a', '#5a6a5a', '#7a6a5a', '#6a5a7a', '#5a7a6a', '#7a7a5a'];
+  const cityStartX = -1100, cityStartY = -400;
+  const blockSize = 230, bldgSize = 140;
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 3; j++) {
+      const x = cityStartX + i * blockSize + (blockSize - bldgSize) / 2;
+      const y = cityStartY + j * blockSize + (blockSize - bldgSize) / 2;
+      const seed = i * 11 + j * 23 + 7;
+      buildings.push({
+        x, y, w: bldgSize, h: bldgSize,
+        color: palette[seed % palette.length],
+        seed
+      });
+    }
+  }
+  return {
+    buildings,
+    roadHoriz: { x: -250, y: -45, w: 500, h: 90 },
+    sand:  { x: 250, y: -800, w: 480, h: 1600 },
+    water: { x: 730, y: -1200, w: 2000, h: 2400 },
+    palms: [
+      { x: 320, y: -550 }, { x: 380, y: 460 }, { x: 450, y: 300 },
+      { x: 540, y: -320 }, { x: 580, y: 180 }, { x: 630, y: -80 },
+      { x: 360, y: 60 }, { x: 480, y: 540 }, { x: 620, y: 420 }
+    ]
+  };
+})();
+
+function pointInRect(x, y, r) {
+  return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+}
+
 const keyLeft  = () => keys['ArrowLeft']  || keys['a'] || keys['A'];
 const keyRight = () => keys['ArrowRight'] || keys['d'] || keys['D'];
 const keyUp    = () => keys['ArrowUp']    || keys['w'] || keys['W'];
@@ -537,6 +666,7 @@ function spawnInitialRivals() {
 }
 
 function reset() {
+  if (gameMode === 'free') { resetFree(); return; }
   player = {
     x: W * 0.5,
     y: PLAYER_BASE_Y,
@@ -560,6 +690,28 @@ function reset() {
   spawnInitialRivals();
 }
 
+function resetFree() {
+  player = {
+    worldX: 0, worldY: 0,
+    vx: 0, vy: 0,
+    angle: 0,
+    bobOffset: 0,
+    stuck: false,
+    onFoot: false,
+    carWorldX: 0, carWorldY: 0, carAngle: 0,
+    color: playerColor, name: 'YOU',
+    isPlayer: true,
+    w: 38, h: 60
+  };
+  rivals = [];
+  smoke = [];
+  particles = [];
+  level = 1;
+  shake = 0;
+  countdownState = null;
+  gameState = 'idle';
+}
+
 function startGame() {
   Sound.resume();
   Sound.uiClick();
@@ -568,9 +720,25 @@ function startGame() {
   extraEl.classList.add('hidden');
   pauseOverlay.classList.add('hidden');
   pauseBtn.classList.add('visible');
-  gameState = 'countdown';
-  Sound.startEngine();
-  countdownStep(3);
+  const hudEl = document.getElementById('hud');
+  const sbEl = document.getElementById('scorebox');
+  const carBtnEl = document.getElementById('carBtn');
+  if (gameMode === 'free') {
+    hudEl.style.display = 'none';
+    sbEl.style.display = 'none';
+    carBtnEl.classList.add('visible');
+    carBtnEl.textContent = '🚪 EXIT CAR';
+    carBtnEl.classList.remove('disabled');
+    gameState = 'free';
+    Sound.startEngine();
+  } else {
+    hudEl.style.display = '';
+    sbEl.style.display = '';
+    carBtnEl.classList.remove('visible');
+    gameState = 'countdown';
+    Sound.startEngine();
+    countdownStep(3);
+  }
 }
 
 function countdownStep(val) {
@@ -696,7 +864,9 @@ function checkCollisions() {
 }
 
 function update(dt) {
-  if (gameState === 'idle' || gameState === 'gameover' || gameState === 'paused') return;
+  if (gameState === 'idle' || gameState === 'gameover' || gameState === 'paused' || gameState === 'stuck') return;
+
+  if (gameState === 'free') { updateFree(dt); return; }
 
   updatePlayer();
   for (const r of rivals) updateRival(r);
@@ -725,6 +895,229 @@ function update(dt) {
   speedEl.textContent = Math.round(player.vel * 30);
   levelEl.textContent = level;
   scoreEl.textContent = Math.floor(player.worldY / 10);
+}
+
+function updateFree(dt) {
+  const p = player;
+  const onFoot = p.onFoot;
+
+  // Different physics for car vs walking
+  const accel    = onFoot ? 0.28 : 0.4;
+  const friction = onFoot ? 0.78 : 0.90;
+  const maxVel   = onFoot ? 2.8  : 5.5;
+
+  let ax = 0, ay = 0;
+  if (keyLeft())  ax -= accel;
+  if (keyRight()) ax += accel;
+  if (keyUp())    ay -= accel;
+  if (keyDown()) ay += accel;
+
+  p.vx += ax;
+  p.vy += ay;
+  p.vx *= friction;
+  p.vy *= friction;
+
+  const speed = Math.hypot(p.vx, p.vy);
+  if (speed > maxVel) {
+    p.vx = p.vx / speed * maxVel;
+    p.vy = p.vy / speed * maxVel;
+  }
+
+  // Smoothly rotate toward movement direction
+  if (speed > (onFoot ? 0.2 : 0.4)) {
+    const targetAngle = Math.atan2(p.vy, p.vx) + Math.PI / 2;
+    let diff = targetAngle - p.angle;
+    while (diff > Math.PI) diff -= 2 * Math.PI;
+    while (diff < -Math.PI) diff += 2 * Math.PI;
+    p.angle += diff * (onFoot ? 0.3 : 0.18);
+  }
+
+  // Try to move with axis-separated building collision (allows sliding)
+  // Person has a smaller collision box than the car
+  const halfW = onFoot ? 8  : 18;
+  const halfH = onFoot ? 10 : 28;
+  let newX = p.worldX + p.vx;
+  let newY = p.worldY + p.vy;
+
+  for (const b of FREE_WORLD.buildings) {
+    if (newX + halfW > b.x && newX - halfW < b.x + b.w &&
+        p.worldY + halfH > b.y && p.worldY - halfH < b.y + b.h) {
+      newX = p.worldX; p.vx *= -0.25;
+    }
+    if (newX + halfW > b.x && newX - halfW < b.x + b.w &&
+        newY + halfH > b.y && newY - halfH < b.y + b.h) {
+      newY = p.worldY; p.vy *= -0.25;
+    }
+  }
+  p.worldX = newX;
+  p.worldY = newY;
+
+  // Engine sound (only when in car)
+  if (!onFoot) {
+    Sound.setEngineSpeed(speed / maxVel);
+
+    // Smoke from exhaust if moving
+    if (speed > 1.2 && Math.random() < 0.35) {
+      smoke.push({
+        worldX: p.worldX - Math.sin(p.angle) * 28,
+        worldY: p.worldY + Math.cos(p.angle) * 28,
+        life: 35,
+        size: 4 + Math.random() * 3,
+        world: true
+      });
+    }
+  }
+
+  // Update smoke (in world coords)
+  for (const s of smoke) {
+    if (s.world) { s.life--; s.size += 0.15; }
+  }
+  smoke = smoke.filter(s => s.life > 0);
+
+  // Water check — car drowns, person drowns
+  if (pointInRect(p.worldX, p.worldY, FREE_WORLD.water)) {
+    p.stuck = true;
+    p.vx = 0; p.vy = 0;
+    gameState = 'stuck';
+    pauseBtn.classList.remove('visible');
+    document.getElementById('carBtn').classList.remove('visible');
+    Sound.stopEngine();
+    Sound.crash();
+    // Splash particles
+    for (let i = 0; i < 16; i++) {
+      particles.push({
+        worldX: p.worldX, worldY: p.worldY,
+        vx: (Math.random() - 0.5) * 8,
+        vy: (Math.random() - 0.5) * 8 - 2,
+        life: 40, size: 3 + Math.random() * 3,
+        color: i % 2 ? '#aaccff' : '#ffffff',
+        world: true
+      });
+    }
+    setTimeout(() => {
+      const wasOnFoot = onFoot;
+      Sound.gameOver();
+      const title = wasOnFoot ? '🌊 GLUB GLUB!' : '🌊 SPLASH!';
+      const msg = wasOnFoot
+        ? 'You walked into the sea. You can\'t swim that far!'
+        : 'Engine flooded. The car won\'t move anymore.';
+      const extra = `Reached (${Math.round(player.worldX)}, ${Math.round(player.worldY)})`;
+      showOverlay(title, msg, '🔄 RETRY', extra);
+    }, 1400);
+  }
+
+  // Update particles (water splash)
+  for (const pt of particles) {
+    if (pt.world) {
+      pt.worldX += pt.vx; pt.worldY += pt.vy;
+      pt.vy += 0.25;
+      pt.life--;
+    }
+  }
+  particles = particles.filter(pt => pt.life > 0);
+
+  // Refresh car/foot UI button state (proximity may have changed)
+  updateCarBtn();
+}
+
+function showStuckOverlay() {
+  Sound.gameOver();
+  const title = '🌊 SPLASH!';
+  const msg = 'Engine flooded. The car won\'t move anymore.';
+  const extra = `Reached (${Math.round(player.worldX)}, ${Math.round(player.worldY)})`;
+  showOverlay(title, msg, '🔄 RETRY', extra);
+}
+
+function exitCar() {
+  if (!player || gameState !== 'free' || player.onFoot || player.stuck) return false;
+  // Remember where the car is parked
+  player.carWorldX = player.worldX;
+  player.carWorldY = player.worldY;
+  player.carAngle = player.angle;
+  // Place the person on the left side of the car (driver door)
+  const sideAngle = player.angle - Math.PI / 2;
+  player.worldX += Math.cos(sideAngle) * 32;
+  player.worldY += Math.sin(sideAngle) * 32;
+  player.vx = 0; player.vy = 0;
+  player.onFoot = true;
+  Sound.stopEngine();
+  Sound.uiClick();
+  updateCarBtn();
+  return true;
+}
+
+function isNearCar() {
+  if (!player || !player.onFoot) return false;
+  const dx = player.worldX - player.carWorldX;
+  const dy = player.worldY - player.carWorldY;
+  return Math.hypot(dx, dy) < 60;
+}
+
+function enterCar() {
+  if (!player || gameState !== 'free' || !player.onFoot) return false;
+  if (!isNearCar()) return false;
+  player.worldX = player.carWorldX;
+  player.worldY = player.carWorldY;
+  player.angle = player.carAngle;
+  player.vx = 0; player.vy = 0;
+  player.onFoot = false;
+  Sound.startEngine();
+  Sound.uiClick();
+  updateCarBtn();
+  return true;
+}
+
+function toggleCar() {
+  if (!player || gameState !== 'free') return;
+  if (player.onFoot) enterCar();
+  else exitCar();
+}
+
+function updateCarBtn() {
+  const btn = document.getElementById('carBtn');
+  if (gameState !== 'free') {
+    btn.classList.remove('visible');
+    return;
+  }
+  btn.classList.add('visible');
+  if (player.onFoot) {
+    btn.textContent = '🚗 ENTER CAR';
+    btn.classList.toggle('disabled', !isNearCar());
+  } else {
+    btn.textContent = '🚪 EXIT CAR';
+    btn.classList.remove('disabled');
+  }
+}
+
+function drawPersonLocal(shirtColor) {
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.beginPath();
+  ctx.ellipse(2, 3, 10, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Body (shirt)
+  ctx.fillStyle = shirtColor;
+  ctx.fillRect(-7, -4, 14, 16);
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.fillRect(-7, -4, 14, 3); // collar shadow
+  // Arms (slightly darker than shirt)
+  ctx.fillStyle = shirtColor;
+  ctx.fillRect(-10, -2, 3, 8);
+  ctx.fillRect(7, -2, 3, 8);
+  // Head (skin)
+  ctx.fillStyle = '#dba87a';
+  ctx.beginPath();
+  ctx.arc(0, -7, 5.5, 0, Math.PI * 2);
+  ctx.fill();
+  // Hair (back of head)
+  ctx.fillStyle = '#2a1a0a';
+  ctx.beginPath();
+  ctx.arc(0, -9, 5.5, Math.PI, 2 * Math.PI);
+  ctx.fill();
+  // Feet (dark dots)
+  ctx.fillStyle = '#1a1208';
+  ctx.fillRect(-5, 11, 4, 4);
+  ctx.fillRect(1, 11, 4, 4);
 }
 
 function drawRoad() {
@@ -858,7 +1251,270 @@ function drawCountdown() {
   ctx.restore();
 }
 
+function drawCarLocal(color, stuck = false) {
+  const w = 38, h = 60;
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(-w/2 + 3, -h/2 + 4, w, h);
+  // Body
+  ctx.fillStyle = color;
+  ctx.fillRect(-w/2, -h/2, w, h);
+  // Side highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.fillRect(-w/2 + 2, -h/2 + 2, 4, h - 4);
+  // Windshields
+  ctx.fillStyle = '#1a2a3a';
+  ctx.fillRect(-w/2 + 5, -h/2 + 8, w - 10, 14);
+  ctx.fillRect(-w/2 + 5, h/2 - 22, w - 10, 14);
+  // Center line
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(-1, -h/2 + 24, 2, h - 48);
+  // Headlights
+  ctx.fillStyle = '#ffff88';
+  ctx.fillRect(-w/2 + 4, -h/2 - 1, 6, 4);
+  ctx.fillRect(w/2 - 10, -h/2 - 1, 6, 4);
+  // Tail lights
+  ctx.fillStyle = '#ff3333';
+  ctx.fillRect(-w/2 + 4, h/2 - 3, 6, 3);
+  ctx.fillRect(w/2 - 10, h/2 - 3, 6, 3);
+  // Wheels
+  ctx.fillStyle = '#000';
+  ctx.fillRect(-w/2 - 3, -h/2 + 6, 4, 12);
+  ctx.fillRect(w/2 - 1, -h/2 + 6, 4, 12);
+  ctx.fillRect(-w/2 - 3, h/2 - 18, 4, 12);
+  ctx.fillRect(w/2 - 1, h/2 - 18, 4, 12);
+  // Stuck-in-water visual
+  if (stuck) {
+    ctx.fillStyle = 'rgba(80,160,220,0.55)';
+    ctx.beginPath();
+    ctx.ellipse(0, h * 0.1, w * 0.95, h * 0.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawFree() {
+  const p = player;
+  const tNow = performance.now() / 1000;
+
+  // Grass background
+  ctx.fillStyle = '#3a5a3a';
+  ctx.fillRect(0, 0, W, H);
+  // Static grass speckles (relative to camera, gives parallax feel)
+  ctx.fillStyle = '#2a4a2a';
+  for (let i = 0; i < 40; i++) {
+    const gx = ((i * 173) - p.worldX * 0.4) % (W + 60);
+    const gy = ((i * 271) - p.worldY * 0.4) % (H + 60);
+    const x = gx < 0 ? gx + W + 60 : gx;
+    const y = gy < 0 ? gy + H + 60 : gy;
+    ctx.fillRect(x - 30, y - 30, 4, 4);
+  }
+
+  // Camera follows player (player ends up at canvas center)
+  ctx.save();
+  ctx.translate(W/2 - p.worldX, H/2 - p.worldY);
+
+  // Sand zone
+  const s = FREE_WORLD.sand;
+  ctx.fillStyle = '#e8d29a';
+  ctx.fillRect(s.x, s.y, s.w, s.h);
+  // Sand texture dots
+  ctx.fillStyle = '#d0b878';
+  for (let i = 0; i < 120; i++) {
+    const sx = s.x + ((i * 137) % s.w);
+    const sy = s.y + ((i * 211) % s.h);
+    ctx.fillRect(sx, sy, 3, 3);
+  }
+
+  // Water zone
+  const wz = FREE_WORLD.water;
+  ctx.fillStyle = '#1a6bb5';
+  ctx.fillRect(wz.x, wz.y, wz.w, wz.h);
+  // Deeper blue further from shore
+  const grad = ctx.createLinearGradient(wz.x, 0, wz.x + 400, 0);
+  grad.addColorStop(0, 'rgba(26,107,181,0)');
+  grad.addColorStop(1, 'rgba(10,60,120,0.7)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(wz.x, wz.y, wz.w, wz.h);
+  // Animated wave lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < 24; i++) {
+    const wy = wz.y + ((i * 90 + tNow * 25) % wz.h);
+    ctx.moveTo(wz.x, wy);
+    for (let xi = 0; xi < wz.w; xi += 30) {
+      ctx.lineTo(wz.x + xi, wy + Math.sin(xi * 0.04 + tNow * 1.8 + i) * 4);
+    }
+  }
+  ctx.stroke();
+  // Foam at the beach edge
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  for (let y = wz.y; y < wz.y + wz.h; y += 14) {
+    const xOff = Math.sin(y * 0.05 + tNow * 3) * 3;
+    ctx.fillRect(wz.x - 2 + xOff, y, 6, 8);
+  }
+
+  // Connector road
+  const r = FREE_WORLD.roadHoriz;
+  ctx.fillStyle = '#3a3a3a';
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(r.x, r.y, r.w, 3);
+  ctx.fillRect(r.x, r.y + r.h - 3, r.w, 3);
+  for (let lx = r.x; lx < r.x + r.w; lx += 40) {
+    ctx.fillRect(lx, r.y + r.h/2 - 2, 20, 4);
+  }
+
+  // Buildings (skip off-screen for perf)
+  const viewMinX = p.worldX - W/2 - 20, viewMaxX = p.worldX + W/2 + 20;
+  const viewMinY = p.worldY - H/2 - 20, viewMaxY = p.worldY + H/2 + 20;
+  for (const b of FREE_WORLD.buildings) {
+    if (b.x > viewMaxX || b.x + b.w < viewMinX || b.y > viewMaxY || b.y + b.h < viewMinY) continue;
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(b.x + 6, b.y + 6, b.w, b.h);
+    // Body
+    ctx.fillStyle = b.color;
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    // Roof darker stripe
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(b.x, b.y, b.w, 10);
+    // Windows
+    const winW = 14, winH = 18, stepX = 26, stepY = 30;
+    for (let wy = b.y + 18; wy < b.y + b.h - 14; wy += stepY) {
+      for (let wx = b.x + 12; wx < b.x + b.w - 12; wx += stepX) {
+        const hash = (wx * 31 + wy * 17 + b.seed) >>> 0;
+        const lit = (hash % 4) !== 0;
+        ctx.fillStyle = lit ? '#ffeb88' : '#1a1a1a';
+        ctx.fillRect(wx, wy, winW, winH);
+      }
+    }
+    // Door
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(b.x + b.w/2 - 8, b.y + b.h - 22, 16, 22);
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(b.x + b.w/2 + 4, b.y + b.h - 13, 2, 2);
+  }
+
+  // Palm trees on the beach
+  for (const t of FREE_WORLD.palms) {
+    if (t.x < viewMinX - 30 || t.x > viewMaxX + 30 || t.y < viewMinY - 30 || t.y > viewMaxY + 30) continue;
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath();
+    ctx.ellipse(t.x + 4, t.y + 16, 22, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Trunk
+    ctx.fillStyle = '#6a4a2a';
+    ctx.fillRect(t.x - 4, t.y - 8, 8, 26);
+    // Leaves (gentle sway)
+    const sway = Math.sin(tNow * 1.4 + t.x * 0.01) * 2;
+    ctx.fillStyle = '#2a7a3a';
+    ctx.beginPath();
+    ctx.ellipse(t.x + sway, t.y - 12, 22, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1a5a2a';
+    ctx.beginPath();
+    ctx.ellipse(t.x - 10 + sway, t.y - 14, 13, 8, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(t.x + 10 + sway, t.y - 14, 13, 8, -0.4, 0, Math.PI * 2);
+    ctx.fill();
+    // Coconuts
+    ctx.fillStyle = '#3a2a1a';
+    ctx.beginPath();
+    ctx.arc(t.x - 5, t.y - 8, 3, 0, Math.PI * 2);
+    ctx.arc(t.x + 5, t.y - 6, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // World-space smoke
+  for (const sm of smoke) {
+    if (!sm.world) continue;
+    ctx.fillStyle = `rgba(180,180,180,${sm.life / 50})`;
+    ctx.beginPath();
+    ctx.arc(sm.worldX, sm.worldY, sm.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Draw parked car (only when player is on foot)
+  if (p.onFoot) {
+    ctx.save();
+    ctx.translate(p.carWorldX, p.carWorldY);
+    ctx.rotate(p.carAngle);
+    drawCarLocal(p.color, false);
+    ctx.restore();
+
+    // Halo when player is near the parked car (visual hint)
+    if (isNearCar()) {
+      const pulse = 0.5 + Math.sin(tNow * 4) * 0.3;
+      ctx.strokeStyle = `rgba(255,235,80,${pulse})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(p.carWorldX, p.carWorldY, 45, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  // Player car or person
+  if (p.stuck) p.bobOffset = Math.sin(tNow * 4) * 2;
+  ctx.save();
+  ctx.translate(p.worldX, p.worldY + (p.bobOffset || 0));
+  ctx.rotate(p.angle);
+  if (p.onFoot) {
+    drawPersonLocal(p.color);
+  } else {
+    drawCarLocal(p.color, p.stuck);
+  }
+  ctx.restore();
+
+  // Splash particles (water entry)
+  for (const pt of particles) {
+    if (!pt.world) continue;
+    ctx.fillStyle = pt.color || '#aaccff';
+    ctx.globalAlpha = Math.min(1, pt.life / 30);
+    ctx.beginPath();
+    ctx.arc(pt.worldX, pt.worldY, pt.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.restore(); // restore camera transform
+
+  // Compass / position indicator (screen space)
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(10, 10, 130, 56);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 10px monospace';
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'left';
+  ctx.fillText(p.onFoot ? '🚶 ON FOOT' : '🚗 IN CAR', 18, 14);
+  ctx.fillStyle = '#3aa6ff';
+  ctx.fillText(`X: ${Math.round(p.worldX)}`, 18, 28);
+  ctx.fillStyle = '#33dd55';
+  ctx.fillText(`Y: ${Math.round(p.worldY)}`, 18, 40);
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.font = '9px monospace';
+  ctx.fillText('[E] toggle car', 18, 53);
+
+  // Zone hint
+  let zone = 'GRASS';
+  if (p.worldX < -200 && p.worldY > -700 && p.worldY < 700) zone = '🏙 CITY';
+  else if (pointInRect(p.worldX, p.worldY, FREE_WORLD.sand)) zone = '🌴 BEACH';
+  else if (pointInRect(p.worldX, p.worldY, FREE_WORLD.water)) zone = '🌊 SEA';
+  else if (pointInRect(p.worldX, p.worldY, FREE_WORLD.roadHoriz)) zone = '🛣 ROAD';
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  const zoneText = zone;
+  ctx.font = 'bold 11px monospace';
+  const tw = ctx.measureText(zoneText).width;
+  ctx.fillRect(W - tw - 22, 10, tw + 16, 22);
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'left';
+  ctx.fillText(zoneText, W - tw - 14, 14);
+}
+
 function draw() {
+  if (gameState === 'free' || gameState === 'stuck') { drawFree(); return; }
   ctx.save();
   if (shake > 0) {
     ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
@@ -973,27 +1629,43 @@ const resumeBtn = document.getElementById('resumeBtn');
 const quitBtn = document.getElementById('quitBtn');
 
 function pauseGame() {
-  if (gameState !== 'racing' && gameState !== 'countdown') return;
+  if (gameState !== 'racing' && gameState !== 'countdown' && gameState !== 'free') return;
+  player._wasMode = gameState; // remember to restore
   gameState = 'paused';
   Sound.stopEngine();
-  const distance = player ? Math.floor(player.worldY / 10) : 0;
-  pauseStats.textContent = `Distance: ${distance} m · Level ${level}`;
+  document.getElementById('carBtn').classList.remove('visible');
+  const distance = player ? Math.floor((player.worldY || 0) / 10) : 0;
+  if (player && player._wasMode === 'free') {
+    pauseStats.textContent = `FREE ROAM · (${Math.round(player.worldX)}, ${Math.round(player.worldY)})`;
+  } else {
+    pauseStats.textContent = `Distance: ${distance} m · Level ${level}`;
+  }
   pauseOverlay.classList.remove('hidden');
 }
 
 function resumeGame() {
   if (gameState !== 'paused') return;
-  gameState = 'racing';
+  gameState = (player && player._wasMode === 'free') ? 'free' : 'racing';
   pauseOverlay.classList.add('hidden');
-  // Clear any stuck input keys before resuming
   for (const k of ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown']) keys[k] = false;
-  Sound.startEngine();
+  if (gameState === 'free' && player.onFoot) {
+    // stay silent while walking
+  } else {
+    Sound.startEngine();
+  }
+  if (gameState === 'free') {
+    document.getElementById('carBtn').classList.add('visible');
+    updateCarBtn();
+  }
 }
 
 function exitToMainPage() {
   Sound.stopEngine();
   pauseOverlay.classList.add('hidden');
   pauseBtn.classList.remove('visible');
+  document.getElementById('hud').style.display = '';
+  document.getElementById('scorebox').style.display = '';
+  document.getElementById('carBtn').classList.remove('visible');
 
   const embedded = window.self !== window.top;
 
@@ -1004,10 +1676,8 @@ function exitToMainPage() {
   }
 
   // Embedded in PoxStar — scroll the parent page to its top (back to hero)
-  let scrolled = false;
   try {
     window.parent.scrollTo({ top: 0, behavior: 'smooth' });
-    scrolled = true;
   } catch (e) {
     // Cross-origin fallback: replace top window with the main page
     try { window.top.location.href = 'index.html'; return; } catch (e2) {}
@@ -1016,7 +1686,7 @@ function exitToMainPage() {
   // Reset overlay to start screen so the game is fresh if they come back
   reset();
   titleEl.textContent = 'FURIOUS CARS 1';
-  msgEl.textContent = 'Endless mode. Survive as long as you can.';
+  refreshModeButtons(); // restore proper mode message
   startBtn.textContent = 'START';
   extraEl.classList.add('hidden');
   extraEl.classList.remove('new-record');
@@ -1039,6 +1709,11 @@ quitBtn.addEventListener('click', () => {
   exitToMainPage();
 });
 
+document.getElementById('carBtn').addEventListener('click', () => {
+  Sound.resume();
+  toggleCar();
+});
+
 document.addEventListener('keydown', e => {
   keys[e.key] = true;
   if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
@@ -1046,9 +1721,15 @@ document.addEventListener('keydown', e => {
     Sound.toggleMute();
     refreshMuteUI();
   }
+  if (e.key === 'e' || e.key === 'E') {
+    if (gameState === 'free') {
+      e.preventDefault();
+      toggleCar();
+    }
+  }
   if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
     e.preventDefault();
-    if (gameState === 'racing' || gameState === 'countdown') {
+    if (gameState === 'racing' || gameState === 'countdown' || gameState === 'free') {
       Sound.uiClick();
       pauseGame();
     } else if (gameState === 'paused') {
@@ -1073,11 +1754,16 @@ function applyTouchPos(clientX, clientY) {
   // 12px dead zone around the car to avoid jitter
   const dz = 12;
 
-  if (player) {
-    keys['ArrowLeft']  = x < player.x - dz;
-    keys['ArrowRight'] = x > player.x + dz;
-    keys['ArrowUp']    = y < player.y - dz;
-    keys['ArrowDown']  = y > player.y + dz;
+  // In free mode, the player is always rendered at canvas center
+  const isFreeMode = gameState === 'free' || gameState === 'stuck';
+  const refX = isFreeMode ? W / 2 : (player ? player.x : W / 2);
+  const refY = isFreeMode ? H / 2 : (player ? player.y : H / 2);
+
+  if (player || isFreeMode) {
+    keys['ArrowLeft']  = x < refX - dz;
+    keys['ArrowRight'] = x > refX + dz;
+    keys['ArrowUp']    = y < refY - dz;
+    keys['ArrowDown']  = y > refY + dz;
   } else {
     // Before first reset(): simple left/right fallback
     keys['ArrowLeft']  = x < W / 2;
