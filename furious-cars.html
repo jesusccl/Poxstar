@@ -211,6 +211,26 @@
   #carBtn:hover { background: rgba(0,0,0,0.85); transform: scale(1.05); }
   #carBtn.visible { display: block; }
   #carBtn.disabled { opacity: 0.5; cursor: not-allowed; }
+  #radioBtn {
+    position: absolute;
+    bottom: 56px; left: 10px;
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 7px 10px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.15s;
+    min-width: 96px;
+    text-align: center;
+  }
+  #radioBtn:hover { background: rgba(0,0,0,0.85); transform: translateY(-1px); }
+  #radioBtn.tuned { border-color: #ffaa00; box-shadow: 0 0 12px rgba(255,170,0,0.4); }
   #pauseOverlay {
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
@@ -273,10 +293,13 @@
     <div class="score-value"><span id="score">0</span> m</div>
     <div class="label" style="margin-top:6px">BEST</div>
     <div class="best-value"><span id="best">0</span> m</div>
+    <div class="label" style="margin-top:6px">NEXT META</div>
+    <div class="meta-value" style="color:#ffaa00;font-size:13px;font-weight:bold">🏁 <span id="metaDist">5000</span> m</div>
   </div>
   <button id="muteBtn" title="Mute (M)" aria-label="Mute">🔊</button>
   <button id="pauseBtn" title="Pause (P / ESC)" aria-label="Pause">⏸</button>
   <button id="carBtn" title="Exit / Enter car (E)" aria-label="Toggle car">🚪 EXIT CAR</button>
+  <button id="radioBtn" title="Radio (R) — tap to change station" aria-label="Radio">📻 OFF</button>
   <div id="pauseOverlay" class="hidden">
     <h2>PAUSED</h2>
     <p id="pauseStats" class="pause-stats"></p>
@@ -291,6 +314,7 @@
     <p class="controls">↑ ↓ / W S — higher = faster</p>
     <p class="controls">📱 Mobile: drag your finger (higher = faster)</p>
     <p class="controls">⏸ ESC / P — pause &amp; exit</p>
+    <p class="controls">📻 R — cycle radio station</p>
     <div class="mode-picker">
       <span class="label">GAME MODE</span>
       <div class="mode-options">
@@ -477,10 +501,281 @@ const Sound = (() => {
 
   function uiClick() { tone(600, 0.05, 'square', 0.15); }
 
+  // ── Radio: 3 procedurally synthesized stations ──
+  const RADIO_STATIONS = ['off', 'rock', 'synth', 'tropi'];
+  const STATION_LABELS = {
+    off:   '✗ OFF',
+    rock:  '🎸 ROCK',
+    synth: '🌃 SYNTH',
+    tropi: '🌴 TROPI'
+  };
+  let musicGain = null;
+  let musicFilter = null;
+  let musicTimeoutId = null;
+  let currentStation = 'off';
+  let musicBarTime = 0;
+  let musicBarIdx = 0;
+  let noiseBuf = null;
+
+  function ensureNoise() {
+    if (noiseBuf || !audioCtx) return noiseBuf;
+    const sr = audioCtx.sampleRate;
+    const len = Math.floor(sr * 0.5);
+    noiseBuf = audioCtx.createBuffer(1, len, sr);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return noiseBuf;
+  }
+
+  function mNote(time, freq, dur, type, vol, attack = 0.02) {
+    if (!audioCtx || !musicGain) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(vol, time + attack);
+    g.gain.linearRampToValueAtTime(vol * 0.6, time + dur * 0.7);
+    g.gain.linearRampToValueAtTime(0, time + dur);
+    o.connect(g);
+    g.connect(musicGain);
+    o.start(time);
+    o.stop(time + dur + 0.05);
+  }
+
+  function mKick(time, vol = 0.5) {
+    if (!audioCtx || !musicGain) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(140, time);
+    o.frequency.exponentialRampToValueAtTime(40, time + 0.12);
+    g.gain.setValueAtTime(vol, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
+    o.connect(g);
+    g.connect(musicGain);
+    o.start(time);
+    o.stop(time + 0.22);
+  }
+
+  function mSnare(time, vol = 0.4) {
+    const buf = ensureNoise();
+    if (!buf || !musicGain) return;
+    const s = audioCtx.createBufferSource();
+    s.buffer = buf;
+    const f = audioCtx.createBiquadFilter();
+    f.type = 'highpass';
+    f.frequency.value = 1500;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(vol, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+    s.connect(f); f.connect(g); g.connect(musicGain);
+    s.start(time); s.stop(time + 0.14);
+  }
+
+  function mHat(time, vol = 0.1, dur = 0.04) {
+    const buf = ensureNoise();
+    if (!buf || !musicGain) return;
+    const s = audioCtx.createBufferSource();
+    s.buffer = buf;
+    const f = audioCtx.createBiquadFilter();
+    f.type = 'highpass';
+    f.frequency.value = 6500;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(vol, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + dur);
+    s.connect(f); f.connect(g); g.connect(musicGain);
+    s.start(time); s.stop(time + dur + 0.02);
+  }
+
+  function mPerc(time, vol = 0.12, dur = 0.04, freq = 1500) {
+    const buf = ensureNoise();
+    if (!buf || !musicGain) return;
+    const s = audioCtx.createBufferSource();
+    s.buffer = buf;
+    s.playbackRate.value = 2 + Math.random();
+    const f = audioCtx.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.value = freq;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(vol, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + dur);
+    s.connect(f); f.connect(g); g.connect(musicGain);
+    s.start(time); s.stop(time + dur + 0.02);
+  }
+
+  // Station: ROCK (Em - C - G - D)
+  const ROCK_ROOTS = [82.41, 65.41, 98.00, 73.42];
+  function scheduleRockBar(t, bar, beat) {
+    const root = ROCK_ROOTS[bar % 4];
+    const fifth = root * 1.5;
+    // Power chords on every beat (palm-muted feel)
+    for (let i = 0; i < 4; i++) {
+      const nt = t + i * beat;
+      const d = beat * 0.7;
+      mNote(nt, root, d, 'sawtooth', 0.13, 0.005);
+      mNote(nt, fifth, d, 'sawtooth', 0.10, 0.005);
+      mNote(nt, root * 2, d, 'square', 0.05, 0.005);
+    }
+    // Bass on each beat (octave below root)
+    for (let i = 0; i < 4; i++) {
+      mNote(t + i * beat, root / 2, beat * 0.85, 'square', 0.18, 0.005);
+    }
+    // Drums
+    mKick(t + 0 * beat);
+    mSnare(t + 1 * beat);
+    mKick(t + 2 * beat);
+    mSnare(t + 3 * beat);
+    // Hi-hat on 8ths
+    for (let i = 0; i < 8; i++) mHat(t + i * beat / 2, 0.09);
+  }
+
+  // Station: SYNTH (Am - F - C - G — synthwave)
+  const SYNTH_CHORDS = [
+    { root: 110.00, third: 130.81, fifth: 164.81 }, // Am
+    { root:  87.31, third: 110.00, fifth: 130.81 }, // F
+    { root: 130.81, third: 164.81, fifth: 196.00 }, // C
+    { root:  98.00, third: 123.47, fifth: 146.83 }  // G
+  ];
+  function scheduleSynthBar(t, bar, beat) {
+    const chord = SYNTH_CHORDS[bar % 4];
+    // Pad: sustained sawtooth chord with slow attack
+    mNote(t, chord.root,  beat * 4, 'sawtooth', 0.045, 0.4);
+    mNote(t, chord.third, beat * 4, 'sawtooth', 0.045, 0.4);
+    mNote(t, chord.fifth, beat * 4, 'sawtooth', 0.045, 0.4);
+    // Bass: pulsing 8ths on octave below root
+    for (let i = 0; i < 8; i++) {
+      mNote(t + i * beat / 2, chord.root / 2, beat / 2 * 0.7, 'sine', 0.16, 0.005);
+    }
+    // Lead arpeggio: 1-3-5-3 on 16ths in higher octave
+    const arp = [chord.root * 2, chord.third * 2, chord.fifth * 2, chord.third * 2];
+    for (let i = 0; i < 16; i++) {
+      mNote(t + i * beat / 4, arp[i % 4], beat / 4 * 0.85, 'square', 0.07, 0.005);
+    }
+    // Drums: 808 kick + snare on 2/4
+    mKick(t + 0 * beat, 0.55);
+    mSnare(t + 1 * beat, 0.35);
+    mKick(t + 2 * beat, 0.55);
+    mSnare(t + 3 * beat, 0.35);
+    // Hi-hat on 16ths
+    for (let i = 0; i < 16; i++) mHat(t + i * beat / 4, 0.05);
+  }
+
+  // Station: TROPI (F - C - G - C — cumbia/tropical)
+  const TROPI_CHORDS = [
+    { root:  87.31, third: 110.00, fifth: 130.81 }, // F
+    { root: 130.81, third: 164.81, fifth: 196.00 }, // C
+    { root:  98.00, third: 123.47, fifth: 146.83 }, // G
+    { root: 130.81, third: 164.81, fifth: 196.00 }  // C
+  ];
+  function scheduleTropiBar(t, bar, beat) {
+    const chord = TROPI_CHORDS[bar % 4];
+    // Bouncy bass: root on 1 and 3, fifth on 2 and 4
+    mNote(t + 0 * beat, chord.root / 2,  beat * 0.55, 'triangle', 0.19, 0.005);
+    mNote(t + 1 * beat, chord.fifth / 2, beat * 0.55, 'triangle', 0.16, 0.005);
+    mNote(t + 2 * beat, chord.root / 2,  beat * 0.55, 'triangle', 0.19, 0.005);
+    mNote(t + 3 * beat, chord.fifth / 2, beat * 0.55, 'triangle', 0.16, 0.005);
+    // Offbeat chord stabs (typical cumbia rhythm)
+    [1, 3].forEach(b => {
+      const nt = t + b * beat;
+      const d = beat * 0.4;
+      mNote(nt, chord.root  * 2, d, 'triangle', 0.09, 0.01);
+      mNote(nt, chord.third * 2, d, 'triangle', 0.09, 0.01);
+      mNote(nt, chord.fifth * 2, d, 'triangle', 0.09, 0.01);
+    });
+    // 4-on-the-floor kick
+    for (let i = 0; i < 4; i++) mKick(t + i * beat, 0.4);
+    // Güiro/shaker on 16ths
+    for (let i = 0; i < 16; i++) {
+      mPerc(t + i * beat / 4, i % 4 === 0 ? 0.14 : 0.08, 0.03, 1500 + Math.random() * 1000);
+    }
+    // Light melody on top (every other beat)
+    const melody = [chord.fifth * 2, chord.third * 2, chord.root * 2, chord.third * 2];
+    mNote(t + 0.5 * beat, melody[bar % 4], beat * 0.4, 'square', 0.07, 0.01);
+    mNote(t + 2.5 * beat, melody[(bar + 1) % 4], beat * 0.4, 'square', 0.07, 0.01);
+  }
+
+  const STATION_BPM = { rock: 120, synth: 110, tropi: 95 };
+  const STATION_SCHEDULERS = {
+    rock: scheduleRockBar,
+    synth: scheduleSynthBar,
+    tropi: scheduleTropiBar
+  };
+
+  function scheduleMusicLoop() {
+    if (currentStation === 'off' || !audioCtx) return;
+    const bpm = STATION_BPM[currentStation];
+    const beat = 60 / bpm;
+    const barLen = beat * 4;
+    const sched = STATION_SCHEDULERS[currentStation];
+    if (!sched) return;
+
+    sched(musicBarTime, musicBarIdx, beat);
+
+    musicBarIdx++;
+    musicBarTime += barLen;
+
+    // Re-schedule slightly before this bar ends
+    const now = audioCtx.currentTime;
+    const msUntilNext = Math.max(50, (musicBarTime - now - barLen + 0.1) * 1000);
+    musicTimeoutId = setTimeout(scheduleMusicLoop, msUntilNext);
+  }
+
+  function playStation(station) {
+    const c = ensureCtx();
+    if (!c) return;
+    if (currentStation === station) return;
+
+    if (musicTimeoutId) { clearTimeout(musicTimeoutId); musicTimeoutId = null; }
+
+    if (station === 'off' || !RADIO_STATIONS.includes(station)) {
+      currentStation = 'off';
+      if (musicGain) {
+        const t = c.currentTime;
+        musicGain.gain.cancelScheduledValues(t);
+        musicGain.gain.setValueAtTime(musicGain.gain.value, t);
+        musicGain.gain.linearRampToValueAtTime(0, t + 0.4);
+      }
+      return;
+    }
+
+    currentStation = station;
+
+    if (!musicGain) {
+      musicGain = c.createGain();
+      musicGain.gain.value = 0;
+      musicFilter = c.createBiquadFilter();
+      musicFilter.type = 'lowpass';
+      musicFilter.frequency.value = 6000;
+      musicGain.connect(musicFilter);
+      musicFilter.connect(masterGain);
+    }
+
+    const t = c.currentTime;
+    musicGain.gain.cancelScheduledValues(t);
+    musicGain.gain.setValueAtTime(musicGain.gain.value, t);
+    musicGain.gain.linearRampToValueAtTime(0.35, t + 0.3);
+
+    musicBarIdx = 0;
+    musicBarTime = t + 0.15;
+    scheduleMusicLoop();
+  }
+
+  function cycleStation() {
+    const i = RADIO_STATIONS.indexOf(currentStation);
+    const next = RADIO_STATIONS[(i + 1) % RADIO_STATIONS.length];
+    playStation(next);
+    return next;
+  }
+
+  function getStation() { return currentStation; }
+  function getStationLabel(s) { return STATION_LABELS[s] || s; }
+
   return {
     resume, setMuted, toggleMute, isMuted,
     startEngine, stopEngine, setEngineSpeed,
-    beepLow, beepHigh, crash, levelUp, gameOver, newRecord, uiClick
+    beepLow, beepHigh, crash, levelUp, gameOver, newRecord, uiClick,
+    playStation, cycleStation, getStation, getStationLabel
   };
 })();
 
@@ -488,8 +783,8 @@ const LANES = [W * 0.235, W * 0.5, W * 0.765];
 const PLAYER_BASE_Y = H - 90;
 const TOP_LIMIT = H * 0.3;
 const BOT_LIMIT = H - 50;
-const MIN_VEL = 3.0;
-const MAX_VEL = 8.5;
+const MIN_VEL = 3.5;
+const MAX_VEL = 12.5;
 
 // Endless tuning
 const STARTING_LIVES = 3;
@@ -526,6 +821,11 @@ const swatchesEl = document.getElementById('swatches');
 
 let player, rivals, smoke, particles, gameState, countdownState, shake;
 let level, bestScore, playerColor;
+let metaText = null;       // celebration text shown briefly after crossing a meta
+let metaTextTime = 0;      // remaining frames to show metaText
+let metasCrossed = 0;      // metas completed in current run
+const META_LEVELS = 10;    // one meta every N levels
+const META_WORLD_STEP = META_LEVELS * 500 * 10; // worldY units between metas (level=500m, worldY=m*10)
 const keys = {};
 
 // Load saved best
@@ -596,6 +896,42 @@ function pickMode(mode) {
 modeRaceBtn.addEventListener('click', () => pickMode('race'));
 modeFreeBtn.addEventListener('click', () => pickMode('free'));
 
+// ─── Radio ────────────────────────────────────────────────────
+let radioStation;
+try { radioStation = localStorage.getItem('furiousCarsRadio') || 'off'; }
+catch (e) { radioStation = 'off'; }
+if (!['off','rock','synth','tropi'].includes(radioStation)) radioStation = 'off';
+
+const radioBtn = document.getElementById('radioBtn');
+function refreshRadioBtn() {
+  if (radioStation === 'off') {
+    radioBtn.textContent = '📻 OFF';
+  } else {
+    radioBtn.textContent = '📻 ' + Sound.getStationLabel(radioStation);
+  }
+  radioBtn.classList.toggle('tuned', radioStation !== 'off');
+}
+refreshRadioBtn();
+
+function pickRadio(station) {
+  radioStation = station;
+  try { localStorage.setItem('furiousCarsRadio', radioStation); } catch (e) {}
+  refreshRadioBtn();
+  Sound.resume();
+  Sound.playStation(radioStation);
+}
+
+function cycleRadio() {
+  Sound.resume();
+  const next = Sound.cycleStation();
+  radioStation = next;
+  try { localStorage.setItem('furiousCarsRadio', radioStation); } catch (e) {}
+  refreshRadioBtn();
+  Sound.uiClick();
+}
+
+radioBtn.addEventListener('click', cycleRadio);
+
 // ─── Free-roam world definition ───────────────────────────────
 const FREE_WORLD = (() => {
   const buildings = [];
@@ -665,6 +1001,29 @@ function spawnInitialRivals() {
   }
 }
 
+function triggerMeta(metaNumber) {
+  metasCrossed = metaNumber;
+  metaText = '🏁 META ' + metaNumber + ' ✓';
+  metaTextTime = 130;
+  Sound.newRecord();
+  shake = 8;
+  // Restore one life (up to starting amount)
+  if (player.lives < STARTING_LIVES) player.lives++;
+  // Confetti burst from top
+  const colors = ['#ff3838', '#ffaa00', '#33dd55', '#3aa6ff', '#ff66cc', '#ffd700'];
+  for (let i = 0; i < 60; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: -10 - Math.random() * 30,
+      vx: (Math.random() - 0.5) * 7,
+      vy: Math.random() * 5 + 2,
+      life: 80 + Math.random() * 30,
+      size: 3 + Math.random() * 4,
+      color: colors[Math.floor(Math.random() * colors.length)]
+    });
+  }
+}
+
 function reset() {
   if (gameMode === 'free') { resetFree(); return; }
   player = {
@@ -686,6 +1045,9 @@ function reset() {
   gameState = 'idle';
   countdownState = null;
   shake = 0;
+  metaText = null;
+  metaTextTime = 0;
+  metasCrossed = 0;
 
   spawnInitialRivals();
 }
@@ -739,6 +1101,8 @@ function startGame() {
     Sound.startEngine();
     countdownStep(3);
   }
+  // Start the tuned radio station (if any)
+  if (radioStation !== 'off') Sound.playStation(radioStation);
 }
 
 function countdownStep(val) {
@@ -785,6 +1149,7 @@ function updatePlayer() {
   // Level up every LEVEL_DISTANCE meters
   const newLevel = 1 + Math.floor((p.worldY / 10) / LEVEL_DISTANCE);
   if (newLevel > level) {
+    const wasLevel = level;
     level = newLevel;
     Sound.levelUp();
     // Speed up all existing rivals
@@ -793,6 +1158,10 @@ function updatePlayer() {
     if (rivals.length < Math.min(RIVAL_BASE_COUNT + Math.floor(level / 2), RIVAL_MAX_COUNT)) {
       rivals.push(makeRival(p.worldY + H + Math.random() * H));
     }
+    // META! Every META_LEVELS levels
+    const oldMeta = Math.floor((wasLevel - 1) / META_LEVELS);
+    const newMeta = Math.floor((level - 1) / META_LEVELS);
+    if (newMeta > oldMeta) triggerMeta(newMeta);
   }
 
   if (p.invuln > 0) p.invuln--;
@@ -895,6 +1264,10 @@ function update(dt) {
   speedEl.textContent = Math.round(player.vel * 30);
   levelEl.textContent = level;
   scoreEl.textContent = Math.floor(player.worldY / 10);
+  // Distance to next meta
+  const nextMetaWorldY = (metasCrossed + 1) * META_WORLD_STEP;
+  const metaRemaining = Math.max(0, Math.floor((nextMetaWorldY - player.worldY) / 10));
+  document.getElementById('metaDist').textContent = metaRemaining;
 }
 
 function updateFree(dt) {
@@ -1159,6 +1532,44 @@ function drawRoad() {
       y += total;
     }
   }
+
+  // ── Meta finish line (race mode) ──
+  // Next meta is at worldY = (metasCrossed + 1) * META_WORLD_STEP
+  const nextMetaY = (metasCrossed + 1) * META_WORLD_STEP;
+  const metaScreenY = PLAYER_BASE_Y - (nextMetaY - player.worldY);
+  if (metaScreenY > -80 && metaScreenY < H + 40) {
+    const roadLeft = W * 0.08 + 4;
+    const roadW = W * 0.84 - 8;
+    // Checkered pattern (2 rows)
+    const checkSize = 16;
+    const cols = Math.ceil(roadW / checkSize);
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < 2; j++) {
+        ctx.fillStyle = (i + j) % 2 === 0 ? '#fff' : '#000';
+        ctx.fillRect(roadLeft + i * checkSize, metaScreenY + j * checkSize, checkSize, checkSize);
+      }
+    }
+    // Banner above with META label (only when line is visible enough)
+    if (metaScreenY > 60) {
+      const banY = metaScreenY - 46;
+      // Banner background
+      ctx.fillStyle = '#ffaa00';
+      ctx.fillRect(W * 0.12, banY, W * 0.76, 30);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(W * 0.12, banY, W * 0.76, 30);
+      // Posts on each side
+      ctx.fillStyle = '#000';
+      ctx.fillRect(W * 0.12 - 3, banY, 3, 46);
+      ctx.fillRect(W * 0.88, banY, 3, 46);
+      // Text
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 17px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🏁 META ' + (metasCrossed + 1), W / 2, banY + 15);
+    }
+  }
 }
 
 function drawCar(c) {
@@ -1232,6 +1643,29 @@ function drawCar(c) {
   }
 
   ctx.restore();
+}
+
+function drawMetaCelebration() {
+  if (metaTextTime <= 0 || !metaText) return;
+  ctx.save();
+  const t = metaTextTime / 130;
+  const fadeIn  = 1 - Math.max(0, (t - 0.85) * 6.67);  // fade in over first 0.15
+  const fadeOut = Math.min(1, t * 4);                  // fade out over last 0.25
+  const alpha = Math.min(fadeIn, fadeOut);
+  const scale = 0.8 + (1 - t) * 0.4;
+  ctx.globalAlpha = Math.max(0, alpha);
+  ctx.font = 'bold ' + Math.round(50 * scale) + 'px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineWidth = 6;
+  ctx.shadowColor = '#ffaa00';
+  ctx.shadowBlur = 25;
+  ctx.strokeStyle = '#000';
+  ctx.fillStyle = '#ffaa00';
+  ctx.strokeText(metaText, W / 2, H / 2);
+  ctx.fillText(metaText, W / 2, H / 2);
+  ctx.restore();
+  metaTextTime--;
 }
 
 function drawCountdown() {
@@ -1547,6 +1981,7 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
+  drawMetaCelebration();
   drawCountdown();
   ctx.restore();
 }
@@ -1591,7 +2026,8 @@ function endRun() {
     }
 
     const title = isRecord ? 'NEW RECORD!' : 'WRECKED 💥';
-    const msg = `Distance: ${distance} m · Level ${level}`;
+    const metasStr = metasCrossed > 0 ? ` · 🏁×${metasCrossed}` : '';
+    const msg = `Distance: ${distance} m · Level ${level}${metasStr}`;
     const extra = isRecord ? `★ ${distance} m ★` : `Best: ${bestScore} m`;
     showOverlay(title, msg, 'RETRY', extra);
   }, 900);
@@ -1661,6 +2097,7 @@ function resumeGame() {
 
 function exitToMainPage() {
   Sound.stopEngine();
+  Sound.playStation('off');
   pauseOverlay.classList.add('hidden');
   pauseBtn.classList.remove('visible');
   document.getElementById('hud').style.display = '';
@@ -1725,6 +2162,13 @@ document.addEventListener('keydown', e => {
     if (gameState === 'free') {
       e.preventDefault();
       toggleCar();
+    }
+  }
+  if (e.key === 'r' || e.key === 'R') {
+    // Don't override browser shortcuts when modifiers are held
+    if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      e.preventDefault();
+      cycleRadio();
     }
   }
   if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
