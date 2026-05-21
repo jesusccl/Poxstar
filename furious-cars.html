@@ -63,6 +63,7 @@
     color: #fff; text-align: center;
     border-radius: 8px;
     padding: 20px;
+    overflow-y: auto;
   }
   #overlay h1 {
     font-size: 38px; margin: 0 0 10px;
@@ -231,6 +232,39 @@
   }
   #radioBtn:hover { background: rgba(0,0,0,0.85); transform: translateY(-1px); }
   #radioBtn.tuned { border-color: #ffaa00; box-shadow: 0 0 12px rgba(255,170,0,0.4); }
+  #fireBtn {
+    position: absolute;
+    bottom: 110px; right: 10px;
+    background: rgba(180, 30, 30, 0.85);
+    color: #fff;
+    border: 2px solid #ff5555;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.08s, opacity 0.15s, background 0.15s;
+    display: none;
+    box-shadow: 0 0 15px rgba(255, 80, 80, 0.4);
+    min-width: 90px;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #fireBtn:hover { background: rgba(220, 40, 40, 0.95); }
+  #fireBtn:active { transform: scale(0.88); }
+  #fireBtn.visible { display: block; }
+  #fireBtn.empty {
+    opacity: 0.45;
+    background: rgba(60,60,60,0.75);
+    border-color: rgba(255,255,255,0.25);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
   #pauseOverlay {
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
@@ -277,6 +311,37 @@
   }
   .pause-action.primary { background: #ff3838; border-color: #ff3838; }
   .pause-action.primary:hover { background: #ff5555; }
+  .credits {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .credits .creator {
+    color: #ff3838;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  .credits .creator:hover { text-decoration: underline; }
+  .credits .links {
+    margin-top: 4px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+  .credits .links a {
+    color: #fff;
+    opacity: 0.7;
+    text-decoration: none;
+    font-weight: bold;
+    letter-spacing: 1px;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .credits .links a:hover { opacity: 1; color: #ffaa00; }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -300,6 +365,7 @@
   <button id="pauseBtn" title="Pause (P / ESC)" aria-label="Pause">⏸</button>
   <button id="carBtn" title="Exit / Enter car (E)" aria-label="Toggle car">🚪 EXIT CAR</button>
   <button id="radioBtn" title="Radio (R) — tap to change station" aria-label="Radio">📻 OFF</button>
+  <button id="fireBtn" title="Fire (Space) — needs ammo" aria-label="Fire">🔫 FIRE</button>
   <div id="pauseOverlay" class="hidden">
     <h2>PAUSED</h2>
     <p id="pauseStats" class="pause-stats"></p>
@@ -315,6 +381,7 @@
     <p class="controls">📱 Mobile: drag your finger (higher = faster)</p>
     <p class="controls">⏸ ESC / P — pause &amp; exit</p>
     <p class="controls">📻 R — cycle radio station</p>
+    <p class="controls">🔫 SPACE — fire (free roam · needs ammo)</p>
     <div class="mode-picker">
       <span class="label">GAME MODE</span>
       <div class="mode-options">
@@ -327,6 +394,13 @@
       <div class="color-swatches" id="swatches"></div>
     </div>
     <button id="startBtn">START</button>
+    <div class="credits">
+      a game by <a class="creator" href="https://youtube.com/AugustoCLive" target="_blank" rel="noopener">AugustoCLive</a>
+      <div class="links">
+        <a href="https://discord.gg/ANgzAWCRS" target="_blank" rel="noopener">💬 DISCORD</a>
+        <a href="https://youtube.com/AugustoCLive" target="_blank" rel="noopener">▶ YOUTUBE</a>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -500,6 +574,37 @@ const Sound = (() => {
   }
 
   function uiClick() { tone(600, 0.05, 'square', 0.15); }
+
+  function shoot() {
+    const c = ensureCtx();
+    if (!c) return;
+    const t = c.currentTime;
+    // Pew: square wave sweeping down + noise burst
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(1400, t);
+    o.frequency.exponentialRampToValueAtTime(180, t + 0.09);
+    g.gain.setValueAtTime(0.18, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
+    o.connect(g); g.connect(masterGain);
+    o.start(t); o.stop(t + 0.13);
+    // Quick noise crack on top
+    const buf = c.createBuffer(1, c.sampleRate * 0.04, c.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    const ns = c.createBufferSource();
+    ns.buffer = buf;
+    const nf = c.createBiquadFilter();
+    nf.type = 'highpass'; nf.frequency.value = 2500;
+    const ng = c.createGain();
+    ng.gain.setValueAtTime(0.25, t);
+    ng.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    ns.connect(nf); nf.connect(ng); ng.connect(masterGain);
+    ns.start(t); ns.stop(t + 0.06);
+  }
+
+  function emptyClick() { tone(180, 0.04, 'square', 0.1); }
 
   // ── Radio: 3 procedurally synthesized stations ──
   const RADIO_STATIONS = ['off', 'rock', 'synth', 'tropi'];
@@ -775,6 +880,7 @@ const Sound = (() => {
     resume, setMuted, toggleMute, isMuted,
     startEngine, stopEngine, setEngineSpeed,
     beepLow, beepHigh, crash, levelUp, gameOver, newRecord, uiClick,
+    shoot, emptyClick,
     playStation, cycleStation, getStation, getStationLabel
   };
 })();
@@ -820,6 +926,7 @@ const startBtn = document.getElementById('startBtn');
 const swatchesEl = document.getElementById('swatches');
 
 let player, rivals, smoke, particles, gameState, countdownState, shake;
+let bullets = [];
 let level, bestScore, playerColor;
 let metaText = null;       // celebration text shown briefly after crossing a meta
 let metaTextTime = 0;      // remaining frames to show metaText
@@ -947,22 +1054,153 @@ const FREE_WORLD = (() => {
       buildings.push({
         x, y, w: bldgSize, h: bldgSize,
         color: palette[seed % palette.length],
-        seed
+        seed,
+        cache: null
       });
     }
   }
+
+  // Street grid: horizontal + vertical roads between building rows/cols
+  const streets = [];
+  // Horizontal streets (between rows of buildings)
+  for (let j = 0; j <= 3; j++) {
+    const y = cityStartY + j * blockSize - 30;
+    streets.push({ x: cityStartX - 30, y, w: 4 * blockSize + 60, h: 60, horiz: true });
+  }
+  // Vertical streets (between cols)
+  for (let i = 0; i <= 4; i++) {
+    const x = cityStartX + i * blockSize - 30;
+    streets.push({ x, y: cityStartY - 30, w: 60, h: 3 * blockSize + 60, horiz: false });
+  }
+
+  // NPC pedestrians — walk back and forth along simple paths
+  const npcColors = ['#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#f39c12', '#1abc9c'];
+  const npcs = [];
+  for (let i = 0; i < 8; i++) {
+    const onSand = i >= 6; // last two on beach
+    npcs.push({
+      worldX: onSand ? 350 + Math.random() * 250 : cityStartX + 40 + Math.random() * (4 * blockSize - 80),
+      worldY: onSand ? -400 + Math.random() * 800 : cityStartY + 30 + Math.random() * (3 * blockSize - 60),
+      vx: 0, vy: 0,
+      speed: 0.4 + Math.random() * 0.3,
+      angle: Math.random() * Math.PI * 2,
+      changeIn: 60 + Math.random() * 120,
+      color: npcColors[i % npcColors.length],
+      hairColor: ['#2a1a08', '#5a3818', '#8a5818', '#1a0a04'][i % 4],
+      hit: false,
+      onSand
+    });
+  }
+
+  // Weapon pickups — collectible crates with weapon icons
+  const weaponTypes = ['🔫', '💣', '🔪', '🪓'];
+  const weapons = [
+    { worldX: -900, worldY: -250, type: 0, taken: false },
+    { worldX: -600, worldY:  150, type: 1, taken: false },
+    { worldX: -350, worldY: -200, type: 2, taken: false },
+    { worldX:  400, worldY: -450, type: 0, taken: false },
+    { worldX:  500, worldY:  400, type: 3, taken: false },
+    { worldX:  650, worldY: -150, type: 1, taken: false }
+  ];
+
   return {
     buildings,
+    streets,
+    npcs,
+    weapons,
+    weaponTypes,
+    cityStartX, cityStartY, blockSize,
     roadHoriz: { x: -250, y: -45, w: 500, h: 90 },
     sand:  { x: 250, y: -800, w: 480, h: 1600 },
     water: { x: 730, y: -1200, w: 2000, h: 2400 },
     palms: [
-      { x: 320, y: -550 }, { x: 380, y: 460 }, { x: 450, y: 300 },
-      { x: 540, y: -320 }, { x: 580, y: 180 }, { x: 630, y: -80 },
-      { x: 360, y: 60 }, { x: 480, y: 540 }, { x: 620, y: 420 }
+      { x: 320, y: -550, cache: null }, { x: 380, y: 460, cache: null },
+      { x: 450, y: 300, cache: null },  { x: 540, y: -320, cache: null },
+      { x: 580, y: 180, cache: null },  { x: 630, y: -80, cache: null },
+      { x: 360, y: 60, cache: null },   { x: 480, y: 540, cache: null },
+      { x: 620, y: 420, cache: null }
     ]
   };
 })();
+
+// ── Offscreen cache for static world elements (massive mobile perf win) ──
+function prerenderBuildings() {
+  for (const b of FREE_WORLD.buildings) {
+    if (b.cache) continue;
+    const pad = 8;
+    const c = document.createElement('canvas');
+    c.width = b.w + pad * 2;
+    c.height = b.h + pad * 2;
+    const x = c.getContext('2d');
+    // Shadow
+    x.fillStyle = 'rgba(0,0,0,0.35)';
+    x.fillRect(pad + 6, pad + 6, b.w, b.h);
+    // Body
+    x.fillStyle = b.color;
+    x.fillRect(pad, pad, b.w, b.h);
+    // Roof
+    x.fillStyle = 'rgba(0,0,0,0.35)';
+    x.fillRect(pad, pad, b.w, 10);
+    // Windows
+    for (let wy = pad + 18; wy < pad + b.h - 14; wy += 30) {
+      for (let wx = pad + 12; wx < pad + b.w - 12; wx += 26) {
+        const hash = (wx * 31 + wy * 17 + b.seed) >>> 0;
+        x.fillStyle = (hash % 4) !== 0 ? '#ffeb88' : '#1a1a1a';
+        x.fillRect(wx, wy, 14, 18);
+      }
+    }
+    // Door
+    x.fillStyle = '#1a1a1a';
+    x.fillRect(pad + b.w/2 - 8, pad + b.h - 22, 16, 22);
+    x.fillStyle = '#ffd700';
+    x.fillRect(pad + b.w/2 + 4, pad + b.h - 13, 2, 2);
+    b.cache = c;
+    b.cachePad = pad;
+  }
+}
+
+function prerenderPalms() {
+  for (const t of FREE_WORLD.palms) {
+    if (t.cache) continue;
+    const W2 = 60, H2 = 60;
+    const c = document.createElement('canvas');
+    c.width = W2; c.height = H2;
+    const x = c.getContext('2d');
+    x.translate(W2/2, H2/2);
+    // Shadow
+    x.fillStyle = 'rgba(0,0,0,0.3)';
+    x.beginPath();
+    x.ellipse(4, 16, 22, 6, 0, 0, Math.PI * 2);
+    x.fill();
+    // Trunk
+    x.fillStyle = '#6a4a2a';
+    x.fillRect(-4, -8, 8, 26);
+    // Leaves
+    x.fillStyle = '#2a7a3a';
+    x.beginPath();
+    x.ellipse(0, -12, 22, 14, 0, 0, Math.PI * 2);
+    x.fill();
+    x.fillStyle = '#1a5a2a';
+    x.beginPath();
+    x.ellipse(-10, -14, 13, 8, 0.4, 0, Math.PI * 2);
+    x.fill();
+    x.beginPath();
+    x.ellipse(10, -14, 13, 8, -0.4, 0, Math.PI * 2);
+    x.fill();
+    // Coconuts
+    x.fillStyle = '#3a2a1a';
+    x.beginPath();
+    x.arc(-5, -8, 3, 0, Math.PI * 2);
+    x.arc(5, -6, 3, 0, Math.PI * 2);
+    x.fill();
+    t.cache = c;
+    t.cw = W2; t.ch = H2;
+  }
+}
+
+// Mobile detection (used to dial back effects)
+const IS_MOBILE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ||
+                  (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
 
 function pointInRect(x, y, r) {
   return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
@@ -1063,15 +1301,35 @@ function resetFree() {
     carWorldX: 0, carWorldY: 0, carAngle: 0,
     color: playerColor, name: 'YOU',
     isPlayer: true,
-    w: 38, h: 60
+    w: 38, h: 60,
+    ammo: 0,
+    fireCooldown: 0
   };
   rivals = [];
   smoke = [];
   particles = [];
+  bullets = [];
   level = 1;
   shake = 0;
   countdownState = null;
   gameState = 'idle';
+  // Reset NPCs to fresh random positions
+  for (const n of FREE_WORLD.npcs) {
+    if (n.onSand) {
+      n.worldX = 350 + Math.random() * 250;
+      n.worldY = -400 + Math.random() * 800;
+    } else {
+      n.worldX = FREE_WORLD.cityStartX + 40 + Math.random() * (4 * FREE_WORLD.blockSize - 80);
+      n.worldY = FREE_WORLD.cityStartY + 30 + Math.random() * (3 * FREE_WORLD.blockSize - 60);
+    }
+    n.angle = Math.random() * Math.PI * 2;
+    n.changeIn = 60 + Math.random() * 120;
+    n.hit = false;
+    n.hitTimer = 0;
+    n.knockedOut = 0;
+  }
+  // Reset weapons (all available again)
+  for (const w of FREE_WORLD.weapons) w.taken = false;
 }
 
 function startGame() {
@@ -1093,10 +1351,12 @@ function startGame() {
     carBtnEl.classList.remove('disabled');
     gameState = 'free';
     Sound.startEngine();
+    updateFireBtn();
   } else {
     hudEl.style.display = '';
     sbEl.style.display = '';
     carBtnEl.classList.remove('visible');
+    document.getElementById('fireBtn').classList.remove('visible');
     gameState = 'countdown';
     Sound.startEngine();
     countdownStep(3);
@@ -1389,8 +1649,235 @@ function updateFree(dt) {
   }
   particles = particles.filter(pt => pt.life > 0);
 
+  // Update NPCs (pedestrians)
+  updateNPCs();
+  // Check weapon pickups (on foot only)
+  if (p.onFoot) checkWeaponPickup();
+  // Update bullets and fire cooldown
+  updateBullets();
+  if (p.fireCooldown > 0) p.fireCooldown--;
+
   // Refresh car/foot UI button state (proximity may have changed)
   updateCarBtn();
+}
+
+function updateNPCs() {
+  for (const n of FREE_WORLD.npcs) {
+    if (n.knockedOut && n.knockedOut > 0) {
+      n.knockedOut--;
+      continue;
+    }
+    if (n.hitTimer && n.hitTimer > 0) {
+      n.hitTimer--;
+      // recover from hit
+      continue;
+    }
+    n.changeIn--;
+    if (n.changeIn <= 0) {
+      // Pick a new random direction
+      n.angle = Math.random() * Math.PI * 2;
+      n.changeIn = 60 + Math.random() * 180;
+      n.speed = 0.4 + Math.random() * 0.3;
+    }
+    const nvx = Math.cos(n.angle) * n.speed;
+    const nvy = Math.sin(n.angle) * n.speed;
+    // Try to move
+    let nx = n.worldX + nvx;
+    let ny = n.worldY + nvy;
+    // Keep on land (not in water, not in buildings)
+    if (pointInRect(nx, ny, FREE_WORLD.water)) {
+      n.angle += Math.PI; n.changeIn = 30;
+      continue;
+    }
+    let blocked = false;
+    for (const b of FREE_WORLD.buildings) {
+      if (nx > b.x - 5 && nx < b.x + b.w + 5 && ny > b.y - 5 && ny < b.y + b.h + 5) {
+        blocked = true; break;
+      }
+    }
+    if (blocked) {
+      n.angle += Math.PI; n.changeIn = 30;
+      continue;
+    }
+    // Stay within world bounds
+    if (n.onSand) {
+      if (nx < 280 || nx > 700 || ny < -700 || ny > 700) { n.angle += Math.PI; n.changeIn = 30; continue; }
+    } else {
+      if (nx < FREE_WORLD.cityStartX || nx > FREE_WORLD.cityStartX + 4 * FREE_WORLD.blockSize) { n.angle += Math.PI; n.changeIn = 30; continue; }
+      if (ny < FREE_WORLD.cityStartY || ny > FREE_WORLD.cityStartY + 3 * FREE_WORLD.blockSize) { n.angle += Math.PI; n.changeIn = 30; continue; }
+    }
+    n.worldX = nx; n.worldY = ny;
+
+    // Check collision with player (only if not already hit recently)
+    const dx = n.worldX - player.worldX;
+    const dy = n.worldY - player.worldY;
+    const dist = Math.hypot(dx, dy);
+    const playerSize = player.onFoot ? 14 : 24;
+    if (dist < playerSize + 8) {
+      // Knock back NPC
+      const ang = Math.atan2(dy, dx);
+      n.worldX += Math.cos(ang) * 12;
+      n.worldY += Math.sin(ang) * 12;
+      n.hitTimer = 30;
+      n.hit = true;
+      // Small sparks
+      for (let i = 0; i < 4; i++) {
+        particles.push({
+          worldX: n.worldX, worldY: n.worldY,
+          vx: (Math.random() - 0.5) * 4,
+          vy: (Math.random() - 0.5) * 4 - 1,
+          life: 20, size: 2 + Math.random() * 2,
+          color: '#fff5aa', world: true
+        });
+      }
+    }
+  }
+}
+
+function checkWeaponPickup() {
+  for (const w of FREE_WORLD.weapons) {
+    if (w.taken) continue;
+    const dx = w.worldX - player.worldX;
+    const dy = w.worldY - player.worldY;
+    if (Math.hypot(dx, dy) < 22) {
+      w.taken = true;
+      player.ammo = (player.ammo || 0) + 5;
+      Sound.levelUp();
+      updateFireBtn();
+      // Sparkle particles
+      for (let i = 0; i < 12; i++) {
+        particles.push({
+          worldX: w.worldX, worldY: w.worldY,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6 - 2,
+          life: 35, size: 2 + Math.random() * 3,
+          color: ['#ffd700', '#fff5aa', '#ffaa00'][i % 3],
+          world: true
+        });
+      }
+    }
+  }
+}
+
+function shoot() {
+  if (gameState !== 'free') return;
+  if (player.stuck) return;
+  if (player.fireCooldown > 0) return;
+  if (!player.ammo || player.ammo <= 0) {
+    Sound.emptyClick();
+    return;
+  }
+  player.fireCooldown = 8;
+  player.ammo--;
+  Sound.shoot();
+  // Bullet origin = a bit in front of the player
+  const fwd = player.angle - Math.PI / 2;
+  const muzzleDist = player.onFoot ? 12 : 32;
+  const ox = player.worldX + Math.cos(fwd) * muzzleDist;
+  const oy = player.worldY + Math.sin(fwd) * muzzleDist;
+  const speed = 14;
+  bullets.push({
+    worldX: ox, worldY: oy,
+    vx: Math.cos(fwd) * speed,
+    vy: Math.sin(fwd) * speed,
+    life: 50
+  });
+  // Muzzle flash particles
+  for (let i = 0; i < 6; i++) {
+    particles.push({
+      worldX: ox, worldY: oy,
+      vx: Math.cos(fwd) * (3 + Math.random() * 2) + (Math.random() - 0.5) * 2,
+      vy: Math.sin(fwd) * (3 + Math.random() * 2) + (Math.random() - 0.5) * 2,
+      life: 8, size: 3 + Math.random() * 2,
+      color: i % 2 ? '#ffea88' : '#fff',
+      world: true
+    });
+  }
+  updateFireBtn();
+}
+
+function updateBullets() {
+  for (const b of bullets) {
+    b.worldX += b.vx;
+    b.worldY += b.vy;
+    b.life--;
+    if (b.life <= 0) continue;
+    // NPC hit
+    let hit = false;
+    for (const n of FREE_WORLD.npcs) {
+      if (n.knockedOut && n.knockedOut > 0) continue;
+      const dx = b.worldX - n.worldX;
+      const dy = b.worldY - n.worldY;
+      if (Math.hypot(dx, dy) < 10) {
+        n.knockedOut = 180; // ~3 seconds at 60fps
+        n.angle = Math.atan2(b.vy, b.vx);
+        // Knock back
+        n.worldX += b.vx * 0.6;
+        n.worldY += b.vy * 0.6;
+        b.life = 0;
+        hit = true;
+        // Impact particles
+        for (let i = 0; i < 10; i++) {
+          particles.push({
+            worldX: n.worldX, worldY: n.worldY,
+            vx: (Math.random() - 0.5) * 5,
+            vy: (Math.random() - 0.5) * 5 - 1.5,
+            life: 25, size: 2 + Math.random() * 3,
+            color: i % 3 === 0 ? '#ff4444' : '#fff5aa',
+            world: true
+          });
+        }
+        break;
+      }
+    }
+    if (hit) continue;
+    // Building hit
+    for (const bld of FREE_WORLD.buildings) {
+      if (b.worldX > bld.x && b.worldX < bld.x + bld.w &&
+          b.worldY > bld.y && b.worldY < bld.y + bld.h) {
+        b.life = 0;
+        // Sparks
+        for (let i = 0; i < 5; i++) {
+          particles.push({
+            worldX: b.worldX, worldY: b.worldY,
+            vx: -b.vx * 0.3 + (Math.random() - 0.5) * 3,
+            vy: -b.vy * 0.3 + (Math.random() - 0.5) * 3,
+            life: 15, size: 1.5 + Math.random() * 1.5,
+            color: '#ffeb88',
+            world: true
+          });
+        }
+        break;
+      }
+    }
+    // Water hit (bullet just dies, no penalty)
+    if (pointInRect(b.worldX, b.worldY, FREE_WORLD.water)) {
+      b.life = 0;
+      // Tiny splash
+      for (let i = 0; i < 4; i++) {
+        particles.push({
+          worldX: b.worldX, worldY: b.worldY,
+          vx: (Math.random() - 0.5) * 3,
+          vy: -1 - Math.random() * 2,
+          life: 18, size: 2,
+          color: '#aaccff', world: true
+        });
+      }
+    }
+  }
+  bullets = bullets.filter(b => b.life > 0);
+}
+
+function updateFireBtn() {
+  const btn = document.getElementById('fireBtn');
+  if (gameState !== 'free' || (player && player.stuck)) {
+    btn.classList.remove('visible');
+    return;
+  }
+  btn.classList.add('visible');
+  const ammo = player ? (player.ammo || 0) : 0;
+  btn.textContent = ammo > 0 ? '🔫 ' + ammo : '🔫 0';
+  btn.classList.toggle('empty', ammo <= 0);
 }
 
 function showStuckOverlay() {
@@ -1633,15 +2120,6 @@ function drawCar(c) {
   ctx.fillRect(-c.w/2 - 3, c.h/2 - 20, 4, 14);
   ctx.fillRect(c.w/2 - 1, c.h/2 - 20, 4, 14);
 
-  // Initial letter on rival roofs
-  if (!c.isPlayer) {
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.font = 'bold 11px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(c.name[0], 0, 0);
-  }
-
   ctx.restore();
 }
 
@@ -1726,6 +2204,7 @@ function drawCarLocal(color, stuck = false) {
   }
 }
 
+
 function drawFree() {
   const p = player;
   const tNow = performance.now() / 1000;
@@ -1733,9 +2212,10 @@ function drawFree() {
   // Grass background
   ctx.fillStyle = '#3a5a3a';
   ctx.fillRect(0, 0, W, H);
-  // Static grass speckles (relative to camera, gives parallax feel)
+  // Lighter grass speckles (reduced count for mobile perf)
   ctx.fillStyle = '#2a4a2a';
-  for (let i = 0; i < 40; i++) {
+  const grassCount = IS_MOBILE ? 12 : 24;
+  for (let i = 0; i < grassCount; i++) {
     const gx = ((i * 173) - p.worldX * 0.4) % (W + 60);
     const gy = ((i * 271) - p.worldY * 0.4) % (H + 60);
     const x = gx < 0 ? gx + W + 60 : gx;
@@ -1747,118 +2227,219 @@ function drawFree() {
   ctx.save();
   ctx.translate(W/2 - p.worldX, H/2 - p.worldY);
 
+  // View bounds in world coords (for culling)
+  const viewMinX = p.worldX - W/2 - 20, viewMaxX = p.worldX + W/2 + 20;
+  const viewMinY = p.worldY - H/2 - 20, viewMaxY = p.worldY + H/2 + 20;
+
+  // City streets (drawn before buildings so they show up underneath)
+  ctx.fillStyle = '#2f2f2f';
+  for (const st of FREE_WORLD.streets) {
+    if (st.x > viewMaxX || st.x + st.w < viewMinX || st.y > viewMaxY || st.y + st.h < viewMinY) continue;
+    ctx.fillRect(st.x, st.y, st.w, st.h);
+    // Lane markings on horizontal streets
+    if (st.horiz) {
+      ctx.fillStyle = '#ffd700';
+      for (let lx = st.x + 20; lx < st.x + st.w - 20; lx += 32) {
+        ctx.fillRect(lx, st.y + st.h/2 - 1.5, 16, 3);
+      }
+      ctx.fillStyle = '#2f2f2f';
+    } else {
+      ctx.fillStyle = '#ffd700';
+      for (let ly = st.y + 20; ly < st.y + st.h - 20; ly += 32) {
+        ctx.fillRect(st.x + st.w/2 - 1.5, ly, 3, 16);
+      }
+      ctx.fillStyle = '#2f2f2f';
+    }
+  }
+
   // Sand zone
   const s = FREE_WORLD.sand;
   ctx.fillStyle = '#e8d29a';
   ctx.fillRect(s.x, s.y, s.w, s.h);
-  // Sand texture dots
+  // Sand dots — only the visible band, reduced density
   ctx.fillStyle = '#d0b878';
-  for (let i = 0; i < 120; i++) {
+  const sDotCount = IS_MOBILE ? 35 : 70;
+  for (let i = 0; i < sDotCount; i++) {
     const sx = s.x + ((i * 137) % s.w);
     const sy = s.y + ((i * 211) % s.h);
+    if (sx < viewMinX || sx > viewMaxX || sy < viewMinY || sy > viewMaxY) continue;
     ctx.fillRect(sx, sy, 3, 3);
   }
 
-  // Water zone
+  // Water zone (only draw visible band)
   const wz = FREE_WORLD.water;
   ctx.fillStyle = '#1a6bb5';
   ctx.fillRect(wz.x, wz.y, wz.w, wz.h);
-  // Deeper blue further from shore
-  const grad = ctx.createLinearGradient(wz.x, 0, wz.x + 400, 0);
-  grad.addColorStop(0, 'rgba(26,107,181,0)');
-  grad.addColorStop(1, 'rgba(10,60,120,0.7)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(wz.x, wz.y, wz.w, wz.h);
-  // Animated wave lines
-  ctx.strokeStyle = 'rgba(255,255,255,0.22)';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let i = 0; i < 24; i++) {
-    const wy = wz.y + ((i * 90 + tNow * 25) % wz.h);
-    ctx.moveTo(wz.x, wy);
-    for (let xi = 0; xi < wz.w; xi += 30) {
-      ctx.lineTo(wz.x + xi, wy + Math.sin(xi * 0.04 + tNow * 1.8 + i) * 4);
+  // Animated waves — only in visible region
+  const waveLeft = Math.max(wz.x, viewMinX);
+  const waveRight = Math.min(wz.x + wz.w, viewMaxX);
+  if (waveRight > waveLeft) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const waveStep = IS_MOBILE ? 80 : 50;
+    const waveCount = IS_MOBILE ? 6 : 10;
+    for (let i = 0; i < waveCount; i++) {
+      const wy = wz.y + ((i * 90 + tNow * 25) % wz.h);
+      if (wy < viewMinY - 10 || wy > viewMaxY + 10) continue;
+      ctx.moveTo(waveLeft, wy);
+      for (let xi = 0; xi < waveRight - waveLeft; xi += waveStep) {
+        ctx.lineTo(waveLeft + xi, wy + Math.sin(xi * 0.04 + tNow * 1.8 + i) * 4);
+      }
     }
+    ctx.stroke();
   }
-  ctx.stroke();
-  // Foam at the beach edge
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  for (let y = wz.y; y < wz.y + wz.h; y += 14) {
-    const xOff = Math.sin(y * 0.05 + tNow * 3) * 3;
-    ctx.fillRect(wz.x - 2 + xOff, y, 6, 8);
+  // Foam at beach edge (clipped to visible y range)
+  if (wz.x > viewMinX && wz.x < viewMaxX) {
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    const foamYStart = Math.max(wz.y, viewMinY);
+    const foamYEnd = Math.min(wz.y + wz.h, viewMaxY);
+    const foamStep = IS_MOBILE ? 24 : 14;
+    for (let y = foamYStart; y < foamYEnd; y += foamStep) {
+      const xOff = Math.sin(y * 0.05 + tNow * 3) * 3;
+      ctx.fillRect(wz.x - 2 + xOff, y, 6, 8);
+    }
   }
 
   // Connector road
   const r = FREE_WORLD.roadHoriz;
-  ctx.fillStyle = '#3a3a3a';
-  ctx.fillRect(r.x, r.y, r.w, r.h);
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(r.x, r.y, r.w, 3);
-  ctx.fillRect(r.x, r.y + r.h - 3, r.w, 3);
-  for (let lx = r.x; lx < r.x + r.w; lx += 40) {
-    ctx.fillRect(lx, r.y + r.h/2 - 2, 20, 4);
+  if (r.x < viewMaxX && r.x + r.w > viewMinX && r.y < viewMaxY && r.y + r.h > viewMinY) {
+    ctx.fillStyle = '#3a3a3a';
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(r.x, r.y, r.w, 3);
+    ctx.fillRect(r.x, r.y + r.h - 3, r.w, 3);
+    for (let lx = r.x; lx < r.x + r.w; lx += 40) {
+      ctx.fillRect(lx, r.y + r.h/2 - 2, 20, 4);
+    }
   }
 
-  // Buildings (skip off-screen for perf)
-  const viewMinX = p.worldX - W/2 - 20, viewMaxX = p.worldX + W/2 + 20;
-  const viewMinY = p.worldY - H/2 - 20, viewMaxY = p.worldY + H/2 + 20;
+  // Buildings — use cached offscreen canvases (drawImage is fast)
   for (const b of FREE_WORLD.buildings) {
     if (b.x > viewMaxX || b.x + b.w < viewMinX || b.y > viewMaxY || b.y + b.h < viewMinY) continue;
-    // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.fillRect(b.x + 6, b.y + 6, b.w, b.h);
-    // Body
-    ctx.fillStyle = b.color;
-    ctx.fillRect(b.x, b.y, b.w, b.h);
-    // Roof darker stripe
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.fillRect(b.x, b.y, b.w, 10);
-    // Windows
-    const winW = 14, winH = 18, stepX = 26, stepY = 30;
-    for (let wy = b.y + 18; wy < b.y + b.h - 14; wy += stepY) {
-      for (let wx = b.x + 12; wx < b.x + b.w - 12; wx += stepX) {
-        const hash = (wx * 31 + wy * 17 + b.seed) >>> 0;
-        const lit = (hash % 4) !== 0;
-        ctx.fillStyle = lit ? '#ffeb88' : '#1a1a1a';
-        ctx.fillRect(wx, wy, winW, winH);
-      }
-    }
-    // Door
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillRect(b.x + b.w/2 - 8, b.y + b.h - 22, 16, 22);
-    ctx.fillStyle = '#ffd700';
-    ctx.fillRect(b.x + b.w/2 + 4, b.y + b.h - 13, 2, 2);
+    if (b.cache) ctx.drawImage(b.cache, b.x - b.cachePad, b.y - b.cachePad);
   }
 
-  // Palm trees on the beach
+  // Palm trees — cached + slight sway via canvas rotation (only for visible)
   for (const t of FREE_WORLD.palms) {
     if (t.x < viewMinX - 30 || t.x > viewMaxX + 30 || t.y < viewMinY - 30 || t.y > viewMaxY + 30) continue;
+    if (!t.cache) continue;
+    const sway = Math.sin(tNow * 1.4 + t.x * 0.01) * 0.05;
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    ctx.rotate(sway);
+    ctx.drawImage(t.cache, -t.cw/2, -t.ch/2);
+    ctx.restore();
+  }
+
+  // Weapon pickups
+  for (const w of FREE_WORLD.weapons) {
+    if (w.taken) continue;
+    if (w.worldX < viewMinX - 30 || w.worldX > viewMaxX + 30 ||
+        w.worldY < viewMinY - 30 || w.worldY > viewMaxY + 30) continue;
+    const bob = Math.sin(tNow * 3 + w.worldX) * 3;
+    const glow = 0.5 + Math.sin(tNow * 4 + w.worldX) * 0.3;
+    // Glow ring
+    ctx.fillStyle = `rgba(255,215,0,${0.15 + glow * 0.15})`;
+    ctx.beginPath();
+    ctx.arc(w.worldX, w.worldY, 22, 0, Math.PI * 2);
+    ctx.fill();
+    // Crate shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillRect(w.worldX - 12 + 3, w.worldY - 12 + bob + 4, 24, 24);
+    // Crate body
+    ctx.fillStyle = '#8b5a2b';
+    ctx.fillRect(w.worldX - 12, w.worldY - 12 + bob, 24, 24);
+    // Crate planks
+    ctx.fillStyle = '#6a4520';
+    ctx.fillRect(w.worldX - 12, w.worldY - 1 + bob, 24, 2);
+    ctx.fillRect(w.worldX - 1, w.worldY - 12 + bob, 2, 24);
+    // Weapon icon
+    ctx.font = '18px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(FREE_WORLD.weaponTypes[w.type], w.worldX, w.worldY + bob);
+  }
+
+  // NPCs
+  for (const n of FREE_WORLD.npcs) {
+    if (n.worldX < viewMinX - 20 || n.worldX > viewMaxX + 20 ||
+        n.worldY < viewMinY - 20 || n.worldY > viewMaxY + 20) continue;
+    if (n.knockedOut && n.knockedOut > 0) {
+      // Lying down — rotated body
+      ctx.save();
+      ctx.translate(n.worldX, n.worldY);
+      ctx.rotate(n.angle);
+      // Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.beginPath();
+      ctx.ellipse(2, 2, 12, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Body (lying flat)
+      ctx.fillStyle = n.color;
+      ctx.fillRect(-6, -3, 14, 6);
+      // Head sticking out
+      ctx.fillStyle = '#dba87a';
+      ctx.beginPath();
+      ctx.arc(9, 0, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      // Hair
+      ctx.fillStyle = n.hairColor;
+      ctx.beginPath();
+      ctx.arc(9, 0, 3.5, -Math.PI/2, Math.PI/2);
+      ctx.fill();
+      ctx.restore();
+      // Dizzy stars above
+      const t = performance.now() / 200;
+      ctx.fillStyle = '#fff5aa';
+      ctx.font = 'bold 11px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('✦', n.worldX - 6 + Math.sin(t) * 3, n.worldY - 12);
+      ctx.fillText('✦', n.worldX + 6 + Math.sin(t + 1) * 3, n.worldY - 14);
+      continue;
+    }
     // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
     ctx.beginPath();
-    ctx.ellipse(t.x + 4, t.y + 16, 22, 6, 0, 0, Math.PI * 2);
+    ctx.ellipse(n.worldX + 1, n.worldY + 3, 7, 4, 0, 0, Math.PI * 2);
     ctx.fill();
-    // Trunk
-    ctx.fillStyle = '#6a4a2a';
-    ctx.fillRect(t.x - 4, t.y - 8, 8, 26);
-    // Leaves (gentle sway)
-    const sway = Math.sin(tNow * 1.4 + t.x * 0.01) * 2;
-    ctx.fillStyle = '#2a7a3a';
+    // Body
+    ctx.fillStyle = n.color;
+    ctx.fillRect(n.worldX - 5, n.worldY - 3, 10, 11);
+    // Head
+    ctx.fillStyle = '#dba87a';
     ctx.beginPath();
-    ctx.ellipse(t.x + sway, t.y - 12, 22, 14, 0, 0, Math.PI * 2);
+    ctx.arc(n.worldX, n.worldY - 5, 4, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#1a5a2a';
+    // Hair
+    ctx.fillStyle = n.hairColor;
     ctx.beginPath();
-    ctx.ellipse(t.x - 10 + sway, t.y - 14, 13, 8, 0.4, 0, Math.PI * 2);
+    ctx.arc(n.worldX, n.worldY - 6, 4, Math.PI, 2 * Math.PI);
     ctx.fill();
+    // Hit reaction (stars or "ouch")
+    if (n.hitTimer && n.hitTimer > 0) {
+      ctx.fillStyle = '#fff5aa';
+      ctx.font = 'bold 10px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('!', n.worldX, n.worldY - 14);
+    }
+  }
+
+  // Bullets (draw on top of NPCs but before player)
+  for (const b of bullets) {
+    if (b.worldX < viewMinX - 10 || b.worldX > viewMaxX + 10 ||
+        b.worldY < viewMinY - 10 || b.worldY > viewMaxY + 10) continue;
+    // Trail
+    ctx.strokeStyle = 'rgba(255,220,80,0.65)';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.ellipse(t.x + 10 + sway, t.y - 14, 13, 8, -0.4, 0, Math.PI * 2);
-    ctx.fill();
-    // Coconuts
-    ctx.fillStyle = '#3a2a1a';
+    ctx.moveTo(b.worldX - b.vx * 0.6, b.worldY - b.vy * 0.6);
+    ctx.lineTo(b.worldX, b.worldY);
+    ctx.stroke();
+    // Bullet tip
+    ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(t.x - 5, t.y - 8, 3, 0, Math.PI * 2);
-    ctx.arc(t.x + 5, t.y - 6, 3, 0, Math.PI * 2);
+    ctx.arc(b.worldX, b.worldY, 2.5, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -1878,8 +2459,6 @@ function drawFree() {
     ctx.rotate(p.carAngle);
     drawCarLocal(p.color, false);
     ctx.restore();
-
-    // Halo when player is near the parked car (visual hint)
     if (isNearCar()) {
       const pulse = 0.5 + Math.sin(tNow * 4) * 0.3;
       ctx.strokeStyle = `rgba(255,235,80,${pulse})`;
@@ -1895,14 +2474,11 @@ function drawFree() {
   ctx.save();
   ctx.translate(p.worldX, p.worldY + (p.bobOffset || 0));
   ctx.rotate(p.angle);
-  if (p.onFoot) {
-    drawPersonLocal(p.color);
-  } else {
-    drawCarLocal(p.color, p.stuck);
-  }
+  if (p.onFoot) drawPersonLocal(p.color);
+  else drawCarLocal(p.color, p.stuck);
   ctx.restore();
 
-  // Splash particles (water entry)
+  // Splash particles
   for (const pt of particles) {
     if (!pt.world) continue;
     ctx.fillStyle = pt.color || '#aaccff';
@@ -1915,9 +2491,10 @@ function drawFree() {
 
   ctx.restore(); // restore camera transform
 
-  // Compass / position indicator (screen space)
+  // ── HUD overlay (screen space) ──
+  // Status panel: in car / on foot + position + weapons
   ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.fillRect(10, 10, 130, 56);
+  ctx.fillRect(10, 10, 140, 70);
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 10px monospace';
   ctx.textBaseline = 'top';
@@ -1927,9 +2504,12 @@ function drawFree() {
   ctx.fillText(`X: ${Math.round(p.worldX)}`, 18, 28);
   ctx.fillStyle = '#33dd55';
   ctx.fillText(`Y: ${Math.round(p.worldY)}`, 18, 40);
+  // Ammo
+  ctx.fillStyle = (p.ammo > 0) ? '#ffd700' : '#888';
+  ctx.fillText(`🔫 ${p.ammo || 0}`, 18, 53);
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
   ctx.font = '9px monospace';
-  ctx.fillText('[E] toggle car', 18, 53);
+  ctx.fillText('[E] car · [Space] fire', 18, 66);
 
   // Zone hint
   let zone = 'GRASS';
@@ -1938,13 +2518,12 @@ function drawFree() {
   else if (pointInRect(p.worldX, p.worldY, FREE_WORLD.water)) zone = '🌊 SEA';
   else if (pointInRect(p.worldX, p.worldY, FREE_WORLD.roadHoriz)) zone = '🛣 ROAD';
   ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  const zoneText = zone;
   ctx.font = 'bold 11px monospace';
-  const tw = ctx.measureText(zoneText).width;
+  const tw = ctx.measureText(zone).width;
   ctx.fillRect(W - tw - 22, 10, tw + 16, 22);
   ctx.fillStyle = '#fff';
   ctx.textAlign = 'left';
-  ctx.fillText(zoneText, W - tw - 14, 14);
+  ctx.fillText(zone, W - tw - 14, 14);
 }
 
 function draw() {
@@ -1987,10 +2566,22 @@ function draw() {
 }
 
 let lastTime = 0;
+let accumulator = 0;
+const FIXED_DT = 16.67; // target 60 updates/sec, regardless of display refresh rate
+
 function loop(now) {
-  const dt = lastTime ? Math.min(now - lastTime, 50) : 16;
+  const elapsed = lastTime ? Math.min(now - lastTime, 100) : FIXED_DT;
   lastTime = now;
-  update(dt);
+  accumulator += elapsed;
+  // Run as many fixed updates as the time we've accumulated allows, max 3 to avoid spiraling
+  let steps = 0;
+  while (accumulator >= FIXED_DT && steps < 3) {
+    update(FIXED_DT);
+    accumulator -= FIXED_DT;
+    steps++;
+  }
+  // If we fell really behind (very slow device), drop the rest so the game doesn't get stuck catching up
+  if (accumulator > FIXED_DT * 3) accumulator = 0;
   draw();
   requestAnimationFrame(loop);
 }
@@ -2070,6 +2661,7 @@ function pauseGame() {
   gameState = 'paused';
   Sound.stopEngine();
   document.getElementById('carBtn').classList.remove('visible');
+  document.getElementById('fireBtn').classList.remove('visible');
   const distance = player ? Math.floor((player.worldY || 0) / 10) : 0;
   if (player && player._wasMode === 'free') {
     pauseStats.textContent = `FREE ROAM · (${Math.round(player.worldX)}, ${Math.round(player.worldY)})`;
@@ -2092,6 +2684,7 @@ function resumeGame() {
   if (gameState === 'free') {
     document.getElementById('carBtn').classList.add('visible');
     updateCarBtn();
+    updateFireBtn();
   }
 }
 
@@ -2103,6 +2696,7 @@ function exitToMainPage() {
   document.getElementById('hud').style.display = '';
   document.getElementById('scorebox').style.display = '';
   document.getElementById('carBtn').classList.remove('visible');
+  document.getElementById('fireBtn').classList.remove('visible');
 
   const embedded = window.self !== window.top;
 
@@ -2151,6 +2745,16 @@ document.getElementById('carBtn').addEventListener('click', () => {
   toggleCar();
 });
 
+// Fire button — pointer events handle both touch and mouse uniformly
+const fireBtn = document.getElementById('fireBtn');
+fireBtn.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  Sound.resume();
+  shoot();
+});
+// Prevent context menu on long press
+fireBtn.addEventListener('contextmenu', e => e.preventDefault());
+
 document.addEventListener('keydown', e => {
   keys[e.key] = true;
   if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
@@ -2169,6 +2773,12 @@ document.addEventListener('keydown', e => {
     if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
       e.preventDefault();
       cycleRadio();
+    }
+  }
+  if (e.key === ' ' || e.code === 'Space') {
+    if (gameState === 'free') {
+      e.preventDefault();
+      shoot();
     }
   }
   if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
@@ -2244,6 +2854,10 @@ canvas.addEventListener('touchcancel', e => {
   touchActive = false;
   clearTouchKeys();
 }, { passive: false });
+
+// Pre-render static world art to offscreen canvases (mobile perf win)
+prerenderBuildings();
+prerenderPalms();
 
 reset();
 draw();
