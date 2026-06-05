@@ -265,6 +265,36 @@
     box-shadow: none;
     cursor: not-allowed;
   }
+  #buyBtn {
+    position: absolute;
+    bottom: 164px; right: 10px;
+    background: rgba(30, 150, 60, 0.9);
+    color: #fff;
+    border: 2px solid #4ade80;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.08s, opacity 0.15s, background 0.15s;
+    display: none;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.45);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #buyBtn:hover { background: rgba(40, 180, 75, 1); }
+  #buyBtn:active { transform: scale(0.9); }
+  #buyBtn.visible { display: block; }
+  #buyBtn.cant {
+    opacity: 0.5;
+    background: rgba(80,80,80,0.8);
+    border-color: rgba(255,255,255,0.3);
+    box-shadow: none;
+  }
   #pauseOverlay {
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
@@ -366,6 +396,7 @@
   <button id="carBtn" title="Exit / Enter car (E)" aria-label="Toggle car">🚪 EXIT CAR</button>
   <button id="radioBtn" title="Radio (R) — tap to change station" aria-label="Radio">📻 OFF</button>
   <button id="fireBtn" title="Fire (Space) — needs ammo" aria-label="Fire">🔫 FIRE</button>
+  <button id="buyBtn" title="Buy this house" aria-label="Buy house">🏠 BUY</button>
   <div id="pauseOverlay" class="hidden">
     <h2>PAUSED</h2>
     <p id="pauseStats" class="pause-stats"></p>
@@ -382,6 +413,7 @@
     <p class="controls">⏸ ESC / P — pause &amp; exit</p>
     <p class="controls">📻 R — cycle radio station</p>
     <p class="controls">🔫 SPACE — fire (free roam · needs ammo)</p>
+    <p class="controls">🏠 B — buy a house · walk into your door to enter</p>
     <div class="mode-picker">
       <span class="label">GAME MODE</span>
       <div class="mode-options">
@@ -1055,8 +1087,18 @@ const FREE_WORLD = (() => {
         x, y, w: bldgSize, h: bldgSize,
         color: palette[seed % palette.length],
         seed,
-        cache: null
+        cache: null,
+        forSale: false, owned: false, price: 0
       });
+    }
+  }
+
+  // Mark some buildings as purchasable (with increasing prices)
+  const saleConfig = [[0, 200], [4, 400], [7, 700], [10, 1200]];
+  for (const [idx, price] of saleConfig) {
+    if (buildings[idx]) {
+      buildings[idx].forSale = true;
+      buildings[idx].price = price;
     }
   }
 
@@ -1088,6 +1130,7 @@ const FREE_WORLD = (() => {
       color: npcColors[i % npcColors.length],
       hairColor: ['#2a1a08', '#5a3818', '#8a5818', '#1a0a04'][i % 4],
       hit: false,
+      speech: null, speechTimer: 0, greetCooldown: 0,
       onSand
     });
   }
@@ -1103,10 +1146,42 @@ const FREE_WORLD = (() => {
     { worldX:  650, worldY: -150, type: 1, taken: false }
   ];
 
+  // NPC traffic cars driving along the street grid
+  const trafficColors = ['#d33838', '#3a8ad0', '#3ac55a', '#f5a623', '#c050c0', '#e8e8e8', '#444'];
+  const traffic = [];
+  // Spread cars across several streets (mix of horizontal and vertical)
+  const trafficStreetIdx = [0, 1, 2, 5, 6, 8];
+  for (let k = 0; k < trafficStreetIdx.length; k++) {
+    const stIdx = trafficStreetIdx[k % streets.length];
+    const st = streets[stIdx];
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    const car = {
+      streetIdx: stIdx,
+      color: trafficColors[k % trafficColors.length],
+      speed: 1.2 + Math.random() * 0.9,
+      w: 30, h: 50,
+      hitTimer: 0,
+      worldX: 0, worldY: 0, vx: 0, vy: 0, angle: 0
+    };
+    if (st.horiz) {
+      car.worldY = st.y + st.h / 2;
+      car.worldX = st.x + 40 + Math.random() * (st.w - 80);
+      car.vx = dir; car.vy = 0;
+      car.angle = dir > 0 ? Math.PI / 2 : -Math.PI / 2;
+    } else {
+      car.worldX = st.x + st.w / 2;
+      car.worldY = st.y + 40 + Math.random() * (st.h - 80);
+      car.vx = 0; car.vy = dir;
+      car.angle = dir > 0 ? Math.PI : 0;
+    }
+    traffic.push(car);
+  }
+
   return {
     buildings,
     streets,
     npcs,
+    traffic,
     weapons,
     weaponTypes,
     cityStartX, cityStartY, blockSize,
@@ -1201,6 +1276,54 @@ function prerenderPalms() {
 // Mobile detection (used to dial back effects)
 const IS_MOBILE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ||
                   (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+
+// NPC dialogue pools (Chilean Spanish)
+const NPC_CHATTER = [
+  "¡Qué día tan bacán!", "Voy atrasado...", "¿Y la micro?",
+  "Voy a la playa", "Bonito día", "Mmm café...", "La la la~",
+  "¡Qué calor!", "Casi llego", "Ya po...", "Hmm hmm hmm...",
+  "¡Qué bacán!", "Pucha la cosa", "Lindo el solcito",
+  "¿Dónde dejé las llaves?"
+];
+const NPC_GREET = [
+  "¡Hola!", "¡Qué onda!", "¡Buen auto!", "¡Qué tal!", "¡Hey!",
+  "¡Bacán el auto!", "¿Cómo estai?", "¡Cuidao po!", "¡Hola hola!"
+];
+const NPC_HIT = [
+  "¡Ay!", "¡Auch!", "¡Oye!", "¡Cuidao po!", "¡Eh!",
+  "¡Ah!", "¡Pucha!", "¡Qué onda!"
+];
+
+// ── Money & house ownership (persisted) ──
+let gameMoney;
+try { gameMoney = parseInt(localStorage.getItem('furiousCarsMoney'), 10); } catch (e) {}
+if (isNaN(gameMoney)) gameMoney = 300;
+
+function addMoney(amt) {
+  gameMoney += amt;
+  try { localStorage.setItem('furiousCarsMoney', String(gameMoney)); } catch (e) {}
+}
+function spendMoney(amt) {
+  if (gameMoney < amt) return false;
+  gameMoney -= amt;
+  try { localStorage.setItem('furiousCarsMoney', String(gameMoney)); } catch (e) {}
+  return true;
+}
+function saveHouses() {
+  const owned = [];
+  FREE_WORLD.buildings.forEach((b, i) => { if (b.owned) owned.push(i); });
+  try { localStorage.setItem('furiousCarsHouses', JSON.stringify(owned)); } catch (e) {}
+}
+function loadHouses() {
+  let owned = [];
+  try { owned = JSON.parse(localStorage.getItem('furiousCarsHouses') || '[]'); } catch (e) {}
+  if (!Array.isArray(owned)) owned = [];
+  owned.forEach(i => { if (FREE_WORLD.buildings[i]) FREE_WORLD.buildings[i].owned = true; });
+}
+
+// ── Interior (house) state ──
+const ROOM = { left: 40, top: 70, right: 360, bottom: 540, cx: 200 };
+let interior = { buildingIdx: -1, px: 200, py: 500, vx: 0, vy: 0, pangle: -Math.PI/2, exitCooldown: 0 };
 
 function pointInRect(x, y, r) {
   return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
@@ -1327,9 +1450,29 @@ function resetFree() {
     n.hit = false;
     n.hitTimer = 0;
     n.knockedOut = 0;
+    n.speech = null;
+    n.speechTimer = 0;
+    n.greetCooldown = 0;
   }
   // Reset weapons (all available again)
   for (const w of FREE_WORLD.weapons) w.taken = false;
+  // Reposition traffic cars along their streets
+  for (const car of FREE_WORLD.traffic) {
+    const st = FREE_WORLD.streets[car.streetIdx];
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    car.hitTimer = 0;
+    if (st.horiz) {
+      car.worldY = st.y + st.h / 2;
+      car.worldX = st.x + 40 + Math.random() * (st.w - 80);
+      car.vx = dir; car.vy = 0;
+      car.angle = dir > 0 ? Math.PI / 2 : -Math.PI / 2;
+    } else {
+      car.worldX = st.x + st.w / 2;
+      car.worldY = st.y + 40 + Math.random() * (st.h - 80);
+      car.vx = 0; car.vy = dir;
+      car.angle = dir > 0 ? Math.PI : 0;
+    }
+  }
 }
 
 function startGame() {
@@ -1495,6 +1638,7 @@ function checkCollisions() {
 function update(dt) {
   if (gameState === 'idle' || gameState === 'gameover' || gameState === 'paused' || gameState === 'stuck') return;
 
+  if (gameState === 'interior') { updateInterior(dt); return; }
   if (gameState === 'free') { updateFree(dt); return; }
 
   updatePlayer();
@@ -1651,8 +1795,13 @@ function updateFree(dt) {
 
   // Update NPCs (pedestrians)
   updateNPCs();
+  // Update traffic cars
+  updateTraffic();
   // Check weapon pickups (on foot only)
   if (p.onFoot) checkWeaponPickup();
+  // House interactions (on foot)
+  if (p.onFoot) { checkHouseEntry(); updateBuyBtn(); }
+  else document.getElementById('buyBtn').classList.remove('visible');
   // Update bullets and fire cooldown
   updateBullets();
   if (p.fireCooldown > 0) p.fireCooldown--;
@@ -1663,6 +1812,10 @@ function updateFree(dt) {
 
 function updateNPCs() {
   for (const n of FREE_WORLD.npcs) {
+    // Speech timers tick down regardless of state
+    if (n.speechTimer > 0) n.speechTimer--;
+    if (n.greetCooldown > 0) n.greetCooldown--;
+
     if (n.knockedOut && n.knockedOut > 0) {
       n.knockedOut--;
       continue;
@@ -1672,6 +1825,23 @@ function updateNPCs() {
       // recover from hit
       continue;
     }
+
+    // Greet the player when nearby (with cooldown to avoid spam)
+    if (player && n.speechTimer <= 0 && n.greetCooldown <= 0) {
+      const dpx = n.worldX - player.worldX;
+      const dpy = n.worldY - player.worldY;
+      if (Math.hypot(dpx, dpy) < 65) {
+        n.speech = NPC_GREET[Math.floor(Math.random() * NPC_GREET.length)];
+        n.speechTimer = 110;
+        n.greetCooldown = 320;
+      }
+    }
+    // Random ambient chatter
+    if (n.speechTimer <= 0 && Math.random() < 0.0035) {
+      n.speech = NPC_CHATTER[Math.floor(Math.random() * NPC_CHATTER.length)];
+      n.speechTimer = 100;
+    }
+
     n.changeIn--;
     if (n.changeIn <= 0) {
       // Pick a new random direction
@@ -1720,6 +1890,8 @@ function updateNPCs() {
       n.worldY += Math.sin(ang) * 12;
       n.hitTimer = 30;
       n.hit = true;
+      n.speech = NPC_HIT[Math.floor(Math.random() * NPC_HIT.length)];
+      n.speechTimer = 80;
       // Small sparks
       for (let i = 0; i < 4; i++) {
         particles.push({
@@ -1734,6 +1906,39 @@ function updateNPCs() {
   }
 }
 
+function updateTraffic() {
+  for (const car of FREE_WORLD.traffic) {
+    const st = FREE_WORLD.streets[car.streetIdx];
+    if (car.hitTimer > 0) { car.hitTimer--; continue; }
+    car.worldX += car.vx * car.speed;
+    car.worldY += car.vy * car.speed;
+    // Reverse at the ends of the street; keep centered on the lane
+    if (st.horiz) {
+      car.worldY = st.y + st.h / 2;
+      if (car.worldX < st.x + 28) { car.vx = 1; car.angle = Math.PI / 2; }
+      else if (car.worldX > st.x + st.w - 28) { car.vx = -1; car.angle = -Math.PI / 2; }
+    } else {
+      car.worldX = st.x + st.w / 2;
+      if (car.worldY < st.y + 28) { car.vy = 1; car.angle = Math.PI; }
+      else if (car.worldY > st.y + st.h - 28) { car.vy = -1; car.angle = 0; }
+    }
+    // Collision with player (bump)
+    const dx = player.worldX - car.worldX;
+    const dy = player.worldY - car.worldY;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 32 && dist > 0.01) {
+      const ang = Math.atan2(dy, dx);
+      const push = player.onFoot ? 10 : 6;
+      player.worldX += Math.cos(ang) * push;
+      player.worldY += Math.sin(ang) * push;
+      player.vx = (player.vx || 0) + Math.cos(ang) * 2;
+      player.vy = (player.vy || 0) + Math.sin(ang) * 2;
+      car.hitTimer = 18; // brief pause after a bump
+      shake = Math.max(shake, 5);
+    }
+  }
+}
+
 function checkWeaponPickup() {
   for (const w of FREE_WORLD.weapons) {
     if (w.taken) continue;
@@ -1742,6 +1947,7 @@ function checkWeaponPickup() {
     if (Math.hypot(dx, dy) < 22) {
       w.taken = true;
       player.ammo = (player.ammo || 0) + 5;
+      addMoney(25);
       Sound.levelUp();
       updateFireBtn();
       // Sparkle particles
@@ -1816,6 +2022,9 @@ function updateBullets() {
         n.worldY += b.vy * 0.6;
         b.life = 0;
         hit = true;
+        addMoney(50);
+        n.speech = NPC_HIT[Math.floor(Math.random() * NPC_HIT.length)];
+        n.speechTimer = 100;
         // Impact particles
         for (let i = 0; i < 10; i++) {
           particles.push({
@@ -1831,6 +2040,30 @@ function updateBullets() {
       }
     }
     if (hit) continue;
+    // Traffic car hit
+    let hitCar = false;
+    for (const tc of FREE_WORLD.traffic) {
+      const cdx = b.worldX - tc.worldX;
+      const cdy = b.worldY - tc.worldY;
+      if (Math.hypot(cdx, cdy) < 20) {
+        b.life = 0;
+        hitCar = true;
+        tc.hitTimer = Math.max(tc.hitTimer, 25); // car screeches to a brief stop
+        // Metallic sparks
+        for (let i = 0; i < 7; i++) {
+          particles.push({
+            worldX: b.worldX, worldY: b.worldY,
+            vx: -b.vx * 0.3 + (Math.random() - 0.5) * 4,
+            vy: -b.vy * 0.3 + (Math.random() - 0.5) * 4,
+            life: 18, size: 1.5 + Math.random() * 2,
+            color: i % 2 ? '#ffeb88' : '#ffffff',
+            world: true
+          });
+        }
+        break;
+      }
+    }
+    if (hitCar) continue;
     // Building hit
     for (const bld of FREE_WORLD.buildings) {
       if (b.worldX > bld.x && b.worldX < bld.x + bld.w &&
@@ -1878,6 +2111,124 @@ function updateFireBtn() {
   const ammo = player ? (player.ammo || 0) : 0;
   btn.textContent = ammo > 0 ? '🔫 ' + ammo : '🔫 0';
   btn.classList.toggle('empty', ammo <= 0);
+}
+
+// Returns the for-sale (unowned) building whose door the player (on foot) is near
+function getNearbyForSaleBuilding() {
+  if (!player || !player.onFoot || gameState !== 'free') return null;
+  for (const b of FREE_WORLD.buildings) {
+    if (!b.forSale || b.owned) continue;
+    const doorX = b.x + b.w / 2;
+    const doorY = b.y + b.h;
+    if (Math.hypot(player.worldX - doorX, player.worldY - doorY) < 55) return b;
+  }
+  return null;
+}
+
+function buyHouse() {
+  const b = getNearbyForSaleBuilding();
+  if (!b) return;
+  if (spendMoney(b.price)) {
+    b.owned = true;
+    saveHouses();
+    Sound.newRecord();
+    // Celebration confetti at the door
+    const dx = b.x + b.w / 2, dy = b.y + b.h;
+    for (let i = 0; i < 24; i++) {
+      particles.push({
+        worldX: dx, worldY: dy,
+        vx: (Math.random() - 0.5) * 6,
+        vy: -Math.random() * 6 - 1,
+        life: 50, size: 2 + Math.random() * 3,
+        color: ['#ffd700', '#33dd55', '#3aa6ff', '#fff'][i % 4],
+        world: true
+      });
+    }
+  } else {
+    Sound.emptyClick();
+  }
+  updateBuyBtn();
+}
+
+function updateBuyBtn() {
+  const btn = document.getElementById('buyBtn');
+  const b = getNearbyForSaleBuilding();
+  if (!b) { btn.classList.remove('visible'); return; }
+  btn.classList.add('visible');
+  btn.textContent = '🏠 BUY $' + b.price;
+  btn.classList.toggle('cant', gameMoney < b.price);
+}
+
+// Enter an owned house if standing on its doorstep (on foot)
+function checkHouseEntry() {
+  if (!player.onFoot) return;
+  for (let i = 0; i < FREE_WORLD.buildings.length; i++) {
+    const b = FREE_WORLD.buildings[i];
+    if (!b.owned) continue;
+    const doorX = b.x + b.w / 2;
+    const doorY = b.y + b.h - 2;
+    if (Math.abs(player.worldX - doorX) < 16 && Math.abs(player.worldY - doorY) < 18) {
+      enterHouse(i);
+      return;
+    }
+  }
+}
+
+function enterHouse(idx) {
+  interior.buildingIdx = idx;
+  interior.px = ROOM.cx;
+  interior.py = ROOM.bottom - 30;
+  interior.vx = 0; interior.vy = 0;
+  interior.pangle = -Math.PI / 2;
+  interior.exitCooldown = 40;
+  gameState = 'interior';
+  Sound.stopEngine();
+  Sound.uiClick();
+  document.getElementById('carBtn').classList.remove('visible');
+  document.getElementById('fireBtn').classList.remove('visible');
+  document.getElementById('buyBtn').classList.remove('visible');
+  document.getElementById('pauseBtn').classList.remove('visible');
+}
+
+function exitHouse() {
+  const b = FREE_WORLD.buildings[interior.buildingIdx];
+  gameState = 'free';
+  player.onFoot = true;
+  player.worldX = b.x + b.w / 2;
+  player.worldY = b.y + b.h + 26;
+  player.vx = 0; player.vy = 0;
+  Sound.uiClick();
+  document.getElementById('carBtn').classList.add('visible');
+  document.getElementById('pauseBtn').classList.add('visible');
+  updateCarBtn();
+  updateFireBtn();
+  updateBuyBtn();
+}
+
+function updateInterior(dt) {
+  const accel = 0.42, friction = 0.78, maxV = 3.2;
+  let ax = 0, ay = 0;
+  if (keyLeft())  ax -= accel;
+  if (keyRight()) ax += accel;
+  if (keyUp())    ay -= accel;
+  if (keyDown()) ay += accel;
+  interior.vx = interior.vx * friction + ax;
+  interior.vy = interior.vy * friction + ay;
+  const sp = Math.hypot(interior.vx, interior.vy);
+  if (sp > maxV) { interior.vx = interior.vx / sp * maxV; interior.vy = interior.vy / sp * maxV; }
+  interior.px += interior.vx;
+  interior.py += interior.vy;
+  if (sp > 0.3) interior.pangle = Math.atan2(interior.vy, interior.vx);
+  // Keep inside room
+  const pad = 16;
+  interior.px = Math.max(ROOM.left + pad, Math.min(ROOM.right - pad, interior.px));
+  interior.py = Math.max(ROOM.top + pad, Math.min(ROOM.bottom - pad, interior.py));
+  if (interior.exitCooldown > 0) interior.exitCooldown--;
+  // Exit by reaching the door at the bottom center
+  if (interior.exitCooldown <= 0 &&
+      Math.abs(interior.px - ROOM.cx) < 28 && interior.py > ROOM.bottom - 26) {
+    exitHouse();
+  }
 }
 
 function showStuckOverlay() {
@@ -2205,6 +2556,47 @@ function drawCarLocal(color, stuck = false) {
 }
 
 
+function roundRectPath(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+// Draw a speech bubble (world space) centered above a point
+function drawSpeechBubble(cx, baseY, text) {
+  ctx.font = 'bold 9px Arial';
+  const tw = ctx.measureText(text).width;
+  const padX = 6;
+  const bw = tw + padX * 2;
+  const bh = 15;
+  const bx = cx - bw / 2;
+  const by = baseY - bh - 6;
+  // Bubble
+  ctx.fillStyle = 'rgba(255,255,255,0.96)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+  ctx.lineWidth = 1;
+  roundRectPath(bx, by, bw, bh, 5);
+  ctx.fill();
+  ctx.stroke();
+  // Pointer triangle toward the NPC
+  ctx.fillStyle = 'rgba(255,255,255,0.96)';
+  ctx.beginPath();
+  ctx.moveTo(cx - 4, by + bh - 1);
+  ctx.lineTo(cx + 4, by + bh - 1);
+  ctx.lineTo(cx, by + bh + 5);
+  ctx.closePath();
+  ctx.fill();
+  // Text
+  ctx.fillStyle = '#1a1a1a';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, cx, by + bh / 2 + 0.5);
+}
+
 function drawFree() {
   const p = player;
   const tNow = performance.now() / 1000;
@@ -2318,6 +2710,31 @@ function drawFree() {
   for (const b of FREE_WORLD.buildings) {
     if (b.x > viewMaxX || b.x + b.w < viewMinX || b.y > viewMaxY || b.y + b.h < viewMinY) continue;
     if (b.cache) ctx.drawImage(b.cache, b.x - b.cachePad, b.y - b.cachePad);
+    // Sale / ownership signs
+    if (b.forSale && !b.owned) {
+      const sx = b.x + b.w / 2, sy = b.y - 14;
+      const label = '$' + b.price;
+      ctx.font = 'bold 13px Arial';
+      const lw = ctx.measureText(label).width + 16;
+      // Sign post
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(sx - lw/2, sy - 12, lw, 18);
+      ctx.fillStyle = '#16a34a';
+      ctx.fillRect(sx - lw/2, sy - 12, lw, 4);
+      ctx.fillStyle = '#16a34a';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, sx, sy - 1);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 8px Arial';
+      ctx.fillText('FOR SALE', sx, sy + 11);
+    } else if (b.owned) {
+      const sx = b.x + b.w / 2, sy = b.y - 10;
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🏠', sx, sy);
+    }
   }
 
   // Palm trees — cached + slight sway via canvas rotation (only for visible)
@@ -2361,6 +2778,17 @@ function drawFree() {
     ctx.fillText(FREE_WORLD.weaponTypes[w.type], w.worldX, w.worldY + bob);
   }
 
+  // Traffic cars (NPC-driven)
+  for (const tc of FREE_WORLD.traffic) {
+    if (tc.worldX < viewMinX - 40 || tc.worldX > viewMaxX + 40 ||
+        tc.worldY < viewMinY - 40 || tc.worldY > viewMaxY + 40) continue;
+    ctx.save();
+    ctx.translate(tc.worldX, tc.worldY);
+    ctx.rotate(tc.angle);
+    drawCarLocal(tc.color, false);
+    ctx.restore();
+  }
+
   // NPCs
   for (const n of FREE_WORLD.npcs) {
     if (n.worldX < viewMinX - 20 || n.worldX > viewMaxX + 20 ||
@@ -2396,6 +2824,7 @@ function drawFree() {
       ctx.textAlign = 'center';
       ctx.fillText('✦', n.worldX - 6 + Math.sin(t) * 3, n.worldY - 12);
       ctx.fillText('✦', n.worldX + 6 + Math.sin(t + 1) * 3, n.worldY - 14);
+      if (n.speechTimer > 0 && n.speech) drawSpeechBubble(n.worldX, n.worldY - 18, n.speech);
       continue;
     }
     // Shadow
@@ -2422,6 +2851,10 @@ function drawFree() {
       ctx.font = 'bold 10px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('!', n.worldX, n.worldY - 14);
+    }
+    // Speech bubble
+    if (n.speechTimer > 0 && n.speech) {
+      drawSpeechBubble(n.worldX, n.worldY - 12, n.speech);
     }
   }
 
@@ -2511,6 +2944,17 @@ function drawFree() {
   ctx.font = '9px monospace';
   ctx.fillText('[E] car · [Space] fire', 18, 66);
 
+  // Money (top-right, below zone)
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.font = 'bold 12px monospace';
+  const mtxt = '💵 $' + gameMoney;
+  const mw2 = ctx.measureText(mtxt).width;
+  ctx.fillRect(W - mw2 - 24, 38, mw2 + 16, 22);
+  ctx.fillStyle = '#33dd55';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText(mtxt, W - mw2 - 16, 43);
+
   // Zone hint
   let zone = 'GRASS';
   if (p.worldX < -200 && p.worldY > -700 && p.worldY < 700) zone = '🏙 CITY';
@@ -2526,7 +2970,107 @@ function drawFree() {
   ctx.fillText(zone, W - tw - 14, 14);
 }
 
+function drawInterior() {
+  const b = FREE_WORLD.buildings[interior.buildingIdx];
+  // Dark backdrop
+  ctx.fillStyle = '#15151c';
+  ctx.fillRect(0, 0, W, H);
+
+  const rw = ROOM.right - ROOM.left, rh = ROOM.bottom - ROOM.top;
+  // Floor
+  ctx.fillStyle = '#9a7550';
+  ctx.fillRect(ROOM.left, ROOM.top, rw, rh);
+  // Floor planks
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+  ctx.lineWidth = 1;
+  for (let x = ROOM.left + 28; x < ROOM.right; x += 28) {
+    ctx.beginPath(); ctx.moveTo(x, ROOM.top); ctx.lineTo(x, ROOM.bottom); ctx.stroke();
+  }
+  // Walls
+  ctx.strokeStyle = '#4a3a2a';
+  ctx.lineWidth = 14;
+  ctx.strokeRect(ROOM.left + 7, ROOM.top + 7, rw - 14, rh - 14);
+  ctx.lineWidth = 1;
+
+  // ── Furniture ──
+  // Bed (top-left)
+  ctx.fillStyle = '#7a4a4a';
+  ctx.fillRect(ROOM.left + 24, ROOM.top + 24, 70, 100);
+  ctx.fillStyle = '#e8e8f0';
+  ctx.fillRect(ROOM.left + 30, ROOM.top + 30, 58, 34); // pillow area
+  ctx.fillStyle = '#d05858';
+  ctx.fillRect(ROOM.left + 30, ROOM.top + 66, 58, 52); // blanket
+
+  // Table (center)
+  ctx.fillStyle = '#6a4a2a';
+  ctx.fillRect(ROOM.cx - 35, ROOM.top + rh / 2 - 20, 70, 44);
+  ctx.fillStyle = '#5a3a1a';
+  ctx.fillRect(ROOM.cx - 35, ROOM.top + rh / 2 - 20, 70, 6);
+
+  // TV (top-right, on a stand)
+  ctx.fillStyle = '#2a2a2a';
+  ctx.fillRect(ROOM.right - 90, ROOM.top + 30, 60, 40);
+  ctx.fillStyle = '#3a6aaa';
+  ctx.fillRect(ROOM.right - 86, ROOM.top + 34, 52, 32);
+  ctx.fillStyle = '#4a3a2a';
+  ctx.fillRect(ROOM.right - 78, ROOM.top + 70, 36, 8);
+
+  // Plant (bottom-right corner)
+  ctx.fillStyle = '#8a5a3a';
+  ctx.fillRect(ROOM.right - 56, ROOM.bottom - 70, 26, 26);
+  ctx.fillStyle = '#2a8a3a';
+  ctx.beginPath();
+  ctx.arc(ROOM.right - 43, ROOM.bottom - 72, 18, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Rug (under table)
+  ctx.fillStyle = 'rgba(180,120,80,0.35)';
+  ctx.fillRect(ROOM.cx - 55, ROOM.top + rh / 2 - 40, 110, 90);
+
+  // Exit door (bottom center)
+  const doorW = 56;
+  ctx.fillStyle = '#3a2a1a';
+  ctx.fillRect(ROOM.cx - doorW / 2, ROOM.bottom - 14, doorW, 18);
+  ctx.fillStyle = '#ffd700';
+  ctx.fillRect(ROOM.cx + doorW / 2 - 10, ROOM.bottom - 6, 4, 4);
+  // "EXIT" hint above door
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('▼ EXIT ▼', ROOM.cx, ROOM.bottom - 18);
+
+  // ── Player (top-down little person) ──
+  ctx.save();
+  ctx.translate(interior.px, interior.py);
+  ctx.rotate(interior.pangle + Math.PI / 2);
+  drawPersonLocal(player.color);
+  ctx.restore();
+
+  // ── HUD ──
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(10, 10, 220, 44);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('🏠 YOUR HOUSE', 18, 16);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = '10px monospace';
+  ctx.fillText('Walk to the door to exit', 18, 36);
+
+  // Money
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.font = 'bold 13px monospace';
+  const mtxt = '💵 $' + gameMoney;
+  const mw = ctx.measureText(mtxt).width;
+  ctx.fillRect(W - mw - 26, 10, mw + 16, 26);
+  ctx.fillStyle = '#33dd55';
+  ctx.fillText(mtxt, W - mw - 18, 15);
+}
+
 function draw() {
+  if (gameState === 'interior') { drawInterior(); return; }
   if (gameState === 'free' || gameState === 'stuck') { drawFree(); return; }
   ctx.save();
   if (shake > 0) {
@@ -2662,6 +3206,7 @@ function pauseGame() {
   Sound.stopEngine();
   document.getElementById('carBtn').classList.remove('visible');
   document.getElementById('fireBtn').classList.remove('visible');
+  document.getElementById('buyBtn').classList.remove('visible');
   const distance = player ? Math.floor((player.worldY || 0) / 10) : 0;
   if (player && player._wasMode === 'free') {
     pauseStats.textContent = `FREE ROAM · (${Math.round(player.worldX)}, ${Math.round(player.worldY)})`;
@@ -2697,6 +3242,7 @@ function exitToMainPage() {
   document.getElementById('scorebox').style.display = '';
   document.getElementById('carBtn').classList.remove('visible');
   document.getElementById('fireBtn').classList.remove('visible');
+  document.getElementById('buyBtn').classList.remove('visible');
 
   const embedded = window.self !== window.top;
 
@@ -2755,6 +3301,15 @@ fireBtn.addEventListener('pointerdown', e => {
 // Prevent context menu on long press
 fireBtn.addEventListener('contextmenu', e => e.preventDefault());
 
+// Buy house button
+const buyBtn = document.getElementById('buyBtn');
+buyBtn.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  Sound.resume();
+  buyHouse();
+});
+buyBtn.addEventListener('contextmenu', e => e.preventDefault());
+
 document.addEventListener('keydown', e => {
   keys[e.key] = true;
   if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
@@ -2779,6 +3334,12 @@ document.addEventListener('keydown', e => {
     if (gameState === 'free') {
       e.preventDefault();
       shoot();
+    }
+  }
+  if (e.key === 'b' || e.key === 'B') {
+    if (gameState === 'free') {
+      e.preventDefault();
+      buyHouse();
     }
   }
   if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
@@ -2810,10 +3371,18 @@ function applyTouchPos(clientX, clientY) {
 
   // In free mode, the player is always rendered at canvas center
   const isFreeMode = gameState === 'free' || gameState === 'stuck';
-  const refX = isFreeMode ? W / 2 : (player ? player.x : W / 2);
-  const refY = isFreeMode ? H / 2 : (player ? player.y : H / 2);
+  const isInterior = gameState === 'interior';
+  let refX, refY;
+  if (isInterior) {
+    refX = interior.px; refY = interior.py;
+  } else if (isFreeMode) {
+    refX = W / 2; refY = H / 2;
+  } else {
+    refX = player ? player.x : W / 2;
+    refY = player ? player.y : H / 2;
+  }
 
-  if (player || isFreeMode) {
+  if (player || isFreeMode || isInterior) {
     keys['ArrowLeft']  = x < refX - dz;
     keys['ArrowRight'] = x > refX + dz;
     keys['ArrowUp']    = y < refY - dz;
@@ -2858,6 +3427,7 @@ canvas.addEventListener('touchcancel', e => {
 // Pre-render static world art to offscreen canvases (mobile perf win)
 prerenderBuildings();
 prerenderPalms();
+loadHouses();
 
 reset();
 draw();
