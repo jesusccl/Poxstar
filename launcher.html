@@ -3,533 +3,637 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>PoxStar — Launcher</title>
-    <meta name="description" content="Centro de juegos de PoxStar, el estudio independiente de AugustoCLive." />
+    <title>PoxStar Launcher</title>
+    <meta name="description" content="Launcher oficial de PoxStar - Accede a todos nuestros juegos" />
     <meta name="theme-color" content="#FF4A1C" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF4A1C' d='M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z' fill='%23FF4A1C'/></svg>" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF4A1C' d='M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z'/></svg>" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --accent: #FF4A1C;
-            --ink: #0F0F0F;
-            --paper: #F5F0E8;
-            --paper-2: #ECE6DA;
-            --font-display: 'Archivo', system-ui, sans-serif;
-            --font-text: 'Space Grotesk', system-ui, sans-serif;
-            --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-        }
-
-        html[data-theme="dark"] {
-            --paper: #0B0B0B;
-            --paper-2: #141414;
-            --ink: #F5F0E8;
-        }
-
-        * { box-sizing: border-box; }
-        html, body {
+        * {
             margin: 0;
             padding: 0;
-            background: var(--paper);
-            color: var(--ink);
-            font-family: var(--font-text);
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
+            box-sizing: border-box;
         }
 
-        a { color: inherit; text-decoration: none; }
-        img { max-width: 100%; display: block; }
-
-        /* Layout */
-        .wrap { max-width: 1440px; margin: 0 auto; padding: 0 32px; }
-        @media (max-width: 720px) { .wrap { padding: 0 20px; } }
-
-        .eyebrow {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            font-weight: 500;
-            color: var(--ink);
-            opacity: 0.7;
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            overflow-x: hidden;
         }
 
-        .rule {
-            height: 1px;
-            background: currentColor;
-            opacity: 0.18;
-            border: 0;
-            margin: 0;
+        /* ── Background Layer ── */
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0f05 50%, #0a0a0a 100%);
+            z-index: -2;
         }
 
-        /* Hero Launcher */
-        .launcher-hero {
-            padding: 80px 0 40px;
-            position: relative;
-            background: var(--accent);
-            color: var(--ink);
-            border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+        .bg-glow {
+            position: fixed;
+            top: -50%;
+            right: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(255, 74, 28, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+            pointer-events: none;
+            animation: float 20s ease-in-out infinite;
         }
 
-        .launcher-hero .eyebrow {
-            color: var(--ink);
-            opacity: 0.78;
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
         }
 
-        .logo-lockup {
+        /* ── Main Container ── */
+        .container {
+            width: 100%;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 36px;
-            text-align: center;
-            margin-bottom: 80px;
         }
 
-        .logo-mark {
-            width: 108px;
-            height: 108px;
-            border-radius: 22px;
-            background: var(--ink);
+        /* ── Top Bar ── */
+        .top-bar {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #FF4A1C;
+            padding: 16px 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Archivo', system-ui, sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #FF4A1C;
+            border-radius: 6px;
             display: grid;
             place-items: center;
             transform: rotate(-6deg);
-            box-shadow: 0 18px 40px -16px rgba(0,0,0,0.35);
-            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            font-size: 18px;
         }
 
-        .launcher-hero:hover .logo-mark {
-            transform: rotate(8deg) scale(1.04);
+        .nav-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
         }
 
-        .logo-mark svg {
-            width: 58%;
-            height: 58%;
-        }
-
-        .wordmark {
-            font-family: var(--font-display);
-            font-weight: 900;
-            letter-spacing: -0.045em;
-            line-height: 0.86;
-            color: var(--ink);
-            font-size: clamp(80px, 15vw, 220px);
-            margin: 0;
-        }
-
-        .logo-caption {
-            font-family: var(--font-mono);
+        .nav-link {
             font-size: 13px;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
             font-weight: 500;
-            color: var(--ink);
-            opacity: 0.85;
-            margin: 0;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            text-decoration: none;
         }
 
-        .launcher-sub {
-            margin: 40px auto 0;
-            max-width: 680px;
-            text-align: center;
-            font-size: clamp(17px, 1.5vw, 20px);
-            line-height: 1.5;
-            color: color-mix(in srgb, var(--ink) 82%, transparent);
+        .nav-link:hover {
+            color: #FF4A1C;
         }
 
-        /* Games Grid */
-        .games-section {
-            padding: 120px 0;
+        /* ── Hero Section ── */
+        .hero {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 32px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .section-head {
+        .hero-content {
+            max-width: 1200px;
+            width: 100%;
             display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 24px;
-            align-items: end;
-            margin-bottom: 56px;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
         }
 
-        .section-head h2 {
-            font-family: var(--font-display);
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        .hero-text {
+            z-index: 2;
+        }
+
+        .hero-eyebrow {
+            font-family: 'Archivo', system-ui, sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #FF4A1C;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .hero-title {
+            font-family: 'Archivo', system-ui, sans-serif;
+            font-size: clamp(48px, 8vw, 96px);
             font-weight: 900;
             letter-spacing: -0.04em;
-            line-height: 0.92;
-            font-size: clamp(44px, 7vw, 96px);
-            margin: 0;
+            line-height: 0.9;
+            margin-bottom: 24px;
+            color: #fff;
         }
 
-        .section-head h2 em {
-            font-family: 'Instrument Serif', serif;
-            font-style: italic;
-            font-weight: 400;
-            color: var(--accent);
+        .hero-subtitle {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 32px;
+            max-width: 500px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #FF4A1C;
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #ff6b3d;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 74, 28, 0.2);
+            color: #FF4A1C;
+            border: 1px solid #FF4A1C;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 74, 28, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* ── Hero Visual ── */
+        .hero-visual {
+            position: relative;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-visual-box {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 74, 28, 0.1) 0%, rgba(255, 74, 28, 0.05) 100%);
+            border: 2px solid #FF4A1C;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            font-size: 120px;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-visual-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 74, 28, 0.1) 50%, transparent 70%);
+            animation: shine 3s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, 20px); }
+        }
+
+        /* ── Games Section ── */
+        .games-section {
+            padding: 80px 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section-title {
+            font-family: 'Archivo', system-ui, sans-serif;
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            margin-bottom: 56px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 8px;
+            height: 40px;
+            background: #FF4A1C;
+            border-radius: 2px;
         }
 
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(12, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 24px;
         }
 
         .game-card {
-            grid-column: span 6;
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        @media (max-width: 880px) {
-            .game-card { grid-column: span 12; }
-            .section-head { grid-template-columns: 1fr; }
-        }
-
-        .game-art {
-            position: relative;
-            aspect-ratio: 1/1;
-            border-radius: 8px;
+            background: rgba(255, 74, 28, 0.05);
+            border: 1px solid rgba(255, 74, 28, 0.2);
+            border-radius: 4px;
             overflow: hidden;
-            background: var(--paper-2);
-            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .game-card:hover {
+            border-color: #FF4A1C;
+            background: rgba(255, 74, 28, 0.1);
+            transform: translateY(-8px);
+        }
+
+        .game-thumb {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, rgba(255, 74, 28, 0.1) 0%, rgba(255, 74, 28, 0.05) 100%);
             display: grid;
             place-items: center;
-            font-size: 120px;
+            font-size: 64px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .game-card:hover .game-art {
-            transform: translateY(-4px);
-        }
-
-        .game-art .scrim {
+        .game-thumb::after {
+            content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, transparent 50%, color-mix(in srgb, var(--ink) 60%, transparent) 100%);
-            opacity: 0;
-            transition: opacity 0.4s;
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
         }
 
-        .game-card:hover .game-art .scrim {
-            opacity: 1;
-        }
-
-        .game-meta {
+        .game-info {
+            padding: 20px;
+            flex: 1;
             display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-top: 18px;
-            gap: 16px;
+            flex-direction: column;
         }
 
-        .game-card h3 {
-            font-family: var(--font-display);
-            font-weight: 800;
-            letter-spacing: -0.025em;
-            font-size: 32px;
-            margin: 0;
-            line-height: 1.05;
+        .game-title {
+            font-family: 'Archivo', system-ui, sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 8px;
+            color: #fff;
         }
 
-        .game-yr {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            letter-spacing: 0.12em;
-            opacity: 0.6;
-            flex-shrink: 0;
-        }
-
-        .game-card p {
-            margin: 6px 0 0;
-            font-size: 15px;
+        .game-desc {
+            font-size: 13px;
+            color: #aaa;
             line-height: 1.5;
-            color: color-mix(in srgb, var(--ink) 70%, transparent);
-            max-width: 60ch;
+            flex: 1;
+            margin-bottom: 16px;
         }
 
-        .game-genres {
-            margin-top: 14px;
+        .game-tags {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
-            align-items: center;
+            margin-bottom: 16px;
         }
 
-        .game-genres span {
-            font-family: var(--font-mono);
+        .tag {
             font-size: 10px;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
             padding: 4px 8px;
-            border-radius: 999px;
-            border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
-        }
-
-        .play-btn {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            font-weight: 500;
-            color: var(--accent);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: gap 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            background: none;
-            border: none;
-            padding: 0;
-        }
-
-        .play-btn:hover {
-            gap: 14px;
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 22px;
-            border-radius: 999px;
+            background: rgba(255, 74, 28, 0.15);
+            color: #FF4A1C;
+            border-radius: 2px;
             font-weight: 600;
-            font-size: 14px;
-            border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
-            background: transparent;
-            color: var(--ink);
-            cursor: pointer;
-            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s, color 0.2s, border-color 0.2s;
         }
 
-        .btn.primary {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn.primary:hover {
-            background: var(--ink);
-            border-color: var(--ink);
-            color: var(--paper);
-        }
-
-        .btn .arrow {
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .btn:hover .arrow {
-            transform: translateX(4px);
-        }
-
-        /* Footer */
-        .foot {
-            padding: 48px 0 36px;
-            border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
-        }
-
-        .foot-top {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 32px;
-            margin-bottom: 48px;
-        }
-
-        @media (max-width: 880px) {
-            .foot-top { grid-template-columns: 1fr 1fr; }
-        }
-
-        .foot-col h4 {
-            font-family: var(--font-mono);
-            font-size: 10.5px;
-            letter-spacing: 0.14em;
+        .game-btn {
+            padding: 10px 16px;
+            background: #FF4A1C;
+            color: #000;
+            border: none;
+            border-radius: 2px;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            font-weight: 500;
-            margin: 0 0 16px;
-            opacity: 0.6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
         }
 
-        .foot-col ul {
+        .game-btn:hover {
+            background: #ff6b3d;
+            transform: translateY(-2px);
+        }
+
+        /* ── Footer ── */
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid rgba(255, 74, 28, 0.2);
+            padding: 48px 32px;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h4 {
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #FF4A1C;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .footer-col ul {
             list-style: none;
-            padding: 0;
-            margin: 0;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .foot-col a {
-            font-size: 14px;
-            font-weight: 500;
-            display: inline-block;
-            position: relative;
+        .footer-col a {
+            font-size: 13px;
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s ease;
         }
 
-        .foot-col a:hover {
-            color: var(--accent);
+        .footer-col a:hover {
+            color: #FF4A1C;
         }
 
-        .foot-bottom {
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 74, 28, 0.2);
+            padding-top: 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 24px;
-            border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
-            font-family: var(--font-mono);
             font-size: 11px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            opacity: 0.6;
+            color: #666;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 16px;
         }
 
-        .reveal {
+        /* ── Animations ── */
+        .fade-in {
             opacity: 0;
-            transform: translateY(14px);
-            transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
-                        transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            animation: fadeIn 0.8s ease-out forwards;
         }
 
-        .reveal.in {
-            opacity: 1;
-            transform: none;
+        .fade-in.delay-1 { animation-delay: 0.1s; }
+        .fade-in.delay-2 { animation-delay: 0.2s; }
+        .fade-in.delay-3 { animation-delay: 0.3s; }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        @media (max-width: 640px) {
-            .launcher-hero { padding: 60px 0 30px; }
-            .games-section { padding: 80px 0; }
-            .section-head { grid-template-columns: 1fr; }
-            .logo-lockup { margin-bottom: 50px; }
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 12px 20px;
+            }
+
+            .hero {
+                padding: 40px 20px;
+            }
+
+            .hero-title {
+                font-size: 42px;
+            }
+
+            .hero-visual {
+                height: 280px;
+            }
+
+            .games-section {
+                padding: 60px 20px;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Hero Launcher -->
-    <section class="launcher-hero">
-        <div class="wrap">
-            <div class="logo-lockup reveal">
-                <div class="logo-mark" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z" fill="#FFFFFF"/>
-                    </svg>
+    <div class="bg-layer"></div>
+    <div class="bg-glow"></div>
+
+    <div class="container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-content">
+                <div class="logo">
+                    <div class="logo-icon">★</div>
+                    <span>POXSTAR</span>
                 </div>
-                <h1 class="wordmark">poxstar</h1>
-                <p class="logo-caption">// Launcher · Centro de juegos</p>
+                <div class="nav-right">
+                    <a href="#games" class="nav-link">Juegos</a>
+                    <a href="index.html" class="nav-link">Estudio</a>
+                    <a href="https://discord.gg/ANgzAWCRS" target="_blank" rel="noopener" class="nav-link">Comunidad</a>
+                </div>
             </div>
-
-            <p class="launcher-sub reveal">
-                Acceso rápido a todos los juegos de <strong>PoxStar</strong>, el estudio independiente de <a href="https://youtube.com/AugustoCLive" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:underline">AugustoCLive</a>.
-            </p>
         </div>
-    </section>
 
-    <!-- Games Grid -->
-    <section class="games-section">
-        <div class="wrap">
-            <div class="section-head">
-                <h2>Juega <em>ahora</em></h2>
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-content">
+                <div class="hero-text fade-in">
+                    <div class="hero-eyebrow">Bienvenido al Launcher</div>
+                    <h1 class="hero-title">Poxstar</h1>
+                    <p class="hero-subtitle">
+                        Centro de juegos independientes. Mecánicas raras, mundos honestos. Todos nuestros títulos en un solo lugar.
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="#games" class="btn btn-primary">Explorar Juegos</a>
+                        <a href="https://youtube.com/AugustoCLive" target="_blank" rel="noopener" class="btn btn-secondary">Ver Devlogs</a>
+                    </div>
+                </div>
+
+                <div class="hero-visual fade-in delay-1">
+                    <div class="hero-visual-box">
+                        🎮
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Games Section -->
+        <div class="games-section" id="games">
+            <h2 class="section-title fade-in">Nuestros Juegos</h2>
 
             <div class="games-grid">
                 <!-- Furious Cars -->
-                <div class="game-card reveal">
-                    <div class="game-art">
-                        🏎️
-                        <div class="scrim"></div>
-                    </div>
-                    <div class="game-meta">
-                        <h3>Furious Cars 1</h3>
-                        <span class="game-yr">2026</span>
-                    </div>
-                    <p>Tráfico infinito, tres vidas, un coche azul. La pista no acaba: cuanto más lejos llegas, más rápido va todo.</p>
-                    <div class="game-genres">
-                        <span>Arcade</span>
-                        <span>Endless</span>
-                        <a href="furious-cars.html" class="play-btn">Jugar<span class="arrow">→</span></a>
+                <div class="game-card fade-in delay-1">
+                    <div class="game-thumb">🏎️</div>
+                    <div class="game-info">
+                        <h3 class="game-title">Furious Cars 1</h3>
+                        <p class="game-desc">Tráfico infinito, tres vidas, un coche azul. La pista no acaba: cuanto más lejos, más rápido.</p>
+                        <div class="game-tags">
+                            <span class="tag">Arcade</span>
+                            <span class="tag">Endless</span>
+                        </div>
+                        <button class="game-btn" onclick="window.location.href='furious-cars.html'">Jugar Ahora</button>
                     </div>
                 </div>
 
                 <!-- Carrera Loca -->
-                <div class="game-card reveal">
-                    <div class="game-art">
-                        🏁
-                        <div class="scrim"></div>
+                <div class="game-card fade-in delay-2">
+                    <div class="game-thumb">🏁</div>
+                    <div class="game-info">
+                        <h3 class="game-title">Carrera Loca</h3>
+                        <p class="game-desc">Una carrera sin límites donde la velocidad lo es todo. ¿Podrás mantener el ritmo?</p>
+                        <div class="game-tags">
+                            <span class="tag">Racing</span>
+                            <span class="tag">Endless</span>
+                        </div>
+                        <button class="game-btn" onclick="window.location.href='carrera-loca.html'">Jugar Ahora</button>
                     </div>
-                    <div class="game-meta">
-                        <h3>Carrera Loca</h3>
-                        <span class="game-yr">2026</span>
-                    </div>
-                    <p>Una carrera sin límites donde la velocidad es lo más importante. ¿Podrás mantener el ritmo sin salirte?</p>
-                    <div class="game-genres">
-                        <span>Racing</span>
-                        <span>Endless</span>
-                        <a href="carrera-loca.html" class="play-btn">Jugar<span class="arrow">→</span></a>
+                </div>
+
+                <!-- Coming Soon -->
+                <div class="game-card fade-in delay-3">
+                    <div class="game-thumb">🔮</div>
+                    <div class="game-info">
+                        <h3 class="game-title">Próximamente</h3>
+                        <p class="game-desc">Estamos trabajando en nuevos proyectos. Síguenos en Discord para actualizaciones.</p>
+                        <div class="game-tags">
+                            <span class="tag">En Desarrollo</span>
+                        </div>
+                        <button class="game-btn" disabled style="opacity: 0.5; cursor: not-allowed;">Próximamente</button>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
     <!-- Footer -->
-    <footer class="foot">
-        <div class="wrap">
-            <div class="foot-top">
-                <div class="foot-col">
-                    <h4>PoxStar</h4>
-                    <p style="margin:0 0 12px;font-size:14px;line-height:1.5;max-width:36ch;color:color-mix(in srgb,var(--ink) 70%, transparent)">
-                        Juegos pequeños con ideas grandes, hechos por AugustoCLive.
-                    </p>
-                    <p style="margin:0;font-size:14px;font-weight:500">hola@poxstar.studio</p>
-                </div>
-                <div class="foot-col">
-                    <h4>Juegos</h4>
-                    <ul>
-                        <li><a href="furious-cars.html">Furious Cars 1</a></li>
-                        <li><a href="carrera-loca.html">Carrera Loca</a></li>
-                    </ul>
-                </div>
-                <div class="foot-col">
-                    <h4>Estudio</h4>
-                    <ul>
-                        <li><a href="index.html">Inicio</a></li>
-                        <li><a href="index.html#estudio">Sobre PoxStar</a></li>
-                    </ul>
-                </div>
-                <div class="foot-col">
-                    <h4>Síguenos</h4>
-                    <ul>
-                        <li><a href="https://discord.gg/ANgzAWCRS" target="_blank" rel="noopener">Discord</a></li>
-                        <li><a href="https://youtube.com/AugustoCLive" target="_blank" rel="noopener">YouTube</a></li>
-                    </ul>
-                </div>
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>Estudio</h4>
+                <ul>
+                    <li><a href="index.html">Página Principal</a></li>
+                    <li><a href="index.html#estudio">Sobre PoxStar</a></li>
+                    <li><a href="index.html#comunidad">Comunidad</a></li>
+                </ul>
             </div>
-
-            <div class="foot-bottom">
-                <span>© 2026 PoxStar Studio · by AugustoCLive</span>
-                <span>Launcher v1.0</span>
+            <div class="footer-col">
+                <h4>Juegos</h4>
+                <ul>
+                    <li><a href="furious-cars.html">Furious Cars 1</a></li>
+                    <li><a href="carrera-loca.html">Carrera Loca</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Síguenos</h4>
+                <ul>
+                    <li><a href="https://discord.gg/ANgzAWCRS" target="_blank" rel="noopener">Discord</a></li>
+                    <li><a href="https://youtube.com/AugustoCLive" target="_blank" rel="noopener">YouTube</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                <ul>
+                    <li><a href="mailto:hola@poxstar.studio">hola@poxstar.studio</a></li>
+                </ul>
             </div>
         </div>
-    </footer>
 
-    <!-- Reveal Observer -->
-    <script>
-        (function(){
-            if (!('IntersectionObserver' in window)) {
-                document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
-                return;
-            }
-            const io = new IntersectionObserver((entries) => {
-                entries.forEach(e => {
-                    if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
-                });
-            }, {threshold:.15, rootMargin:'0px 0px -10% 0px'});
-            document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-        })();
-    </script>
+        <div class="footer-bottom">
+            <span>© 2026 PoxStar Studio · Estudio independiente</span>
+            <span>Launcher v1.1 · Diseño inspirado en launchers modernos</span>
+        </div>
+    </div>
 
 </body>
 </html>
