@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>BREACH // 2044 — PoxStar</title>
+<meta name="description" content="Puzzle de intrusión cyberpunk. Recorre la matriz de código, llena el búfer y sube los démones antes de que caiga el ICE." />
+<meta name="theme-color" content="#05070d" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2300F0FF' d='M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cy:#00F0FF; --mg:#FF2E97; --yl:#FFE566; --gr:#3CFF9E;
+  --bg:#05070d; --bg2:#0a0f1a; --dim:#5b7089;
+  --mono:'Share Tech Mono',ui-monospace,monospace;
+  --disp:'Rajdhani',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:#dCe8f5; font-family:var(--mono);
+  display:flex; align-items:center; justify-content:center;
+  padding:16px; overflow:hidden; -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% 0%, #12203a 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 100%, #2a0c26 0%, transparent 60%);
+}
+body::after{ /* scanlines */
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:100;opacity:.35;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.5) 0 1px,transparent 1px 3px)}
+::selection{background:var(--cy);color:#000}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+.app{width:min(1000px,100%);max-height:100%;display:flex;flex-direction:column;gap:12px}
+
+/* ── Header ── */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:1px solid rgba(0,240,255,.25);background:rgba(5,12,22,.7);padding:9px 14px;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+.bar h1{font-family:var(--disp);font-size:17px;letter-spacing:.16em;font-weight:700;
+  color:var(--cy);text-shadow:0 0 14px rgba(0,240,255,.55);white-space:nowrap}
+.bar h1 b{color:var(--mg);font-weight:700}
+.bar .home{font-size:11px;letter-spacing:.16em;color:var(--dim);white-space:nowrap;
+  text-decoration:none;transition:color .2s}
+.bar .home:hover{color:var(--cy)}
+.hud{display:flex;gap:16px;align-items:center;font-size:12px;letter-spacing:.1em}
+.hud i{font-style:normal;color:var(--dim)}
+.hud b{color:var(--yl);font-weight:400}
+
+/* ── Timer ── */
+.timer-wrap{height:5px;background:rgba(255,255,255,.07);overflow:hidden}
+.timer{height:100%;width:100%;background:linear-gradient(90deg,var(--cy),var(--mg));
+  transform-origin:0 50%;transition:background .3s}
+.timer.warn{background:linear-gradient(90deg,var(--yl),var(--mg))}
+.timer.crit{background:var(--mg);animation:critBlink .4s steps(2) infinite}
+@keyframes critBlink{50%{opacity:.35}}
+
+/* ── Layout ── */
+.grid-row{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;min-height:0}
+@media (max-width:800px){.grid-row{grid-template-columns:1fr}}
+
+.panel{border:1px solid rgba(0,240,255,.18);background:rgba(6,12,22,.62);padding:12px}
+.panel > h2{font-family:var(--disp);font-size:11px;letter-spacing:.24em;color:var(--dim);
+  font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between}
+.panel > h2 span{color:var(--cy)}
+
+/* ── Matrix ── */
+.matrix{display:grid;gap:3px;justify-content:center}
+.cell{position:relative;aspect-ratio:1;min-width:0;display:grid;place-items:center;
+  font-size:clamp(11px,2.1vw,16px);letter-spacing:.04em;color:var(--dim);
+  background:transparent;border:1px solid transparent;transition:all .12s;
+  border-radius:2px}
+.cell.live{color:#cfe6f5;cursor:pointer}
+.cell.live:hover,.cell.focus{color:#000;background:var(--cy);
+  box-shadow:0 0 18px rgba(0,240,255,.7)}
+.cell.hl{border-color:rgba(0,240,255,.45);background:rgba(0,240,255,.07);color:#9fd8ea}
+.cell.used{color:#1d2c3e;background:rgba(255,255,255,.02)}
+.cell.picked{color:var(--yl);border-color:rgba(255,229,102,.5);
+  background:rgba(255,229,102,.09)}
+.cell:disabled{cursor:default}
+
+/* ── Buffer ── */
+.buffer{display:flex;gap:5px;flex-wrap:wrap}
+.slot{width:40px;height:38px;display:grid;place-items:center;font-size:14px;
+  border:1px dashed rgba(0,240,255,.3);color:var(--cy);background:rgba(0,240,255,.04)}
+.slot.full{border-style:solid;border-color:var(--cy);
+  background:rgba(0,240,255,.13);box-shadow:0 0 12px rgba(0,240,255,.25) inset}
+@media (max-width:520px){.slot{width:34px;height:33px;font-size:12px}}
+
+/* ── Daemons ── */
+.daemon{border:1px solid rgba(255,255,255,.08);padding:8px 10px;margin-bottom:7px;
+  transition:all .25s;background:rgba(255,255,255,.02)}
+.daemon .top{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  margin-bottom:6px}
+.daemon .nm{font-family:var(--disp);font-size:12.5px;letter-spacing:.14em;font-weight:600;
+  color:#b9cde0}
+.daemon .pts{font-size:11px;color:var(--dim)}
+.daemon .seq{display:flex;gap:4px}
+.daemon .seq span{min-width:29px;height:25px;display:grid;place-items:center;
+  font-size:12px;border:1px solid rgba(255,255,255,.12);color:var(--dim)}
+.daemon .seq span.on{border-color:var(--cy);color:var(--cy);
+  background:rgba(0,240,255,.12)}
+.daemon.done{border-color:var(--gr);background:rgba(60,255,158,.09)}
+.daemon.done .nm{color:var(--gr)}
+.daemon.done .seq span{border-color:var(--gr);color:var(--gr);background:rgba(60,255,158,.1)}
+.daemon.dead{opacity:.32}
+.daemon.dead .nm{text-decoration:line-through}
+
+.hint{font-size:11px;color:var(--dim);letter-spacing:.08em;margin-top:8px;line-height:1.5}
+.hint b{color:var(--cy);font-weight:400}
+
+/* ── Overlay ── */
+.ov{position:fixed;inset:0;z-index:110;display:grid;place-items:center;padding:20px;
+  background:rgba(3,6,12,.93);backdrop-filter:blur(4px)}
+.ov[hidden]{display:none}
+.ov .box{width:min(520px,100%);border:1px solid rgba(0,240,255,.35);
+  background:rgba(6,14,26,.95);padding:28px;text-align:center;
+  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px))}
+.ov h2{font-family:var(--disp);font-size:clamp(28px,6vw,44px);letter-spacing:.1em;
+  font-weight:700;line-height:1;margin-bottom:8px}
+.ov h2.ok{color:var(--gr);text-shadow:0 0 22px rgba(60,255,158,.5)}
+.ov h2.no{color:var(--mg);text-shadow:0 0 22px rgba(255,46,151,.5)}
+.ov .sub{font-size:12.5px;letter-spacing:.14em;color:var(--dim);margin-bottom:18px}
+.ov .stats{display:flex;justify-content:center;gap:26px;margin-bottom:22px;flex-wrap:wrap}
+.ov .stats div{text-align:center}
+.ov .stats .k{font-size:10px;letter-spacing:.2em;color:var(--dim);margin-bottom:3px}
+.ov .stats .v{font-family:var(--disp);font-size:28px;font-weight:700;color:var(--yl)}
+.ov .btn{display:inline-block;border:1px solid var(--cy);color:var(--cy);
+  padding:11px 26px;font-size:12.5px;letter-spacing:.2em;text-decoration:none;
+  transition:all .2s;margin:4px}
+.ov .btn:hover{background:var(--cy);color:#000;box-shadow:0 0 22px rgba(0,240,255,.6)}
+.ov .btn.alt{border-color:var(--dim);color:var(--dim)}
+.ov .btn.alt:hover{background:var(--dim);color:#000;box-shadow:none}
+.ov .rules{text-align:left;font-size:12px;line-height:1.75;color:#93a9c0;
+  margin-bottom:20px}
+.ov .rules b{color:var(--cy);font-weight:400}
+
+.glitch{animation:glitch .3s steps(2) 2}
+@keyframes glitch{
+  0%{transform:translate(0)}25%{transform:translate(-3px,1px)}
+  50%{transform:translate(3px,-1px)}75%{transform:translate(-2px,-2px)}
+  100%{transform:translate(0)}}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="bar">
+    <h1>BREACH <b>//</b> 2044</h1>
+    <div class="hud">
+      <span><i>NIVEL</i> <b id="hLevel">1</b></span>
+      <span><i>PUNTOS</i> <b id="hScore">0</b></span>
+      <span><i>RÉCORD</i> <b id="hBest">0</b></span>
+    </div>
+    <a class="home" href="index.html">&larr; POXSTAR</a>
+  </div>
+
+  <div class="timer-wrap"><div class="timer" id="timer"></div></div>
+
+  <div class="grid-row">
+    <div class="panel">
+      <h2>MATRIZ DE CÓDIGO <span id="modeLabel">FILA 1</span></h2>
+      <div class="matrix" id="matrix"></div>
+      <p class="hint">
+        Alterna <b>fila</b> y <b>columna</b>: cada pieza que tomas fija la línea
+        de la siguiente. Teclas <b>↑↓←→</b> para moverte, <b>Enter</b> para tomar.
+      </p>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom:12px">
+        <h2>BÚFER <span id="bufLabel">0/7</span></h2>
+        <div class="buffer" id="buffer"></div>
+      </div>
+      <div class="panel">
+        <h2>DÉMONES <span id="dmLabel">0/3</span></h2>
+        <div id="daemons"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Intro -->
+<div class="ov" id="ovIntro">
+  <div class="box">
+    <h2 class="ok">BREACH // 2044</h2>
+    <p class="sub">PROTOCOLO DE INTRUSIÓN</p>
+    <div class="rules">
+      <p>&gt; Extrae códigos de la matriz para llenar el <b>búfer</b>.</p>
+      <p>&gt; La primera pieza sale de la <b>fila superior</b>. Después alternas:
+         la columna de tu última pieza, luego su fila, y así.</p>
+      <p>&gt; Un <b>démon</b> se sube si su secuencia aparece <b>seguida</b>
+         dentro del búfer.</p>
+      <p>&gt; Sube todos antes de que se agote el <b>ICE</b> y avanzas de nivel.</p>
+    </div>
+    <button class="btn" id="btnStart">INICIAR INTRUSIÓN</button>
+  </div>
+</div>
+
+<!-- Fin de ronda -->
+<div class="ov" id="ovEnd" hidden>
+  <div class="box">
+    <h2 id="endTitle" class="ok">ACCESO CONCEDIDO</h2>
+    <p class="sub" id="endSub">NIVEL 1 COMPLETADO</p>
+    <div class="stats">
+      <div><div class="k">DÉMONES</div><div class="v" id="endDm">0/3</div></div>
+      <div><div class="k">PUNTOS</div><div class="v" id="endScore">0</div></div>
+      <div><div class="k">RÉCORD</div><div class="v" id="endBest">0</div></div>
+    </div>
+    <button class="btn" id="btnNext">CONTINUAR</button>
+    <a class="btn alt" href="index.html">SALIR</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var CODES = ['1C','55','BD','E9','7A','FF'];
+  var NAMES = ['DATAMINE_V1','ICEPICK','MASS_VULN','CAMERA_SHUTDOWN','TURRET_HIJACK',
+               'FRIENDLY_MODE','DATAMINE_V3','OPTICS_JAM','SUBNET_CRAWL','BLACKWALL_PING'];
+
+  var $ = function(id){ return document.getElementById(id); };
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var S = {
+    level:1, score:0, best:0,
+    size:5, bufSize:7, time:40,
+    grid:[], used:[], buffer:[], daemons:[],
+    mode:'row', line:0, cursor:0,
+    running:false, tEnd:0, raf:0
+  };
+
+  try { S.best = parseInt(localStorage.getItem('pox-breach-best')||'0',10)||0; } catch(e){}
+  $('hBest').textContent = S.best;
+
+  /* ── Audio ── */
+  var actx=null;
+  function beep(freq, dur, type, vol){
+    try{
+      if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+      var o=actx.createOscillator(), g=actx.createGain();
+      o.type=type||'square'; o.frequency.value=freq;
+      g.gain.setValueAtTime(vol||0.05, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+(dur||0.08));
+      o.connect(g); g.connect(actx.destination);
+      o.start(); o.stop(actx.currentTime+(dur||0.08));
+    }catch(e){}
+  }
+
+  /* ── Construcción de la ronda ── */
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function pick(a){ return a[rnd(a.length)]; }
+
+  function buildRound(){
+    S.size    = Math.min(7, 5 + Math.floor((S.level-1)/3));
+    S.bufSize = Math.min(10, 6 + Math.floor((S.level+1)/2));
+    S.time    = Math.max(20, 42 - (S.level-1)*2);
+
+    // Matriz
+    S.grid = [];
+    S.used = [];
+    for (var r=0;r<S.size;r++){
+      S.grid.push([]); S.used.push([]);
+      for (var c=0;c<S.size;c++){ S.grid[r].push(pick(CODES)); S.used[r].push(false); }
+    }
+
+    // Démones: se generan a partir de un camino VÁLIDO real, así siempre
+    // existe al menos una solución posible dentro del búfer.
+    var path = randomPath(S.bufSize);
+    var nD = Math.min(4, 2 + Math.floor(S.level/2));
+    S.daemons = [];
+    var usedNames = [], usedSeqs = [], guard = 0;
+    while (S.daemons.length < nD && guard++ < 120){
+      var len = Math.min(2 + rnd(2) + Math.floor(S.level/4), Math.min(4, path.length));
+      var start = rnd(Math.max(1, path.length - len + 1));
+      var seq = path.slice(start, start+len);
+      if (seq.length < 2) seq = path.slice(0,2);
+      // Dos démones idénticos se completarían a la vez: no aportan nada.
+      var key = seq.join('-');
+      if (usedSeqs.indexOf(key) >= 0) continue;
+      usedSeqs.push(key);
+      var nm; do { nm = pick(NAMES); } while (usedNames.indexOf(nm)>=0 && usedNames.length<NAMES.length);
+      usedNames.push(nm);
+      S.daemons.push({ name:nm, seq:seq, pts:seq.length*55, done:false, dead:false });
+    }
+
+    S.buffer = [];
+    S.mode = 'row'; S.line = 0; S.cursor = 0;
+  }
+
+  // Recorre la matriz siguiendo la regla fila/columna y devuelve los códigos.
+  function randomPath(n){
+    var out=[], seen={}, mode='row', line=0, guard=0;
+    while (out.length < n && guard++ < 400){
+      var opts=[];
+      for (var i=0;i<S.size;i++){
+        var r = mode==='row' ? line : i, c = mode==='row' ? i : line;
+        if (!seen[r+','+c]) opts.push([r,c]);
+      }
+      if (!opts.length) break;
+      var p = pick(opts);
+      seen[p[0]+','+p[1]] = true;
+      out.push(S.grid[p[0]][p[1]]);
+      if (mode==='row'){ mode='col'; line=p[1]; } else { mode='row'; line=p[0]; }
+    }
+    return out;
+  }
+
+  /* ── Evaluación de démones ── */
+  function seqProgress(seq){
+    // ¿aparece completa y seguida?
+    for (var i=0;i+seq.length<=S.buffer.length;i++){
+      var ok=true;
+      for (var j=0;j<seq.length;j++) if (S.buffer[i+j]!==seq[j]){ ok=false; break; }
+      if (ok) return { done:true, n:seq.length };
+    }
+    // progreso parcial más largo que termina justo al final del búfer
+    var best=0;
+    for (var k=1;k<seq.length;k++){
+      if (S.buffer.length < k) break;
+      var tail=S.buffer.slice(S.buffer.length-k), m=true;
+      for (var q=0;q<k;q++) if (tail[q]!==seq[q]){ m=false; break; }
+      if (m) best=k;
+    }
+    return { done:false, n:best };
+  }
+
+  function refreshDaemons(){
+    var free = S.bufSize - S.buffer.length;
+    S.daemons.forEach(function(d){
+      if (d.done) return;
+      var p = seqProgress(d.seq);
+      if (p.done){ d.done = true; d.prog = d.seq.length; beep(880,0.14,'sine',0.08); return; }
+      d.prog = p.n;
+      // muerto si ya no cabe lo que falta
+      d.dead = (d.seq.length - p.n) > free;
+    });
+  }
+
+  /* ── Render ── */
+  function render(){
+    // matriz
+    var m = $('matrix');
+    m.style.gridTemplateColumns = 'repeat('+S.size+',minmax(0,1fr))';
+    m.style.maxWidth = (S.size*56)+'px';
+    m.innerHTML = '';
+    for (var r=0;r<S.size;r++){
+      for (var c=0;c<S.size;c++){
+        var b = document.createElement('button');
+        b.type='button'; b.textContent = S.grid[r][c];
+        b.className='cell';
+        var onLine = (S.mode==='row') ? (r===S.line) : (c===S.line);
+        if (S.used[r][c]) b.className += ' used';
+        else if (onLine && S.running){
+          b.className += ' live';
+          var cur = (S.mode==='row') ? c : r;
+          if (cur===S.cursor) b.className += ' focus';
+        } else if (onLine) b.className += ' hl';
+        if (S.used[r][c] || !onLine || !S.running) b.disabled = true;
+        (function(rr,cc){ b.addEventListener('click', function(){ take(rr,cc); }); })(r,c);
+        m.appendChild(b);
+      }
+    }
+    $('modeLabel').textContent = (S.mode==='row'?'FILA ':'COLUMNA ') + (S.line+1);
+
+    // búfer
+    var bf = $('buffer'); bf.innerHTML='';
+    for (var i=0;i<S.bufSize;i++){
+      var s=document.createElement('div');
+      s.className='slot'+(i<S.buffer.length?' full':'');
+      s.textContent = i<S.buffer.length ? S.buffer[i] : '';
+      bf.appendChild(s);
+    }
+    $('bufLabel').textContent = S.buffer.length+'/'+S.bufSize;
+
+    // démones
+    var dd=$('daemons'); dd.innerHTML='';
+    var doneN=0;
+    S.daemons.forEach(function(d){
+      if (d.done) doneN++;
+      var el=document.createElement('div');
+      el.className='daemon'+(d.done?' done':'')+(d.dead&&!d.done?' dead':'');
+      var seqHtml = d.seq.map(function(code,i){
+        return '<span class="'+((d.done||i<(d.prog||0))?'on':'')+'">'+code+'</span>';
+      }).join('');
+      el.innerHTML =
+        '<div class="top"><span class="nm">'+d.name+'</span>'+
+        '<span class="pts">'+(d.done?'+':'')+d.pts+' pts</span></div>'+
+        '<div class="seq">'+seqHtml+'</div>';
+      dd.appendChild(el);
+    });
+    $('dmLabel').textContent = doneN+'/'+S.daemons.length;
+    $('hLevel').textContent = S.level;
+    $('hScore').textContent = S.score;
+  }
+
+  /* ── Interacción ── */
+  function take(r,c){
+    if (!S.running || S.used[r][c]) return;
+    var onLine = (S.mode==='row') ? (r===S.line) : (c===S.line);
+    if (!onLine) return;
+
+    S.used[r][c]=true;
+    S.buffer.push(S.grid[r][c]);
+    beep(420+S.buffer.length*40, 0.06, 'square', 0.045);
+
+    if (S.mode==='row'){ S.mode='col'; S.line=c; S.cursor=r; }
+    else { S.mode='row'; S.line=r; S.cursor=c; }
+
+    refreshDaemons();
+    render();
+
+    var allDone = S.daemons.every(function(d){ return d.done; });
+    if (allDone) return finish(true);
+    if (S.buffer.length >= S.bufSize) return finish(false);
+    // sin jugadas posibles en la línea activa
+    var any=false;
+    for (var i=0;i<S.size;i++){
+      var rr = S.mode==='row'?S.line:i, cc = S.mode==='row'?i:S.line;
+      if (!S.used[rr][cc]) { any=true; break; }
+    }
+    if (!any) finish(false);
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (!S.running) {
+      if (e.key==='Enter' && !$('ovIntro').hidden) $('btnStart').click();
+      else if (e.key==='Enter' && !$('ovEnd').hidden) $('btnNext').click();
+      return;
+    }
+    var k=e.key;
+    if (k==='ArrowLeft'||k==='ArrowUp'){ e.preventDefault(); moveCursor(-1); }
+    else if (k==='ArrowRight'||k==='ArrowDown'){ e.preventDefault(); moveCursor(1); }
+    else if (k==='Enter'||k===' '){
+      e.preventDefault();
+      var r = S.mode==='row'?S.line:S.cursor, c = S.mode==='row'?S.cursor:S.line;
+      take(r,c);
+    }
+  });
+
+  function moveCursor(d){
+    for (var i=0;i<S.size;i++){
+      S.cursor = (S.cursor + d + S.size) % S.size;
+      var r = S.mode==='row'?S.line:S.cursor, c = S.mode==='row'?S.cursor:S.line;
+      if (!S.used[r][c]) break;
+    }
+    render();
+  }
+
+  /* ── Ciclo ── */
+  function tick(){
+    if (!S.running) return;
+    var left = (S.tEnd - Date.now())/1000;
+    var p = Math.max(0, left/S.time);
+    var t = $('timer');
+    t.style.transform = 'scaleX('+p+')';
+    t.className = 'timer' + (p<0.18?' crit':(p<0.4?' warn':''));
+    if (left<=0) return finish(false);
+    S.raf = requestAnimationFrame(tick);
+  }
+
+  function finish(won){
+    S.running=false;
+    cancelAnimationFrame(S.raf);
+    refreshDaemons(); render();
+
+    var doneN=0, gained=0;
+    S.daemons.forEach(function(d){ if(d.done){ doneN++; gained+=d.pts; } });
+    if (won) gained += 150 + S.level*40;
+    S.score += gained;
+    if (S.score > S.best){
+      S.best = S.score;
+      try{ localStorage.setItem('pox-breach-best', String(S.best)); }catch(e){}
+    }
+
+    beep(won?660:150, won?0.2:0.4, won?'sine':'sawtooth', 0.07);
+    if (won) setTimeout(function(){ beep(990,0.25,'sine',0.06); }, 130);
+
+    $('endTitle').textContent = won ? 'ACCESO CONCEDIDO' : 'INTRUSIÓN FALLIDA';
+    $('endTitle').className = won ? 'ok' : 'no';
+    $('endSub').textContent = won
+      ? ('NIVEL '+S.level+' COMPLETADO · +'+gained+' PTS')
+      : (doneN ? ('SUBIDA PARCIAL · +'+gained+' PTS') : 'ICE RESTABLECIDO');
+    $('endDm').textContent = doneN+'/'+S.daemons.length;
+    $('endScore').textContent = S.score;
+    $('endBest').textContent = S.best;
+    $('hBest').textContent = S.best;
+    $('btnNext').textContent = won ? 'SIGUIENTE NIVEL' : 'REINTENTAR';
+
+    if (!won && !reduce) document.querySelector('.app').classList.add('glitch');
+    setTimeout(function(){
+      document.querySelector('.app').classList.remove('glitch');
+      $('ovEnd').hidden = false;
+      $('btnNext').focus();
+    }, won?520:420);
+
+    S.wonLast = won;
+  }
+
+  function startRound(){
+    $('ovIntro').hidden = true;
+    $('ovEnd').hidden = true;
+    buildRound();
+    refreshDaemons();
+    // running debe estar activo ANTES de render(): render() marca las celdas
+    // jugables sólo si la partida corre, y si no, el tablero nace bloqueado.
+    S.running = true;
+    render();
+    S.tEnd = Date.now() + S.time*1000;
+    $('timer').style.transform='scaleX(1)';
+    tick();
+  }
+
+  $('btnStart').addEventListener('click', function(){
+    if (!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+    S.level=1; S.score=0;
+    startRound();
+  });
+
+  $('btnNext').addEventListener('click', function(){
+    if (S.wonLast) S.level++;
+    else { S.level=1; S.score=0; }
+    startRound();
+  });
+})();
+</script>
+</body>
+</html>
