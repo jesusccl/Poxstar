@@ -37,7 +37,15 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,700;0,800;0,900;1,700;1,800;1,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<!-- La hoja de Google Fonts, cargada como <link rel="stylesheet"> a secas,
+     bloquea el primer pintado hasta que llega desde otro dominio. Con
+     media="print" el navegador la baja sin bloquear nada y se aplica al
+     terminar; como ya iba con display=swap, el texto se veía igual de
+     todas formas mientras tanto. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,700;0,800;0,900;1,800;1,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@1&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,700;0,800;0,900;1,800;1,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@1&display=swap"
+      media="print" onload="this.media='all';this.onload=null">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,700;0,800;0,900;1,800;1,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@1&display=swap"></noscript>
 
 <script type="application/ld+json">
 {
@@ -421,6 +429,47 @@ html[data-theme="dark"] .icon-btn .sun{display:none}
   border-color:var(--on-accent)}
 .hero .btn.primary::before{background:#fff}
 .hero .btn.primary:hover{color:var(--on-accent);border-color:#fff}
+
+/* La novedad del estudio, en el hero: tiene que leerse antes que nada más
+   después del logotipo, pero sin competir con los dos botones. */
+.hero-nuevo{display:flex;align-items:center;gap:16px;margin:clamp(26px,3.4vw,40px) auto 0;
+  max-width:620px;padding:13px 18px;border-radius:16px;
+  background:var(--on-accent);color:#F5F0E8;
+  border:1px solid color-mix(in srgb,#F5F0E8 18%, transparent);
+  box-shadow:0 16px 34px -18px rgba(0,0,0,.55);
+  transition:transform .28s var(--ease), box-shadow .28s var(--ease)}
+.hero-nuevo:hover{transform:translateY(-2px);
+  box-shadow:0 22px 44px -18px rgba(0,0,0,.6)}
+.hero-nuevo .marca{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;padding:5px 11px;border-radius:999px;
+  background:var(--accent);color:var(--on-accent);font-weight:500}
+.hero-nuevo .marca i{width:6px;height:6px;border-radius:50%;background:var(--on-accent);
+  animation:pulse 1.6s ease-in-out infinite}
+.hero-nuevo .que{display:flex;flex-direction:column;gap:2px;text-align:left;
+  min-width:0}
+.hero-nuevo .que b{font-family:var(--font-display);font-weight:800;
+  letter-spacing:-.02em;font-size:17px;line-height:1.15}
+.hero-nuevo .que span{font-size:12.5px;line-height:1.4;
+  color:color-mix(in srgb,#F5F0E8 72%, transparent)}
+.hero-nuevo .flecha{margin-left:auto;flex-shrink:0;font-size:18px;
+  transition:transform .3s var(--ease)}
+.hero-nuevo:hover .flecha{transform:translateX(5px)}
+@media (max-width:560px){
+  .hero-nuevo{gap:12px;padding:12px 14px;align-items:flex-start;
+    flex-wrap:wrap}
+  .hero-nuevo .que b{font-size:15.5px}
+  .hero-nuevo .que span{font-size:12px}
+  .hero-nuevo .flecha{display:none}
+}
+html[data-motion="0"] .hero-nuevo .marca i{animation:none}
+
+/* El enlace de Lemuy en el menú lleva su punto de "en vivo" */
+.nav a[href="#lemuy"]{display:inline-flex;align-items:center;gap:6px}
+.nav a[href="#lemuy"]::before{content:"";width:6px;height:6px;border-radius:50%;
+  background:var(--on-accent);flex-shrink:0;
+  animation:pulse 1.6s ease-in-out infinite}
+html[data-motion="0"] .nav a[href="#lemuy"]::before{animation:none}
 
 /* Hero stat rail */
 .hero-rail{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
@@ -1118,6 +1167,8 @@ html[data-vi="1"]{
   --line-strong:color-mix(in srgb,var(--ink) 32%, transparent);
   --muted:color-mix(in srgb,var(--ink) 70%, transparent);
 }
+/* Probado a moverlo a una capa fija propia con un pseudoelemento: sale peor
+   (mediana de 45 fps frente a 60), así que se queda como estaba. */
 html[data-vi="1"] body{
   background-color:#150927;
   background-image:
@@ -1322,6 +1373,14 @@ html[data-motion="0"] .play-frame .led{animation:none}
       </p>
     </div>
 
+    <a class="hero-nuevo" href="#lemuy">
+      <span class="marca"><i aria-hidden="true"></i>Nuevo</span>
+      <span class="que"><b>República de Lemuy</b>
+        <span>MMO de conquista sobre la isla de Lemuy, en Chiloé · servidor en vivo</span>
+      </span>
+      <span class="flecha" aria-hidden="true">→</span>
+    </a>
+
     <p class="hero-sub">
       Construimos <strong>juegos pequeños con ideas grandes</strong>. Mecánicas
       raras, mundos honestos, soundtracks que se quedan. Sin loot boxes, sin
@@ -1345,8 +1404,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
   <div class="ticker" aria-hidden="true">
     <div class="ticker-track" id="ticker">
-      <span>jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
-      <span>jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+      <span>república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+      <span>república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
     </div>
   </div>
 </section>
@@ -1449,79 +1508,79 @@ html[data-motion="0"] .play-frame .led{animation:none}
             <figure class="slide" data-on="true">
               <img src="img/lemuy-puqueldon.webp" width="1440" height="810"
                    alt="La plaza de Puqueldón: la municipalidad con su reloj, casas de madera y cuatro guerreros sobre el cemento."
-                   fetchpriority="high" decoding="async">
+                   decoding="async">
               <figcaption><b>Puqueldón, la capital</b>
                 La plaza, la municipalidad y el mástil donde ondea la bandera de
                 quien la tenga tomada.</figcaption>
             </figure>
 
             <figure class="slide">
-              <img src="img/lemuy-combate.webp" width="1440" height="810"
+              <img data-src="img/lemuy-combate.webp" width="1440" height="810"
                    alt="Tres guerreros frente al Invunche, un jefe rojo, con un basilisco y un culebrón cerca."
-                   loading="lazy" decoding="async">
+                   decoding="async">
               <figcaption><b>El Invunche no suelta la villa</b>
                 Cada pueblo tiene su guardián. Y detrás del guardián siempre
                 viene algo más.</figcaption>
             </figure>
 
             <figure class="slide">
-              <img src="img/lemuy-isla.webp" width="1440" height="810"
+              <img data-src="img/lemuy-isla.webp" width="1440" height="810"
                    alt="Mapa de la isla de Lemuy con sus diez villas marcadas y las islas Quehui y Chelín al este."
-                   loading="lazy" decoding="async">
+                   decoding="async">
               <figcaption><b>Diez villas, una isla</b>
                 De Puqueldón (nv 1) a Detif (nv 22), y al otro lado del canal,
                 Quehui y Chelín.</figcaption>
             </figure>
 
             <figure class="slide">
-              <img src="img/lemuy-legendarios.webp" width="1440" height="810"
+              <img data-src="img/lemuy-legendarios.webp" width="1440" height="810"
                    alt="Los cinco jefes legendarios en fila sobre un cielo nocturno: Cai Cai Vilú, Ten Ten Vilú, el Caleuche, Manquián y el Millalobo."
-                   loading="lazy" decoding="async">
+                   decoding="async">
               <figcaption><b>Los Legendarios</b>
                 Cai Cai Vilú, Ten Ten Vilú, el Caleuche, Manquián y el
                 Millalobo. El buque fantasma tiene 54.300 de vida.</figcaption>
             </figure>
 
             <figure class="slide">
-              <img src="img/lemuy-clases.webp" width="1440" height="810"
+              <img data-src="img/lemuy-clases.webp" width="1440" height="810"
                    alt="Las cinco clases jugables en fila: tanque, guerrero, flechero, mago y calcetín."
-                   loading="lazy" decoding="async">
+                   decoding="async">
               <figcaption><b>Cinco clases</b>
                 Tanque, guerrero, flechero, mago y calcetín — sí, un calcetín de
                 rombos que anda solo y suelta chispas.</figcaption>
             </figure>
 
             <figure class="slide">
-              <img src="img/lemuy-chulchuy.webp" width="1440" height="810"
+              <img data-src="img/lemuy-chulchuy.webp" width="1440" height="810"
                    alt="Vista cenital de Chulchuy: siete casas de madera repartidas alrededor de una plaza de cemento."
-                   loading="lazy" decoding="async">
+                   decoding="async">
               <figcaption><b>Chulchuy desde arriba</b>
                 Siete casas alrededor de la plaza. Para conquistarla hay que
                 plantarse en ella treinta y dos segundos.</figcaption>
             </figure>
 
             <figure class="slide">
-              <img src="img/lemuy-criaturas.webp" width="1440" height="810"
+              <img data-src="img/lemuy-criaturas.webp" width="1440" height="810"
                    alt="Seis criaturas de la mitología chilota en fila: Trauco, Fiura, Camahueto, Peuchén, Brujo y Chonchón."
-                   loading="lazy" decoding="async">
+                   decoding="async">
               <figcaption><b>Mitología chilota</b>
                 Trauco, Fiura, Camahueto, Peuchén, Brujo de Quicaví y Chonchón.
                 Veinticuatro especies en total.</figcaption>
             </figure>
 
             <figure class="slide">
-              <img src="img/lemuy-ichuac.webp" width="1440" height="810"
+              <img data-src="img/lemuy-ichuac.webp" width="1440" height="810"
                    alt="Ichuac junto al mar: la playa, la espuma y dos guerreros sobre el camino del pueblo."
-                   loading="lazy" decoding="async">
+                   decoding="async">
               <figcaption><b>Ichuac, a la orilla</b>
                 La costa oeste. El mar de Chiloé empieza justo donde se acaba
                 el pasto.</figcaption>
             </figure>
 
             <figure class="slide">
-              <img src="img/lemuy-muelle.webp" width="1440" height="810"
+              <img data-src="img/lemuy-muelle.webp" width="1440" height="810"
                    alt="Un muelle de madera sobre el canal, con un guerrero dorado y un tripulante del Caleuche en el agua."
-                   loading="lazy" decoding="async">
+                   decoding="async">
               <figcaption><b>El canal</b>
                 Bote a Isla Quehui y a Isla Chelín. Con algo del Caleuche
                 rondando por el camino.</figcaption>
@@ -1570,7 +1629,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
       <h2>Nuestros <em>juegos</em>.</h2>
       <div class="index">
         <span>// Catálogo / <b>06</b></span>
-        <span>Gratis · sin descargas</span>
+        <span>Lemuy, en vivo · el resto, gratis</span>
       </div>
     </div>
 
@@ -1578,49 +1637,31 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
       <!-- Game 01 -->
       <article class="game wide reveal" style="--d:1">
-        <a class="art tilt" href="furious-cars.html" aria-label="Jugar a Furious Cars 1">
+        <a class="art tilt" data-art="foto" href="https://dell.taila1b256.ts.net/"
+           target="_blank" rel="noopener" aria-label="Entrar a República de Lemuy">
           <div class="art-canvas" aria-hidden="true">
-            <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
-              <defs>
-                <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stop-color="#1b1b22"/><stop offset="1" stop-color="#0a0a0d"/>
-                </linearGradient>
-              </defs>
-              <rect width="320" height="200" fill="url(#g1)"/>
-              <g opacity=".22" stroke="#F5F0E8" stroke-width="1.4">
-                <path d="M60 200 L104 0M260 200 L216 0"/>
-              </g>
-              <g fill="#F5F0E8" opacity=".85">
-                <rect x="156" y="12" width="8" height="26" rx="4"/>
-                <rect x="156" y="52" width="8" height="26" rx="4"/>
-                <rect x="156" y="92" width="8" height="26" rx="4"/>
-                <rect x="156" y="132" width="8" height="26" rx="4"/>
-                <rect x="156" y="172" width="8" height="26" rx="4"/>
-              </g>
-              <rect x="118" y="118" width="34" height="56" rx="9" fill="#FF4A1C"/>
-              <rect x="124" y="126" width="22" height="16" rx="4" fill="#0a0a0d" opacity=".55"/>
-              <rect x="176" y="34" width="30" height="50" rx="8" fill="#2A6FDB" opacity=".9"/>
-              <rect x="181" y="41" width="20" height="14" rx="4" fill="#0a0a0d" opacity=".5"/>
-              <circle cx="272" cy="40" r="26" fill="#FF4A1C" opacity=".16"/>
-            </svg>
+            <img src="img/lemuy-chulchuy.webp" width="1440" height="810" alt=""
+                 loading="lazy" decoding="async">
           </div>
           <span class="num" aria-hidden="true">01</span>
-          <span class="tag hot" aria-hidden="true">Jugable</span>
+          <span class="tag hot" aria-hidden="true">En vivo</span>
           <span class="scrim" aria-hidden="true"></span>
-          <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
+          <span class="float" aria-hidden="true">Entrar al servidor <b>↗</b></span>
         </a>
 
         <div class="meta">
-          <h3><a href="furious-cars.html">Furious Cars 1</a></h3>
+          <h3><a href="https://dell.taila1b256.ts.net/" target="_blank"
+                 rel="noopener">República de Lemuy</a></h3>
           <span class="yr">2026</span>
         </div>
         <p>
-          Tráfico infinito, tres vidas, un coche azul. Cuanto más lejos llegas,
-          más rápido va todo. Sin tutoriales, sin menús: pulsa y corre.
+          MMO de acción sobre la isla de Lemuy, en Chiloé. Diez villas por
+          conquistar, veinticuatro criaturas de la mitología chilota y una
+          bandera que plantar donde aguantes. Servidor propio, en vivo.
         </p>
         <div class="genres">
-          <span>Arcade</span><span>Endless</span><span>Récord local</span>
-          <a class="play-link" href="#jugar">Jugar aquí <b aria-hidden="true">→</b></a>
+          <span>MMO</span><span>Conquista</span><span>Multijugador</span>
+          <a class="play-link" href="#lemuy">Ver más <b aria-hidden="true">→</b></a>
         </div>
       </article>
 
@@ -1853,31 +1894,49 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
       <!-- Game 06 -->
       <article class="game wide reveal" style="--d:6">
-        <a class="art tilt" data-art="foto" href="https://dell.taila1b256.ts.net/"
-           target="_blank" rel="noopener" aria-label="Entrar a República de Lemuy">
+        <a class="art tilt" href="furious-cars.html" aria-label="Jugar a Furious Cars 1">
           <div class="art-canvas" aria-hidden="true">
-            <img src="img/lemuy-chulchuy.webp" width="1440" height="810" alt=""
-                 loading="lazy" decoding="async">
+            <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
+              <defs>
+                <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#1b1b22"/><stop offset="1" stop-color="#0a0a0d"/>
+                </linearGradient>
+              </defs>
+              <rect width="320" height="200" fill="url(#g1)"/>
+              <g opacity=".22" stroke="#F5F0E8" stroke-width="1.4">
+                <path d="M60 200 L104 0M260 200 L216 0"/>
+              </g>
+              <g fill="#F5F0E8" opacity=".85">
+                <rect x="156" y="12" width="8" height="26" rx="4"/>
+                <rect x="156" y="52" width="8" height="26" rx="4"/>
+                <rect x="156" y="92" width="8" height="26" rx="4"/>
+                <rect x="156" y="132" width="8" height="26" rx="4"/>
+                <rect x="156" y="172" width="8" height="26" rx="4"/>
+              </g>
+              <rect x="118" y="118" width="34" height="56" rx="9" fill="#FF4A1C"/>
+              <rect x="124" y="126" width="22" height="16" rx="4" fill="#0a0a0d" opacity=".55"/>
+              <rect x="176" y="34" width="30" height="50" rx="8" fill="#2A6FDB" opacity=".9"/>
+              <rect x="181" y="41" width="20" height="14" rx="4" fill="#0a0a0d" opacity=".5"/>
+              <circle cx="272" cy="40" r="26" fill="#FF4A1C" opacity=".16"/>
+            </svg>
           </div>
           <span class="num" aria-hidden="true">06</span>
-          <span class="tag hot" aria-hidden="true">En vivo</span>
+          <span class="tag hot" aria-hidden="true">Jugable</span>
           <span class="scrim" aria-hidden="true"></span>
-          <span class="float" aria-hidden="true">Entrar al servidor <b>↗</b></span>
+          <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
         </a>
 
         <div class="meta">
-          <h3><a href="https://dell.taila1b256.ts.net/" target="_blank"
-                 rel="noopener">República de Lemuy</a></h3>
+          <h3><a href="furious-cars.html">Furious Cars 1</a></h3>
           <span class="yr">2026</span>
         </div>
         <p>
-          MMO de acción sobre la isla de Lemuy, en Chiloé. Diez villas por
-          conquistar, veinticuatro criaturas de la mitología chilota y una
-          bandera que plantar donde aguantes. Servidor propio, en vivo.
+          Tráfico infinito, tres vidas, un coche azul. Cuanto más lejos llegas,
+          más rápido va todo. Sin tutoriales, sin menús: pulsa y corre.
         </p>
         <div class="genres">
-          <span>MMO</span><span>Conquista</span><span>Multijugador</span>
-          <a class="play-link" href="#lemuy">Ver más <b aria-hidden="true">→</b></a>
+          <span>Arcade</span><span>Endless</span><span>Récord local</span>
+          <a class="play-link" href="#jugar">Jugar aquí <b aria-hidden="true">→</b></a>
         </div>
       </article>
 
@@ -2089,13 +2148,13 @@ html[data-motion="0"] .play-frame .led{animation:none}
       <div class="foot-col">
         <h3>Juegos</h3>
         <ul>
-          <li><a href="furious-cars.html">Furious Cars 1</a></li>
+          <li><a href="https://dell.taila1b256.ts.net/" target="_blank"
+                 rel="noopener">República de Lemuy ↗</a></li>
           <li><a href="carrera-loca.html">Carrera Loca</a></li>
           <li><a href="breach-2044.html">BREACH // 2044</a></li>
           <li><a href="neon-runner.html">NEON RUNNER</a></li>
           <li><a href="daemon.html">DAEMON</a></li>
-          <li><a href="https://dell.taila1b256.ts.net/" target="_blank"
-                 rel="noopener">República de Lemuy ↗</a></li>
+          <li><a href="furious-cars.html">Furious Cars 1</a></li>
         </ul>
       </div>
       <div class="foot-col">
@@ -2176,7 +2235,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
   /* ── Scroll progress + state ───────────────────────────────── */
   var bar = document.getElementById('progress');
-  var lastY = scrollY, velocity = 0, ticking = false;
+  var lastY = scrollY, velocity = 0, ticking = false, scrollSeq = 0;
 
   function onScroll() {
     var y = scrollY;
@@ -2186,6 +2245,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     document.body.classList.toggle('scrolled-far', y > innerHeight * 0.9);
     velocity = y - lastY;
     lastY = y;
+    scrollSeq++;
     ticking = false;
   }
   addEventListener('scroll', function () {
@@ -2223,6 +2283,45 @@ html[data-motion="0"] .play-frame .led{animation:none}
     sections.forEach(function (s) { navIo.observe(s); });
   }
 
+  /* ── Un solo reloj ─────────────────────────────────────────────
+     Había cuatro bucles de requestAnimationFrame vivos a la vez —cinta,
+     estrella, cursor y carrusel—, cada uno despertando la pestaña sesenta
+     veces por segundo aunque no tuviera nada que hacer. Ahora hay uno: cada
+     pieza se da de alta cuando le toca, se da de baja devolviendo `false`, y
+     cuando no queda nadie el reloj se para del todo.
+
+     `dt` viene en milisegundos y `k` es "cuántos frames de 60 Hz han pasado",
+     así que el movimiento va igual de rápido a 60 que a 120 Hz. */
+  var reloj = (function () {
+    var tareas = [], vivo = false, previo = 0;
+    function frame(now) {
+      var dt = Math.min(now - previo, 100);
+      previo = now;
+      var k = dt / 16.667;
+      for (var i = tareas.length - 1; i >= 0; i--) {
+        if (tareas[i](dt, k) === false) tareas.splice(i, 1);
+      }
+      if (tareas.length) requestAnimationFrame(frame);
+      else vivo = false;
+    }
+    return {
+      alta: function (fn) {
+        if (tareas.indexOf(fn) !== -1) return;
+        tareas.push(fn);
+        if (!vivo) { vivo = true; previo = performance.now();
+                     requestAnimationFrame(frame); }
+      },
+      baja: function (fn) {
+        var i = tareas.indexOf(fn);
+        if (i !== -1) tareas.splice(i, 1);
+      }
+    };
+  })();
+
+  /* Suavizado exponencial independiente del frame-rate: el 0.16 de toda la
+     vida era "por frame", que a 120 Hz iba al doble. */
+  function suave(factor, k) { return 1 - Math.pow(1 - factor, k); }
+
   /* ── Ticker driven by scroll velocity ──────────────────────── */
   var ticker = document.getElementById('ticker');
   if (ticker && !noMotion()) {
@@ -2231,30 +2330,39 @@ html[data-motion="0"] .play-frame .led{animation:none}
     measure();
     addEventListener('resize', measure, { passive: true });
 
-    (function loop() {
-      boost += (velocity * 0.9 - boost) * 0.08;
-      offset -= 0.55 + Math.min(Math.abs(boost), 26);
+    var pasoCinta = function (dt, k) {
+      boost += (velocity * 0.9 - boost) * suave(0.08, k);
+      offset -= (0.55 + Math.min(Math.abs(boost), 26)) * k;
       if (half && offset <= -half) offset += half;
       ticker.style.transform = 'translate3d(' + offset.toFixed(2) + 'px,0,0)';
-      requestAnimationFrame(loop);
-    })();
+    };
+
+    // sólo se mueve mientras se le ve: está en el hero, así que en cuanto
+    // bajas deja de consumir nada
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) {
+        if (e[0].isIntersecting) reloj.alta(pasoCinta);
+        else reloj.baja(pasoCinta);
+      }).observe(ticker.parentElement);
+    } else {
+      reloj.alta(pasoCinta);
+    }
   }
 
   /* ── Parallax star ─────────────────────────────────────────── */
   var star = document.getElementById('star-bg');
   if (star && !noMotion() && 'IntersectionObserver' in window) {
-    var starVisible = false, starRaf = 0;
-    new IntersectionObserver(function (e) { starVisible = e[0].isIntersecting; })
-      .observe(star.parentElement);
-    (function spin() {
-      if (starVisible) {
-        var r = star.getBoundingClientRect();
-        var p = 1 - (r.top + r.height / 2) / innerHeight;
-        star.style.transform =
-          'translateY(-50%) rotate(' + (-12 + p * 46).toFixed(2) + 'deg)';
-      }
-      starRaf = requestAnimationFrame(spin);
-    })();
+    var pasoEstrella = function () {
+      var r = star.getBoundingClientRect();
+      var p = 1 - (r.top + r.height / 2) / innerHeight;
+      star.style.transform =
+        'translateY(-50%) rotate(' + (-12 + p * 46).toFixed(2) + 'deg)';
+    };
+    // antes el bucle seguía vivo fuera de pantalla, comprobando una bandera
+    new IntersectionObserver(function (e) {
+      if (e[0].isIntersecting) reloj.alta(pasoEstrella);
+      else reloj.baja(pasoEstrella);
+    }).observe(star.parentElement);
   } else if (star) {
     star.style.transform = 'translateY(-50%) rotate(-12deg)';
   }
@@ -2273,12 +2381,22 @@ html[data-motion="0"] .play-frame .led{animation:none}
       document.body.classList.remove('has-cursor');
     });
 
-    (function follow() {
-      rx += (mx - rx) * 0.16; ry += (my - ry) * 0.16;
+    // El anillo persigue al punto. Cuando lo alcanza no queda nada que
+    // animar, así que el paso se da de baja y el reloj puede pararse; el
+    // siguiente movimiento del ratón lo vuelve a levantar.
+    var pasoCursor = function (dt, k) {
+      var f = suave(0.16, k);
+      rx += (mx - rx) * f; ry += (my - ry) * f;
       dot.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
       ring.style.transform = 'translate3d(' + rx.toFixed(2) + 'px,' + ry.toFixed(2) + 'px,0)';
-      requestAnimationFrame(follow);
-    })();
+      if (Math.abs(mx - rx) < 0.2 && Math.abs(my - ry) < 0.2) {
+        rx = mx; ry = my;
+        return false;
+      }
+    };
+    addEventListener('mousemove', function () { reloj.alta(pasoCursor); },
+                     { passive: true });
+    reloj.alta(pasoCursor);
 
     var hot = 'a, button, input, [role="button"], .channel, .art';
     document.addEventListener('mouseover', function (e) {
@@ -2289,31 +2407,48 @@ html[data-motion="0"] .play-frame .led{animation:none}
     });
   }
 
-  /* ── Magnetic buttons ──────────────────────────────────────── */
-  if (matchMedia('(hover: hover) and (pointer: fine)').matches && !noMotion()) {
-    document.querySelectorAll('.btn, .cta, .icon-btn').forEach(function (el) {
-      el.addEventListener('mousemove', function (e) {
-        var r = el.getBoundingClientRect();
-        var dx = (e.clientX - r.left - r.width / 2) * 0.22;
-        var dy = (e.clientY - r.top - r.height / 2) * 0.32;
-        el.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px)';
+  /* ── Imán y ladeo ──────────────────────────────────────────────
+     Los dos hacían lo mismo mal: en CADA mousemove llamaban a
+     getBoundingClientRect() —que obliga al navegador a recalcular la maqueta
+     en mitad del evento— y escribían el estilo en el acto, varias veces por
+     frame. Ahora el rectángulo se mide una vez al entrar (y se vuelve a medir
+     sólo si ha habido scroll) y se escribe una sola vez por frame. */
+  function seguirRaton(el, calcula) {
+    var r = null, seq = -1, pend = false, ev = null;
+    function rect() {
+      if (!r || seq !== scrollSeq) { r = el.getBoundingClientRect(); seq = scrollSeq; }
+      return r;
+    }
+    el.addEventListener('mouseenter', rect, { passive: true });
+    el.addEventListener('mousemove', function (e) {
+      ev = e;
+      if (pend) return;
+      pend = true;
+      requestAnimationFrame(function () {
+        pend = false;
+        if (ev) el.style.transform = calcula(ev, rect());
       });
-      el.addEventListener('mouseleave', function () { el.style.transform = ''; });
-    });
+    }, { passive: true });
+    el.addEventListener('mouseleave', function () {
+      ev = null; r = null; el.style.transform = '';
+    }, { passive: true });
   }
 
-  /* ── Card tilt ─────────────────────────────────────────────── */
   if (matchMedia('(hover: hover) and (pointer: fine)').matches && !noMotion()) {
+    document.querySelectorAll('.btn, .cta, .icon-btn').forEach(function (el) {
+      seguirRaton(el, function (e, r) {
+        var dx = (e.clientX - r.left - r.width / 2) * 0.22;
+        var dy = (e.clientY - r.top - r.height / 2) * 0.32;
+        return 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px)';
+      });
+    });
     document.querySelectorAll('.tilt').forEach(function (el) {
-      el.addEventListener('mousemove', function (e) {
-        var r = el.getBoundingClientRect();
+      seguirRaton(el, function (e, r) {
         var px = (e.clientX - r.left) / r.width - 0.5;
         var py = (e.clientY - r.top) / r.height - 0.5;
-        el.style.transform =
-          'perspective(900px) rotateX(' + (-py * 5).toFixed(2) + 'deg) rotateY(' +
-          (px * 6).toFixed(2) + 'deg) translateY(-5px)';
+        return 'perspective(900px) rotateX(' + (-py * 5).toFixed(2) + 'deg) rotateY(' +
+               (px * 6).toFixed(2) + 'deg) translateY(-5px)';
       });
-      el.addEventListener('mouseleave', function () { el.style.transform = ''; });
     });
   }
 
@@ -2408,11 +2543,23 @@ html[data-motion="0"] .play-frame .led{animation:none}
     var pp = root.querySelector('.pp');
     var DUR = 5800;
 
-    var i = 0, elapsed = 0, last = 0, raf = 0;
-    var paused = false, hovered = false, hasFocus = false, onScreen = true;
+    var i = 0, elapsed = 0;
+    var paused = false, hovered = false, hasFocus = false, onScreen = false;
 
     function pad(n) { return (n < 10 ? '0' : '') + n; }
     function corre() { return !paused && !hovered && !hasFocus && onScreen && !noMotion(); }
+
+    /* Las nueve láminas viven una encima de otra en la misma caja, así que
+       para el navegador todas están "en pantalla" y `loading="lazy"` no
+       difería ninguna: se bajaban las nueve —medio mega— al abrir la página.
+       Se cargan a mano: la que toca y la siguiente. */
+    function cargar(n) {
+      var img = slides[((n % slides.length) + slides.length) % slides.length]
+                .querySelector('img[data-src]');
+      if (!img) return;
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    }
 
     var dots = slides.map(function (sl, n) {
       var b = document.createElement('button');
@@ -2444,6 +2591,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
       i = ((n % slides.length) + slides.length) % slides.length;
       elapsed = 0;
       if (bar) bar.style.transform = 'scaleX(0)';
+      cargar(i); cargar(i + 1);
       paint();
     }
 
@@ -2456,16 +2604,23 @@ html[data-motion="0"] .play-frame .led{animation:none}
     }
 
     if (pp) {
-      pp.addEventListener('click', function () { setPausa(!paused); });
+      pp.addEventListener('click', function () { setPausa(!paused); revisar(); });
       setPausa(false);
     }
     root.querySelector('.prev').addEventListener('click', function () { go(i - 1); });
     root.querySelector('.next').addEventListener('click', function () { go(i + 1); });
 
-    root.addEventListener('mouseenter', function () { hovered = true; });
-    root.addEventListener('mouseleave', function () { hovered = false; });
-    root.addEventListener('focusin', function () { hasFocus = true; });
-    root.addEventListener('focusout', function () { hasFocus = false; });
+    root.addEventListener('mouseenter', function () { hovered = true; revisar(); });
+    root.addEventListener('mouseleave', function () { hovered = false; revisar(); });
+    root.addEventListener('focusin', function () {
+      // Sólo el foco de teclado: el que deja un clic no cuenta, o pulsar
+      // "reanudar" dejaría el carrusel parado para siempre.
+      var a = document.activeElement;
+      try { hasFocus = !!a && a.matches(':focus-visible'); }
+      catch (e) { hasFocus = false; }
+      revisar();
+    });
+    root.addEventListener('focusout', function () { hasFocus = false; revisar(); });
     root.addEventListener('keydown', function (e) {
       if (e.key === 'ArrowLeft') { go(i - 1); e.preventDefault(); }
       else if (e.key === 'ArrowRight') { go(i + 1); e.preventDefault(); }
@@ -2492,25 +2647,28 @@ html[data-motion="0"] .play-frame .led{animation:none}
       });
     });
 
+    var pasoCarrusel = function (dt) {
+      elapsed += dt;
+      if (bar) bar.style.transform = 'scaleX(' + Math.min(elapsed / DUR, 1) + ')';
+      if (elapsed >= DUR) go(i + 1);
+    };
+    // se llama cada vez que cambia algo de lo que decide si debe avanzar
+    function revisar() {
+      if (corre()) reloj.alta(pasoCarrusel);
+      else reloj.baja(pasoCarrusel);
+    }
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; },
-        { threshold: 0.25 }).observe(root);
+      new IntersectionObserver(function (es) {
+        onScreen = es[0].isIntersecting;
+        if (onScreen) { cargar(i); cargar(i + 1); }   // sólo al asomarse
+        revisar();
+      }, { threshold: 0.25 }).observe(root);
+    } else {
+      onScreen = true; cargar(0); cargar(1); revisar();
     }
 
     paint();
     if (noMotion() && bar) bar.parentNode.style.display = 'none';
-
-    last = performance.now();
-    (function loop(now) {
-      var dt = Math.min(now - last, 120);
-      last = now;
-      if (corre()) {
-        elapsed += dt;
-        if (bar) bar.style.transform = 'scaleX(' + Math.min(elapsed / DUR, 1) + ')';
-        if (elapsed >= DUR) go(i + 1);
-      }
-      raf = requestAnimationFrame(loop);
-    })(last);
   })();
 
   /* ── Newsletter (front-end only, sin backend) ──────────────── */

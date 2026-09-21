@@ -6,12 +6,19 @@ con los juegos jugables directamente en el navegador.
 
 ## 🎮 Juegos
 
-**01 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
+**01 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
+en Chiloé. Diez villas (de Puqueldón, nivel 1, a Detif, nivel 22), veinticuatro
+criaturas de la mitología chilota, cinco clases, clanes, territorios y banderas.
 
-- ← → / A D — moverse lateral
-- ↑ ↓ / W S — adelantar/frenar (más arriba = más rápido)
-- **M** — silenciar sonido
-- 9 colores de coche a elegir (se guardan entre sesiones)
+- **WASD** caminar · **espacio** atacar · **Q** habilidad · **F** objetivo
+- **E** entrar a una casa · **B** bote · **T** bus municipal · **Enter** chat
+- En móvil, joystick en pantalla
+
+No vive en este repo: corre en el servidor propio del estudio y se publica con
+[Tailscale](https://tailscale.com) en <https://dell.taila1b256.ts.net/>. Desde el
+sitio se enlaza directo (franja del hero, ficha 01 del catálogo, sección
+`#lemuy`, pie de página y el launcher). **Si el servidor está apagado, el enlace
+no abre** — es lo único del sitio que depende de una máquina encendida.
 
 **02 · Carrera Loca** — Endless arcade de carreras con estética neón.
 
@@ -32,21 +39,16 @@ secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 - **WASD** / flechas — moverse · **ratón** — apuntar · **clic** — disparar
 - En móvil: arrastrar para moverse, dispara y apunta solo
 
-Los cinco guardan récord en `localStorage` y respetan `prefers-reduced-motion`.
+**06 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
 
-**06 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
-en Chiloé. Diez villas (de Puqueldón, nivel 1, a Detif, nivel 22), veinticuatro
-criaturas de la mitología chilota, cinco clases, clanes, territorios y banderas.
+- ← → / A D — moverse lateral
+- ↑ ↓ / W S — adelantar/frenar (más arriba = más rápido)
+- **M** — silenciar sonido
+- 9 colores de coche a elegir (se guardan entre sesiones)
 
-- **WASD** caminar · **espacio** atacar · **Q** habilidad · **F** objetivo
-- **E** entrar a una casa · **B** bote · **T** bus municipal · **Enter** chat
-- En móvil, joystick en pantalla
-
-No vive en este repo: corre en el servidor propio del estudio y se publica con
-[Tailscale](https://tailscale.com) en <https://dell.taila1b256.ts.net/>. Desde el
-sitio se enlaza directo (ficha 06 del catálogo, sección `#lemuy`, pie de página y
-el launcher). **Si el servidor está apagado, el enlace no abre** — es lo único
-del sitio que depende de una máquina encendida.
+Los cinco del repo guardan récord en `localStorage` y respetan
+`prefers-reduced-motion`. El número de cada ficha es su posición en el catálogo,
+no su orden de salida.
 
 ## 📁 Estructura
 
@@ -131,6 +133,43 @@ inmediato, el resto son `loading="lazy"`.
 - **Editar copy**: todo el texto vive directamente en `index.html`.
 - **Animaciones**: se desactivan solas si el sistema tiene
   `prefers-reduced-motion: reduce`.
+
+## ⚡ Rendimiento
+
+Cosas que se midieron —con Chromium, CPU frenada— y por qué están como están:
+
+- **Las imágenes del carrusel se cargan a mano, no con `loading="lazy"`.** Las
+  nueve láminas se apilan en la misma caja absoluta, así que para el navegador
+  todas están «en pantalla» y el lazy nativo no difería ninguna: se bajaban las
+  nueve (495 KB) al abrir la home. Ahora van en `data-src` y el carrusel carga
+  la que toca y la siguiente. Total de la página: **788 KB → 366 KB**, y el
+  primer pintado **1000 ms → ~420 ms**.
+- **Un solo `requestAnimationFrame` para todo.** Había cuatro bucles
+  permanentes (cinta, estrella, cursor y carrusel) despertando la pestaña 60
+  veces por segundo sin parar. Ahora hay un reloj compartido: cada pieza se da
+  de alta cuando le toca y de baja cuando termina, y sin nadie apuntado el
+  reloj se para (medido: de 480 llamadas cada 2 s a 0 en reposo).
+- **El movimiento va por tiempo, no por frame.** Los bucles avanzaban una
+  cantidad fija por frame, así que en una pantalla de 120 Hz iban al doble de
+  velocidad. Ahora usan `dt`.
+- **El imán de los botones y el ladeo de las fichas** medían el elemento con
+  `getBoundingClientRect()` en cada `mousemove` —lo que obliga a recalcular la
+  maqueta a media página— y escribían el estilo varias veces por frame. Ahora
+  el rectángulo se cachea y se escribe una vez por frame.
+- **La hoja de Google Fonts va con `media="print"`** para que no bloquee el
+  primer pintado; como ya iba con `display=swap`, no cambia nada visualmente.
+
+Y dos cosas que se probaron y **se descartaron porque salieron peor**, no por
+pereza:
+
+- `content-visibility:auto` en las secciones de abajo: primer pintado 428 → 548
+  ms y la altura de la página se descuadraba (8579 → 9899 px) sin ganar un solo
+  fps.
+- Mover el resplandor del modo VI de `background-attachment:fixed` a una capa
+  fija propia: mediana de 45 fps frente a 60.
+
+Si vuelves a medir, hazlo con contexto nuevo cada vez y varias vueltas en orden
+aleatorio: una sola pasada da lecturas que se contradicen entre sí.
 
 ## 🌐 Probar local
 
