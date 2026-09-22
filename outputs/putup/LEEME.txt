@@ -1,0 +1,147 @@
+PUTUP — SIMULADOR DE CREADOR
+
+CÓMO JUGAR
+Abre Putup.html (un solo archivo) en un navegador moderno: no hace falta instalar nada.
+También puedes abrir index.html de esta carpeta o ejecutar Jugar.cmd si tienes Node.js.
+En el móvil se juega igual: copia Putup.html al teléfono y ábrelo con el navegador, o
+compila la aplicación de Android (instrucciones en ANDROID.txt, junto a Putup.html).
+
+LA CASA (al estilo Los Sims)
+Estudio, salón, cocina, recibidor, baño y un jardín con porche, estanque, patio y buzón.
+Las paredes que taparían tu habitación se recortan solas al moverte o girar la cámara.
+  W A S D o flechas ..... caminar (relativo a la cámara)
+  Clic en el suelo ...... ir a ese punto
+  Clic en un objeto ..... ir y usarlo
+  Arrastrar ............. girar la cámara · rueda: acercar/alejar (se ve la parcela entera)
+  E ..................... usar el objeto cercano: ordenador, tele, nevera, cafetera, cama,
+                          lavabo, bañera y buzón (con cartas de fans tras cada vídeo)
+  C ..................... paredes recortadas / bajas / levantadas (también con el botón 🧱)
+SALTO NEÓN (35 s)
+  A / D o ← / → ......... cambiar de carril
+  Espacio, W o ↑ ........ saltar (si lo pulsas justo antes de aterrizar, salta al tocar el suelo)
+  Táctil ................ desliza a los lados o hacia arriba, o usa los botones
+  Salta los bloques naranjas, esquiva los muros rosas (no se pueden saltar)
+  y encadena estrellas: cada 3 seguidas multiplican los puntos (hasta ×4).
+RITMO PIXEL (32 s)
+  ← ↓ ↑ → o D F J K ..... pulsa cada flecha cuando llega a la línea (táctil: toca el carril)
+  Perfecto, bien o fallo según tu precisión; cada 10 notas seguidas suben el combo (hasta ×2).
+SERPIENTE DE LIKES (45 s)
+  Flechas o W A S D ..... girar (táctil: desliza o toca hacia donde quieres ir)
+  Come corazones para crecer, atrapa las estrellas doradas antes de que desaparezcan
+  y no choques con los bordes ni contigo.
+POLENOM (juego de cartas, criaturas originales de Putup)
+  Colecciona 15 Polenom de 5 tipos: 🔥 gana a 🌿, 🌿 a 🪨, 🪨 a ⚡, ⚡ a 💧 y 💧 a 🔥 (daño ×2).
+  En tu turno robas una carta, bajas Polenom a tu banco (máx. 3), usas objetos
+  (Poción, Cambio, Superenergía), unes una energía tocando a uno de tus Polenom,
+  puedes retirarte una vez y atacas (atacar termina el turno).
+  Gana quien consigue 3 premios dejando fuera de combate a Polenom rivales.
+  Empiezas con un mazo inicial y un sobre de regalo; cada victoria da otro sobre
+  (también se compran por $ 60 ficticios). Los sobres traen 5 cartas: raras ★★★,
+  brillantes ✨ y nuevas para tu colección. Hay cuatro rivales, cada vez más astutos.
+  Los combates y las aperturas de sobres se pueden grabar y publicar.
+GENERAL
+  M ..................... silenciar / activar sonido
+  Esc ................... pausar o cerrar ventanas (P también pausa)
+
+DOS JUEGOS NUEVOS EN EL ORDENADOR
+ÓRBITA VIRAL (45 s)
+  WASD / flechas ........ pilotar la nave
+  Espacio ............... disparar (mantén pulsado para fuego continuo)
+  E ..................... escudo de 2 segundos; recarga de 8 segundos
+  Táctil ................ arrastra para pilotar; botones «Disparar» (mantenido) y «Escudo»
+  Destruye asteroides, recoge cristales y protege tus tres vidas.
+  Medallas: bronce con 500 puntos, plata con 1.400, oro con 2.600.
+MEMORIA VIRAL (60 s)
+  Clic .................. voltear cartas y encontrar parejas
+  Flechas + Enter ....... alternativa al ratón (Espacio también voltea)
+  H ..................... usar una de las dos pistas de la partida
+  Táctil ................ toca las cartas y el botón «Pista»
+  Completa tres tableros de seis parejas; las rachas y terminar rápido suman puntos.
+  Medallas: bronce con 900 puntos, plata con 2.300, oro con 4.000.
+Ambos incluyen instrucciones antes de empezar, récord guardado, práctica y grabación
+para editar y publicar. En total hay seis juegos en la biblioteca del ordenador.
+
+EN EL MÓVIL
+La página se adapta sola: respeta la muesca de la pantalla, no hace zoom al tocar dos
+veces y cada juego enseña abajo los botones que necesita (de lado se van al borde
+derecho). Las instrucciones cambian de «pulsa E» a «toca Escudo» cuando juegas con el dedo.
+  Casa .................. toca el suelo para caminar y un objeto para usarlo;
+                          arrastra para girar la cámara
+  Salto neón ............ botones ◀ ⤒ ▶, o desliza a los lados y hacia arriba
+  Ritmo pixel ........... toca el carril o usa los cuatro botones de flecha
+  Serpiente de likes .... desliza, toca hacia dónde girar o usa las flechas
+  Órbita viral .......... arrastra para pilotar, «Disparar» mantenido y «Escudo»
+  Memoria viral ......... toca las cartas y el botón «Pista»
+  Polenom ............... el combate entero se juega tocando las cartas
+  Pausa ................. el botón «? Ayuda», o el botón atrás del teléfono en la app
+
+APLICACIÓN DE ANDROID (APK)
+outputs/Putup.apk es este mismo juego como aplicación: pantalla completa, sin permisos
+y sin conexión a Internet, con el botón atrás cerrando ventanas o pausando la partida
+antes de salir. El código de la app está en android/ y se vuelve a compilar con
+work\APK.cmd. Todo lo demás (instalarlo en el teléfono, firmarlo para Google Play o
+compilarlo en otro ordenador) está en ANDROID.txt.
+
+EL NOMBRE DE TU CANAL
+Tu canal empieza llamándose Putup, pero puedes ponerle el nombre que quieras (hasta 18
+letras) desde el ordenador > Tu canal > «Ponerle nombre», o justo después de publicar
+tu primer vídeo. El nombre no se queda en un menú: aparece escrito con bombillas en el
+letrero de neón del estudio, grabado en la placa de los 1.000 suscriptores, en la
+marquesina de la máquina recreativa y en las cartas que te mandan tus fans.
+
+PROGRESO
+Graba una partida, elige momentos, título y miniatura, y publícala.
+El editor muestra el alcance estimado mientras editas.
+100 suscriptores desbloquean ingresos ficticios para la tienda.
+A los 1.000 suscriptores cuelga una placa en la pared.
+
+TIENDA (dinero ficticio)
+  🎙 Equipo de grabación ... 3 niveles · +25 % de alcance cada uno
+  🛋 Rincón de creador .... 2 niveles · alfombra y puf, y el letrero de neón
+  🪑 Silla de carreras .... $ 130 · +10 % de alcance
+  🎨 Pack de miniaturas ... $ 170 · dos portadas más en el editor
+  🌇 Circuito atardecer ... $ 150 · otro cielo para Salto neón
+  📹 Osmo Pocket 4 ........ $ 200 · +15 % de alcance, la llevas en la mano
+  🌳 Jardín de verano ..... $ 220 · guirnalda de luces y hamaca en el patio
+  🏆 Vitrina de hitos ..... $ 260 · una placa por cada meta de suscriptores
+  🕹 Máquina recreativa ... $ 280 · abre la biblioteca de juegos desde el salón
+  🎛 Capturadora 4K ....... $ 300 · un momento más para elegir al editar
+  🎥 Osmo Pocket 4P ....... $ 340 · +25 % de alcance, sustituye a la Pocket 4
+Todo lo que compras se ve en la casa: los muebles, las luces y las cámaras aparecen
+donde les toca, y la vitrina se va llenando sola según crece el canal.
+
+ESTRUCTURA
+  index.html, style.css ... página e interfaz
+  js/engine.js ............ motor 3D sobre Canvas 2D (luces, niebla, partículas y orden
+                            de dibujado por objetos, para que las paredes tapen bien)
+  js/audio.js ............. efectos y música sintetizados (Web Audio)
+  js/state.js ............. partida guardada, tienda y economía
+  js/models.js ............ personaje, gato, plantas, libros, cámaras de bolsillo y el
+                            alfabeto de puntos con el que se escriben los rótulos
+  js/house.js ............. habitaciones, suelos, paredes recortables, puertas y ventanas
+  js/furniture.js ......... muebles y decoración del estudio
+  js/rooms.js ............. salón, cocina, recibidor y baño
+  js/garden.js ............ jardín, porche y patio
+  js/home.js .............. movimiento, cámara e interacciones de la casa
+  js/run.js, runscene.js .. minijuego Salto neón y su dibujo
+  js/ui.js, main.js ....... ventanas, entrada y bucle principal
+  js/games.js ............ biblioteca de seis juegos y reglas comunes del arcade
+  js/ritmo.js ............ notas al compás, veredictos y combo
+  js/serpiente.js ........ serpiente, likes y estrellas doradas
+  js/polenom-data.js ..... tipos, 15 criaturas, objetos e ilustraciones SVG
+  js/polenom.js .......... reglas del combate por turnos y rival automático
+  js/polenom-ui.js ....... mesa de juego, menú, sobres y colección
+  js/orbita.js ........... nave, asteroides, disparos, cristales y escudo
+  js/memoria.js .......... parejas, pistas, tableros y bonificación de tiempo
+  manifest.webmanifest ... datos para instalar la página como aplicación
+  icon-192/512.png ....... icono, generado por work/icons.cjs
+  ../../android/ ......... aplicación de Android que abre el juego (ver ANDROID.txt)
+Pruebas: node work/check.cjs · Empaquetar: node work/build.cjs (también actualiza la app)
+
+OTRAS VERSIONES (carpeta outputs)
+  Putup-blender.html ...... versión alternativa con modelos de Blender y WebGL
+  Putup-clasico.html ...... versión original
+
+Todo es una simulación local: no publica en Internet ni maneja dinero real.
+Los nombres de productos reales se usan solo como objetos ficticios del juego.
+El progreso se guarda automáticamente en este navegador.

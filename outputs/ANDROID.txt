@@ -1,0 +1,101 @@
+PUTUP PARA ANDROID (APK)
+========================
+
+El juego entero cabe en un solo archivo HTML, así que la app de Android no es
+más que una ventana a pantalla completa que lo abre desde dentro del propio APK:
+
+  android/app/src/main/assets/index.html   <- copia de outputs/Putup.html
+  android/app/src/main/java/.../MainActivity.java
+
+No pide ningún permiso, no se conecta a internet y la partida se guarda en el
+teléfono. Si vuelves a tocar el juego, ejecuta "node work/build.cjs" para que la
+app se lleve la versión nueva.
+
+EL APK YA COMPILADO
+-------------------
+outputs\Putup.apk es el juego listo para instalar. Para rehacerlo después de tocar
+el juego, ejecuta:
+
+   work\APK.cmd
+
+Ese atajo actualiza el HTML que va dentro de la app y vuelve a compilar. Usa las
+herramientas que están en %LOCALAPPDATA%\putup-build (Java 17, Gradle y el SDK de
+Android, cada uno descomprimido en su carpeta, sin instalar nada en el sistema).
+Si borras esa carpeta se libera cerca de 1 GB y el atajo deja de funcionar; para
+volver a prepararla, sigue una de las vías de abajo.
+
+
+Si prefieres compilarlo en otro sitio, elige una de estas tres vías.
+
+
+A · EN LA NUBE, SIN INSTALAR NADA (lo más sencillo)
+---------------------------------------------------
+1. Sube esta carpeta a un repositorio de GitHub (puede ser privado).
+2. En la web del repositorio, pestaña "Actions".
+3. Elige "APK de Putup" y pulsa "Run workflow".
+4. Cuando termine (unos 5 minutos), abre la ejecución y descarga el archivo
+   "Putup-APK" que aparece en "Artifacts". Dentro está app-debug.apk.
+
+La receta ya está escrita en .github/workflows/apk.yml y no cuesta dinero en
+repositorios públicos ni en la cuota gratuita de los privados.
+
+
+B · EN TU ORDENADOR CON ANDROID STUDIO
+--------------------------------------
+1. Instala Android Studio (gratuito, https://developer.android.com/studio).
+   Trae dentro Java y el SDK de Android; no hace falta instalarlos aparte.
+2. Abre Android Studio > "Open" y elige la carpeta "android" de este proyecto.
+3. Espera a que termine la primera sincronización (descarga Gradle y el SDK).
+4. Menú "Build" > "Build App Bundle(s) / APK(s)" > "Build APK(s)".
+5. El APK queda en:
+   android/app/build/outputs/apk/debug/app-debug.apk
+
+
+C · POR LÍNEA DE ÓRDENES
+------------------------
+Necesitas Java 17 y el SDK de Android (ANDROID_HOME apuntando a su carpeta).
+Desde la carpeta "android":
+
+   gradle assembleDebug
+
+Si prefieres el wrapper, genéralo antes con "gradle wrapper" y luego usa
+"gradlew.bat assembleDebug".
+
+
+INSTALAR EL APK EN EL TELÉFONO
+------------------------------
+Pásalo por cable, por correo o por la nube y ábrelo en el teléfono. Android
+pedirá permiso para "instalar aplicaciones desconocidas": es lo normal en una app
+que no viene de Google Play. Acéptalo solo para la aplicación desde la que lo
+abras (Archivos, Chrome...).
+
+El APK de "debug" está firmado con la clave de pruebas de Android: sirve para
+jugar e instalarlo donde quieras, pero no para publicarlo en Google Play. Para
+eso hay que crear una clave propia ("Build > Generate Signed Bundle / APK" en
+Android Studio) y compilar la variante "release".
+
+
+SIN APK: JUGAR EN EL MÓVIL AHORA MISMO
+--------------------------------------
+Copia outputs/Putup.html al teléfono y ábrelo con Chrome. Es la misma versión,
+con los mismos controles táctiles. También puedes arrancar "Jugar.cmd" en el
+ordenador y entrar desde el móvil escribiendo la dirección que aparece, si los
+dos están en la misma red wifi.
+
+La diferencia está en el guardado: algunos navegadores no dejan guardar nada a una
+página abierta desde un archivo suelto. Si pasa, el juego lo avisa con un mensaje y
+la partida solo dura esa sesión. Dentro del APK eso no ocurre.
+
+
+CONTROLES EN PANTALLA TÁCTIL
+----------------------------
+  Casa ............. toca el suelo para caminar y un objeto para usarlo;
+                     arrastra para girar la cámara.
+  Salto neón ....... botones ◀ ⤒ ▶, o desliza a los lados y hacia arriba.
+  Ritmo pixel ...... toca el carril de la flecha o usa los cuatro botones.
+  Serpiente ........ desliza, toca hacia dónde girar o usa las flechas.
+  Órbita viral ..... arrastra para pilotar, "Disparar" mantenido y "Escudo".
+  Memoria viral .... toca las cartas y el botón "Pista".
+  Polenom .......... todo el combate se juega tocando las cartas.
+  Pausa ............ el botón "? Ayuda" de la cabecera, o el botón atrás
+                     del teléfono.

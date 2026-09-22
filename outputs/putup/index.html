@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#11192b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>Putup · Tu próxima gran historia</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23171e32'/%3E%3Cpath d='M12 9l11 7-11 7z' fill='%23b7f675'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-mode="home">
+  <canvas id="world" aria-label="Estudio de Putup en 3D"></canvas>
+
+  <header>
+    <a class="brand" aria-label="Putup">p<span>▶</span>tup<small>SIMULADOR DE CREADOR</small></a>
+    <div id="stats">
+      <div class="stat"><small>SUSCRIPTORES</small><strong id="subs">0</strong></div>
+      <div class="stat"><small>VISTAS</small><strong id="views">0</strong></div>
+      <div class="stat"><small>SALDO FICTICIO</small><strong id="money">$ 0</strong></div>
+    </div>
+    <button id="walls" class="home-only" title="Cambiar la vista de las paredes (C)">🧱 <span class="wl">Paredes recortadas</span></button>
+    <button id="sound" class="icon" aria-pressed="false" title="Silenciar (M)">🔊</button>
+    <button id="help">? Ayuda</button>
+  </header>
+
+  <aside id="mission">
+    <span class="eyebrow">TU PRÓXIMO PASO</span>
+    <h2 id="objective"></h2>
+    <p id="detail"></p>
+    <div id="progress"></div>
+    <small id="progress-label"></small>
+  </aside>
+
+  <div id="location">● CASA / ESTUDIO 01</div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="prompt"></div>
+
+  <!-- Barra táctil: setTouchControls() la rellena según el modo y el juego en marcha. -->
+  <div id="touch" hidden></div>
+
+  <footer>
+    <span class="home-only"><kbd>W A S D</kbd> Caminar</span>
+    <span class="home-only"><kbd>Clic</kbd> Ir a un punto</span>
+    <span class="home-only"><kbd>Arrastrar</kbd> Girar cámara</span>
+    <span class="home-only"><kbd>E</kbd> Usar objeto</span>
+    <span class="home-only"><kbd>C</kbd> Paredes</span>
+    <span class="run-only"><kbd>A / D</kbd> Carril</span>
+    <span class="run-only"><kbd>Espacio</kbd> Saltar</span>
+    <span id="arcade-controls" class="arcade-only"></span>
+    <span><kbd>M</kbd> Sonido</span>
+    <span><kbd>Esc</kbd> Pausa / cerrar</span>
+  </footer>
+
+  <div id="cards" hidden></div>
+
+  <div id="modal" class="veil" hidden><section id="panel" role="dialog" aria-modal="true"></section></div>
+
+  <script src="js/engine.js?v=depth3"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/models.js"></script>
+  <script src="js/house.js"></script>
+  <script src="js/furniture.js"></script>
+  <script src="js/rooms.js"></script>
+  <script src="js/garden.js"></script>
+  <script src="js/home.js"></script>
+  <script src="js/run.js"></script>
+  <script src="js/runscene.js"></script>
+  <script src="js/games.js"></script>
+  <script src="js/ritmo.js"></script>
+  <script src="js/serpiente.js"></script>
+  <script src="js/orbita.js"></script>
+  <script src="js/memoria.js"></script>
+  <script src="js/polenom-data.js"></script>
+  <script src="js/polenom.js"></script>
+  <script src="js/polenom-ui.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/qa-camera.js?v=5"></script>
+</body>
+</html>
