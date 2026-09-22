@@ -20,9 +20,27 @@ sitio se enlaza directo (franja del hero, ficha 01 del catálogo, sección
 `#lemuy`, pie de página y el launcher). **Si el servidor está apagado, el enlace
 no abre** — es lo único del sitio que depende de una máquina encendida.
 
-**02 · Carrera Loca** — Endless arcade de carreras con estética neón.
+**02 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
+cocina, recibidor, baño y jardín), grabas partidas en el ordenador, las editas
+—momentos, título, miniatura— y las publicas para que crezca el canal. El dinero
+ficticio se gasta en mejoras que aparecen de verdad en la habitación.
 
-**03 · BREACH // 2044** — Puzzle de intrusión cyberpunk. Recorres una matriz de
+Dentro del ordenador hay **seis juegos**: Salto neón (carreras), Ritmo pixel
+(música), Serpiente de likes, Órbita viral (naves), Memoria viral (parejas) y
+**Polenom**, un juego de cartas por turnos con quince criaturas originales y
+cinco tipos que se ganan entre sí.
+
+- **WASD** caminar · **clic** ir o usar · **arrastrar** girar la cámara
+- **E** usar objeto · **C** paredes · **M** sonido · **Esc** pausa
+- En móvil se juega a dedo, con los botones que cada juego necesita
+
+`putup.html` es el juego entero en **un solo archivo de 308 KB**, sin ninguna
+petición externa. Es una copia de `outputs/Putup.html`, que es donde el juego se
+compila; si lo regeneras, vuelve a copiarlo a la raíz.
+
+**03 · Carrera Loca** — Endless arcade de carreras con estética neón.
+
+**04 · BREACH // 2044** — Puzzle de intrusión cyberpunk. Recorres una matriz de
 código alternando fila y columna para llenar el búfer; un démon se sube si su
 secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 
@@ -30,23 +48,23 @@ secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 - Los démones se generan a partir de un recorrido válido real, así que **siempre
   hay solución** dentro del búfer.
 
-**04 · NEON RUNNER** — Runner de gravedad invertible sobre ciudad neón.
+**05 · NEON RUNNER** — Runner de gravedad invertible sobre ciudad neón.
 
 - **Espacio** / clic / toque — invertir gravedad
 
-**05 · DAEMON** — Shooter de arena por oleadas con gráficos vectoriales.
+**06 · DAEMON** — Shooter de arena por oleadas con gráficos vectoriales.
 
 - **WASD** / flechas — moverse · **ratón** — apuntar · **clic** — disparar
 - En móvil: arrastrar para moverse, dispara y apunta solo
 
-**06 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
+**07 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
 
 - ← → / A D — moverse lateral
 - ↑ ↓ / W S — adelantar/frenar (más arriba = más rápido)
 - **M** — silenciar sonido
 - 9 colores de coche a elegir (se guardan entre sesiones)
 
-Los cinco del repo guardan récord en `localStorage` y respetan
+Los cinco arcades del repo guardan récord en `localStorage` y respetan
 `prefers-reduced-motion`. El número de cada ficha es su posición en el catálogo,
 no su orden de salida.
 
@@ -55,13 +73,15 @@ no su orden de salida.
 ```
 .
 ├── index.html          # Página principal
-├── furious-cars.html   # Juego 01 (también embebido en index)
-├── carrera-loca.html   # Juego 02
-├── breach-2044.html    # Juego 03
-├── neon-runner.html    # Juego 04
-├── daemon.html         # Juego 05
+├── furious-cars.html   # Juego 07 (también embebido en index)
+├── carrera-loca.html   # Juego 03
+├── breach-2044.html    # Juego 04
+├── neon-runner.html    # Juego 05
+├── daemon.html         # Juego 06
+├── putup.html          # Juego 02 — un solo archivo, copia de outputs/Putup.html
+├── outputs/            # Material de Putup tal y como sale de su compilación
 ├── launcher.html       # Launcher web (no enlazado desde la home)
-├── img/                # Capturas de República de Lemuy para el carrusel
+├── img/                # Capturas de Lemuy y de Putup para los carruseles
 ├── tweaks.js           # Panel de tweaks de diseño (opt-in, vanilla JS)
 ├── og-image.png        # Imagen para redes sociales (1200×630)
 ├── robots.txt          # Indexación
@@ -153,6 +173,14 @@ Y algo que se probó y **se descartó porque salió peor**, no por pereza:
   fps.
 Si vuelves a medir, hazlo con contexto nuevo cada vez y varias vueltas en orden
 aleatorio: una sola pasada da lecturas que se contradicen entre sí.
+
+### Peso de `outputs/`
+
+La carpeta `outputs/` pesa unos **15 MB** y GitHub Pages la sirve entera, aunque
+nada del sitio enlace a ella: ahí están el `.blend`, el `.glb`, los `.zip`, el
+APK y `Putup-blender.html` (5 MB él solo). No frena la portada —no se descarga
+nada de ahí al abrirla—, pero infla el repo y queda público. Si sólo quieres
+conservar lo jugable, con `putup.html` en la raíz basta.
 
 ## 🌐 Probar local
 
