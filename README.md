@@ -101,19 +101,6 @@ Ya no depende del panel: hay un botón en la barra superior. Respeta
 `prefers-color-scheme` en la primera visita y luego recuerda la elección
 en `localStorage` (clave `pox-theme`).
 
-### Modo VI
-
-Un repinte de atardecer —rosa, naranja y oro, cursivas pesadas, cromado en el
-logotipo y neón en las fichas— al estilo de la portada de GTA VI. Se enciende
-con el botón **VI** de la barra superior o con el interruptor grande de la
-franja `#modo-vi`, y se guarda en `localStorage` (clave `pox-vi`).
-
-Es un **eje aparte** del tema claro/oscuro: los dos se combinan. Técnicamente es
-el atributo `data-vi="1"` en `<html>`; toda la hoja del modo cuelga de
-`html[data-vi="1"]` y sólo redefine tokens de color, tipografía y sombras. No
-cambia ni el contenido ni la disposición, así que apagarlo devuelve el sitio
-exactamente a como estaba.
-
 ### Carrusel de Lemuy
 
 Las nueve imágenes de `img/` **están renderizadas con el motor del propio
@@ -159,15 +146,11 @@ Cosas que se midieron —con Chromium, CPU frenada— y por qué están como est
 - **La hoja de Google Fonts va con `media="print"`** para que no bloquee el
   primer pintado; como ya iba con `display=swap`, no cambia nada visualmente.
 
-Y dos cosas que se probaron y **se descartaron porque salieron peor**, no por
-pereza:
+Y algo que se probó y **se descartó porque salió peor**, no por pereza:
 
 - `content-visibility:auto` en las secciones de abajo: primer pintado 428 → 548
   ms y la altura de la página se descuadraba (8579 → 9899 px) sin ganar un solo
   fps.
-- Mover el resplandor del modo VI de `background-attachment:fixed` a una capa
-  fija propia: mediana de 45 fps frente a 60.
-
 Si vuelves a medir, hazlo con contexto nuevo cada vez y varias vueltas en orden
 aleatorio: una sola pasada da lecturas que se contradicen entre sí.
 
