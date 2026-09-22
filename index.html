@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 
 <title>PoxStar — Estudio de juegos de AugustoCLive</title>
-<meta name="description" content="PoxStar es el estudio indie de videojuegos de AugustoCLive. Seis juegos gratis en el navegador: arcade endless, runner cyberpunk, shooter de arena, puzzle de intrusión y República de Lemuy, un MMO de conquista sobre la isla de Lemuy. Sin descargas, sin loot boxes." />
+<meta name="description" content="PoxStar es el estudio indie de videojuegos de AugustoCLive. Siete juegos gratis en el navegador: República de Lemuy, un MMO de conquista en Chiloé; Putup, simulador de creador con seis juegos dentro; y arcades, runner cyberpunk, shooter de arena y puzzle de intrusión. Sin descargas, sin loot boxes." />
 <link rel="canonical" href="https://poxstar.com/" />
 <meta name="robots" content="index,follow,max-image-preview:large" />
 <meta name="author" content="AugustoCLive" />
@@ -20,7 +20,7 @@
 <meta property="og:locale" content="es_ES" />
 <meta property="og:url" content="https://poxstar.com/" />
 <meta property="og:title" content="PoxStar — Estudio de juegos de AugustoCLive" />
-<meta property="og:description" content="Juegos pequeños con ideas grandes. Seis juegos en el navegador, gratis y sin descargas — y República de Lemuy, un MMO de conquista en Chiloé." />
+<meta property="og:description" content="Juegos pequeños con ideas grandes. Siete juegos en el navegador, gratis y sin descargas — con República de Lemuy y Putup como últimos estrenos." />
 <meta property="og:image" content="https://poxstar.com/og-image.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -29,7 +29,7 @@
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="PoxStar — Estudio de juegos de AugustoCLive" />
-<meta name="twitter:description" content="Juegos pequeños con ideas grandes. Seis juegos en el navegador, gratis y sin descargas — y República de Lemuy, un MMO de conquista en Chiloé." />
+<meta name="twitter:description" content="Juegos pequeños con ideas grandes. Siete juegos en el navegador, gratis y sin descargas — con República de Lemuy y Putup como últimos estrenos." />
 <meta name="twitter:image" content="https://poxstar.com/og-image.png" />
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF4A1C' d='M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z'/%3E%3C/svg%3E" />
@@ -146,6 +146,21 @@
       "genre": ["MMO", "Acción", "Aventura", "Estrategia"],
       "gamePlatform": "Navegador web",
       "playMode": "MultiPlayer",
+      "applicationCategory": "Game",
+      "operatingSystem": "Web",
+      "inLanguage": "es",
+      "author": { "@id": "https://poxstar.com/#studio" },
+      "publisher": { "@id": "https://poxstar.com/#studio" },
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+    },
+    {
+      "@type": "VideoGame",
+      "name": "Putup",
+      "url": "https://poxstar.com/putup.html",
+      "description": "Simulador de creador de contenido: vives en una casa 3D, grabas partidas de seis minijuegos, las editas y las publicas para hacer crecer tu canal. Incluye Polenom, un juego de cartas con quince criaturas originales.",
+      "genre": ["Simulación", "Arcade", "Cartas", "Aventura"],
+      "gamePlatform": "Navegador web",
+      "playMode": "SinglePlayer",
       "applicationCategory": "Game",
       "operatingSystem": "Web",
       "inLanguage": "es",
@@ -432,8 +447,11 @@ html[data-theme="dark"] .icon-btn .sun{display:none}
 
 /* La novedad del estudio, en el hero: tiene que leerse antes que nada más
    después del logotipo, pero sin competir con los dos botones. */
-.hero-nuevo{display:flex;align-items:center;gap:16px;margin:clamp(26px,3.4vw,40px) auto 0;
-  max-width:620px;padding:13px 18px;border-radius:16px;
+.hero-nuevos{display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  max-width:920px;margin:clamp(26px,3.4vw,40px) auto 0}
+@media (max-width:760px){.hero-nuevos{grid-template-columns:1fr;max-width:620px}}
+.hero-nuevo{display:flex;align-items:center;gap:14px;
+  padding:13px 16px;border-radius:16px;
   background:var(--on-accent);color:#F5F0E8;
   border:1px solid color-mix(in srgb,#F5F0E8 18%, transparent);
   box-shadow:0 16px 34px -18px rgba(0,0,0,.55);
@@ -525,12 +543,24 @@ html[data-motion="0"] .nav a[href="#lemuy"]::before{animation:none}
 .sect-head .index b{color:var(--accent);font-weight:500}
 
 /* ── Games grid ───────────────────────────────────────────────── */
-.games{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(26px,3vw,44px)}
-@media (max-width:1080px){.games{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:680px){.games{grid-template-columns:1fr}}
-/* La primera ficha ocupa doble ancho: es el juego destacado. */
-.game.wide{grid-column:span 2}
-@media (max-width:680px){.game.wide{grid-column:span 1}}
+/* Seis columnas para poder repartir en tercios Y en mitades: los dos juegos
+   que encabezan el catálogo ocupan media fila cada uno —pesan igual—, el
+   resto un tercio, y el último vuelve a ser ancho. */
+.games{display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(26px,3vw,44px)}
+.game{grid-column:span 2}
+.game.destacado{grid-column:span 3}
+.game.wide{grid-column:span 4}
+@media (max-width:1080px){
+  .games{grid-template-columns:repeat(4,1fr)}
+  .game{grid-column:span 2}
+  .game.destacado,.game.wide{grid-column:span 4}
+}
+@media (max-width:680px){
+  .games{grid-template-columns:1fr}
+  .game,.game.destacado,.game.wide{grid-column:span 1}
+}
+.game.destacado .art{aspect-ratio:16/9}
+.game.destacado h3{font-size:clamp(28px,3.1vw,38px)}
 .game.wide .art{aspect-ratio:16/8.4}
 .game.wide h3{font-size:clamp(30px,3.6vw,42px)}
 
@@ -547,10 +577,13 @@ html[data-motion="0"] .nav a[href="#lemuy"]::before{animation:none}
 .art .num{position:absolute;top:14px;left:16px;z-index:3;color:#fff;
   font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;
   font-weight:500;mix-blend-mode:difference}
-/* Sobre una portada que es una imagen, `difference` se pierde en los medios
-   tonos del pasto y el cemento: ahí el número lleva su propia sombra. */
-.art[data-art="foto"] .num{mix-blend-mode:normal;
-  text-shadow:0 1px 4px rgba(0,0,0,.85), 0 0 12px rgba(0,0,0,.55)}
+/* Sobre una portada que es una imagen, `difference` se pierde: en el pasto y
+   el cemento de Lemuy por los medios tonos, y en Putup porque la captura trae
+   su propio logotipo en esa esquina. Ahí el número va en su cápsula. */
+.art[data-art="foto"] .num{mix-blend-mode:normal;top:12px;left:12px;
+  padding:4px 8px;border-radius:7px;background:rgba(8,12,20,.66);
+  backdrop-filter:blur(3px);
+  border:1px solid rgba(255,255,255,.22)}
 .art .tag{position:absolute;top:14px;right:16px;z-index:3;
   font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;
   text-transform:uppercase;background:#fff;color:#000;
@@ -821,6 +854,168 @@ body.scrolled-far .to-top{opacity:1;transform:none;pointer-events:auto}
 .to-top svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round}
 
+
+
+/* ══════════════════════════════════════════════════════════════════
+   Putup — la otra franja grande. Misma estructura que la de Lemuy
+   (son los dos juegos destacados y tienen que pesar igual), pero con
+   los colores del propio juego: verde lima, noche azul y el neón del
+   estudio.
+   ══════════════════════════════════════════════════════════════════ */
+.putup{
+  --pt-lima:#b7f675;
+  --pt-verde:#7bd44a;
+  --pt-amarillo:#f7e36b;
+  --pt-coral:#ff8a7a;
+  --pt-rosa:#ff7ab5;
+  --pt-azul:#6c8fd8;
+  --pt-noche:#0d1628;
+  position:relative;z-index:2;overflow:hidden;isolation:isolate;
+  color:#EEF5FF;
+  background:
+    radial-gradient(118% 76% at 50% 106%, #1d3a5c 0%, #17304d 22%, #12243d 46%,
+                    #0e1a2e 70%, #0a1322 100%);
+  border-top:1px solid rgba(255,255,255,.14);
+  border-bottom:1px solid rgba(255,255,255,.14);
+}
+.putup .wrap{position:relative;z-index:3;
+  padding-top:clamp(72px,10vw,124px);padding-bottom:clamp(72px,10vw,120px)}
+
+/* — el cielo del estudio: noche, luna y el resplandor del monitor — */
+.putup-sky{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.putup-luna{position:absolute;right:11%;top:9%;width:clamp(84px,9vw,140px);
+  aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 36% 34%, #fffdf0 0%, #f2eccd 52%, #ded6b0 100%);
+  box-shadow:0 0 0 14px rgba(255,251,222,.07), 0 0 90px 30px rgba(255,248,205,.16)}
+.putup-estrellas{position:absolute;inset:0;
+  background-image:
+    radial-gradient(1.6px 1.6px at 12% 18%, rgba(255,255,255,.85), transparent),
+    radial-gradient(1.4px 1.4px at 28% 9%,  rgba(255,255,255,.6), transparent),
+    radial-gradient(1.8px 1.8px at 44% 24%, rgba(255,255,255,.7), transparent),
+    radial-gradient(1.3px 1.3px at 63% 13%, rgba(255,255,255,.55), transparent),
+    radial-gradient(1.7px 1.7px at 78% 27%, rgba(255,255,255,.75), transparent),
+    radial-gradient(1.4px 1.4px at 90% 15%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1.5px 1.5px at 20% 38%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1.6px 1.6px at 55% 41%, rgba(255,255,255,.45), transparent);
+  opacity:.9}
+/* el halo verde del monitor, que es la luz que manda en el juego */
+.putup-halo{position:absolute;left:50%;bottom:-12%;width:min(120%,1500px);
+  height:62%;transform:translateX(-50%);
+  background:radial-gradient(50% 60% at 50% 100%,
+    rgba(183,246,117,.2) 0%, rgba(123,212,74,.09) 42%, transparent 74%)}
+/* el suelo de la parcela, insinuado en perspectiva */
+.putup-suelo{position:absolute;left:-20%;right:-20%;bottom:-4%;height:42%;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(183,246,117,.16) 0 1px, transparent 1px 92px),
+    repeating-linear-gradient(0deg,  rgba(183,246,117,.12) 0 1px, transparent 1px 54px);
+  transform:perspective(520px) rotateX(76deg);transform-origin:50% 100%;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 54%);
+  mask-image:linear-gradient(180deg,transparent 0%,#000 54%)}
+
+/* — cabecera — */
+.putup .eyebrow{color:var(--pt-lima);opacity:1;display:flex;align-items:center;
+  gap:10px;flex-wrap:wrap}
+.putup .marca-web{display:inline-flex;align-items:center;gap:7px;
+  border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 11px;
+  background:rgba(10,19,34,.55);color:#EEF5FF}
+.putup .marca-web i{width:7px;height:7px;border-radius:50%;background:var(--pt-lima);
+  box-shadow:0 0 0 3px rgba(183,246,117,.22)}
+
+.putup h2{margin:.2em 0 0;font-family:var(--font-display);font-weight:900;
+  letter-spacing:-.055em;line-height:.84;
+  font-size:clamp(58px,11.4vw,168px);text-transform:lowercase;
+  text-wrap:balance}
+.putup h2 span{display:block;
+  background:linear-gradient(166deg,#FFFFFF 0%,#ECFFD6 22%,var(--pt-lima) 52%,
+                             var(--pt-verde) 78%,#4ea83a 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 5px 0 rgba(12,40,24,.5))
+         drop-shadow(0 22px 42px rgba(0,0,0,.42))}
+.putup h2 .sm{font-size:.28em;letter-spacing:-.02em;line-height:1.08;
+  text-transform:uppercase;font-weight:800}
+
+.putup .lead{margin:26px 0 0;max-width:54ch;font-size:clamp(16px,1.35vw,19px);
+  line-height:1.6;color:rgba(238,245,255,.9)}
+.putup .lead b{color:#fff;font-weight:600}
+
+/* — cuerpo: texto y carrusel, como en Lemuy — */
+.putup-body{margin-top:clamp(38px,5vw,60px);
+  display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);
+  gap:clamp(28px,3.6vw,56px);align-items:start}
+@media (max-width:1040px){.putup-body{grid-template-columns:1fr}}
+
+.putup-specs{display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;overflow:hidden}
+.putup-specs .s{background:rgba(10,20,36,.6);padding:15px 16px 17px}
+.putup-specs .k{font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--pt-lima);margin-bottom:5px}
+.putup-specs .v{font-family:var(--font-display);font-weight:800;
+  letter-spacing:-.02em;font-size:clamp(15px,1.45vw,18px);line-height:1.18}
+
+/* los seis juegos de dentro, como fichas pequeñas */
+.putup-mini{margin:22px 0 0;padding:0;list-style:none;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:560px){.putup-mini{grid-template-columns:repeat(2,1fr)}}
+.putup-mini li{border:1px solid rgba(255,255,255,.18);border-radius:10px;
+  padding:9px 10px;background:rgba(10,20,36,.5);line-height:1.25}
+.putup-mini b{display:block;font-size:13px;font-weight:600;color:#fff}
+.putup-mini span{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(238,245,255,.6)}
+
+.putup-actions{margin-top:clamp(26px,3vw,34px);
+  display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.putup-cta{position:relative;display:inline-flex;align-items:center;gap:12px;
+  padding:17px 28px;border-radius:999px;border:0;cursor:pointer;
+  font-family:var(--font-display);font-weight:900;
+  font-size:clamp(15px,1.5vw,19px);letter-spacing:-.01em;text-transform:uppercase;
+  color:#11270c;
+  background:linear-gradient(96deg,#EBFFCB 0%,var(--pt-lima) 40%,var(--pt-verde) 100%);
+  box-shadow:0 14px 34px -12px rgba(123,212,74,.8),
+             inset 0 1px 0 rgba(255,255,255,.55);
+  transition:transform .28s var(--ease), box-shadow .28s var(--ease), filter .28s}
+.putup-cta:hover{transform:translateY(-2px);filter:saturate(1.1) brightness(1.04);
+  box-shadow:0 22px 44px -14px rgba(123,212,74,.95),
+             inset 0 1px 0 rgba(255,255,255,.65)}
+.putup-cta .arrow{transition:transform .3s var(--ease)}
+.putup-cta:hover .arrow{transform:translateX(4px)}
+.putup-ghost{display:inline-flex;align-items:center;gap:9px;cursor:pointer;
+  padding:16px 22px;border-radius:999px;background:transparent;color:#EEF5FF;
+  border:1px solid rgba(255,255,255,.34);font-family:var(--font-text);
+  font-size:14px;font-weight:600;
+  transition:background .25s, border-color .25s, transform .25s var(--ease)}
+.putup-ghost:hover{background:rgba(255,255,255,.12);border-color:#fff;
+  transform:translateY(-2px)}
+.putup-note{margin:16px 0 0;font-family:var(--font-mono);font-size:11px;
+  letter-spacing:.1em;line-height:1.75;color:rgba(238,245,255,.76);
+  text-transform:uppercase}
+@media (max-width:560px){.putup-note{letter-spacing:.04em;text-transform:none;
+  font-size:11.5px}}
+
+/* — barra de datos — */
+.putup-rail{margin-top:clamp(34px,4.5vw,56px);display:grid;
+  grid-template-columns:repeat(6,1fr);gap:1px;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.18);border-radius:12px;overflow:hidden}
+.putup-rail div{background:rgba(10,20,36,.58);padding:18px 8px 20px;text-align:center}
+.putup-rail .k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:rgba(238,245,255,.72);margin-bottom:6px}
+.putup-rail .v{font-family:var(--font-display);font-weight:900;
+  font-size:clamp(20px,2.4vw,32px);letter-spacing:-.03em;line-height:1;
+  color:var(--pt-lima)}
+@media (max-width:860px){.putup-rail{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:420px){.putup-rail{grid-template-columns:repeat(2,1fr)}}
+
+/* el carrusel de Putup lleva su propio color de acento */
+#putup-carrusel{box-shadow:0 44px 90px -40px rgba(0,0,0,.85),
+                           0 0 0 1px rgba(183,246,117,.2)}
+#putup-carrusel .bar i{background:linear-gradient(90deg,
+  var(--pt-amarillo),var(--pt-lima),var(--pt-verde))}
+#putup-carrusel .dot[aria-current="true"]{background:var(--pt-lima);
+  border-color:var(--pt-lima)}
+#putup-carrusel .arrow-btn:hover{background:var(--pt-verde);
+  border-color:var(--pt-verde);color:#11270c}
+#putup-carrusel .count b{color:var(--pt-lima)}
 
 /* ══════════════════════════════════════════════════════════════════
    Utilidades
@@ -1122,6 +1317,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <nav class="nav" aria-label="Principal">
       <a href="#juegos">Juegos</a>
       <a href="#lemuy">Lemuy</a>
+      <a href="#putup">Putup</a>
       <a href="#jugar">Jugar</a>
       <a href="#estudio">Estudio</a>
       <a href="#comunidad">Comunidad</a>
@@ -1150,10 +1346,11 @@ html[data-motion="0"] .play-frame .led{animation:none}
   </button>
   <a href="#juegos" style="--i:0">Juegos</a>
   <a href="#lemuy" style="--i:1">Lemuy</a>
-  <a href="#jugar" style="--i:2">Jugar</a>
-  <a href="#estudio" style="--i:3">Estudio</a>
-  <a href="#comunidad" style="--i:4">Comunidad</a>
-  <p class="foot-note" style="--i:5">// since 2026 · por AugustoCLive</p>
+  <a href="#putup" style="--i:2">Putup</a>
+  <a href="#jugar" style="--i:3">Jugar</a>
+  <a href="#estudio" style="--i:4">Estudio</a>
+  <a href="#comunidad" style="--i:5">Comunidad</a>
+  <p class="foot-note" style="--i:6">// since 2026 · por AugustoCLive</p>
 </div>
 
 <main id="main">
@@ -1166,7 +1363,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <div class="hero-meta">
       <div class="l eyebrow">Estudio independiente</div>
       <div class="c eyebrow">// Estudio de AugustoCLive</div>
-      <div class="r eyebrow">06 juegos · jugables</div>
+      <div class="r eyebrow">07 juegos · jugables</div>
     </div>
 
     <div class="logo-lockup">
@@ -1181,13 +1378,22 @@ html[data-motion="0"] .play-frame .led{animation:none}
       </p>
     </div>
 
-    <a class="hero-nuevo" href="#lemuy">
-      <span class="marca"><i aria-hidden="true"></i>Nuevo</span>
-      <span class="que"><b>República de Lemuy</b>
-        <span>MMO de conquista sobre la isla de Lemuy, en Chiloé · servidor en vivo</span>
-      </span>
-      <span class="flecha" aria-hidden="true">→</span>
-    </a>
+    <div class="hero-nuevos">
+      <a class="hero-nuevo" href="#lemuy">
+        <span class="marca"><i aria-hidden="true"></i>Nuevo</span>
+        <span class="que"><b>República de Lemuy</b>
+          <span>MMO de conquista en Chiloé · servidor en vivo</span>
+        </span>
+        <span class="flecha" aria-hidden="true">→</span>
+      </a>
+      <a class="hero-nuevo" href="#putup">
+        <span class="marca"><i aria-hidden="true"></i>Nuevo</span>
+        <span class="que"><b>Putup</b>
+          <span>Simulador de creador · seis juegos dentro</span>
+        </span>
+        <span class="flecha" aria-hidden="true">→</span>
+      </a>
+    </div>
 
     <p class="hero-sub">
       Construimos <strong>juegos pequeños con ideas grandes</strong>. Mecánicas
@@ -1201,7 +1407,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     </div>
 
     <div class="hero-rail" aria-label="Datos del estudio">
-      <div><div class="k">Juegos</div><div class="v">06</div></div>
+      <div><div class="k">Juegos</div><div class="v">07</div></div>
       <div><div class="k">Precio</div><div class="v">Gratis</div></div>
       <div><div class="k">Descargas</div><div class="v">Cero</div></div>
       <div><div class="k">Plataforma</div><div class="v">Navegador</div></div>
@@ -1294,7 +1500,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
              target="_blank" rel="noopener">
             Entrar a Lemuy <span class="arrow" aria-hidden="true">↗</span>
           </a>
-          <button class="lemuy-ghost" type="button" data-goto="2">
+          <button class="lemuy-ghost" type="button"
+                  data-carrusel="lemuy-carrusel" data-goto="2">
             Ver el mapa de la isla
           </button>
         </div>
@@ -1314,7 +1521,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
           <div class="stage">
             <figure class="slide" data-on="true">
-              <img src="img/lemuy-puqueldon.webp" width="1440" height="810"
+              <img data-src="img/lemuy-puqueldon.webp" width="1440" height="810"
                    alt="La plaza de Puqueldón: la municipalidad con su reloj, casas de madera y cuatro guerreros sobre el cemento."
                    decoding="async">
               <figcaption><b>Puqueldón, la capital</b>
@@ -1430,21 +1637,201 @@ html[data-motion="0"] .play-frame .led{animation:none}
   </div>
 </section>
 
+<!-- ═══ Putup ═════════════════════════════════════════════════ -->
+<section id="putup" class="putup">
+  <div class="putup-sky" aria-hidden="true">
+    <span class="putup-estrellas"></span>
+    <span class="putup-luna"></span>
+    <span class="putup-halo"></span>
+    <span class="putup-suelo"></span>
+  </div>
+
+  <div class="wrap">
+    <div class="putup-head reveal">
+      <p class="eyebrow">
+        <span>// 02 · lo último del estudio</span>
+        <span class="marca-web"><i aria-hidden="true"></i>Se juega en el navegador</span>
+      </p>
+      <h2><span class="sm">Simulador de creador</span><span>putup</span></h2>
+      <p class="lead">
+        Tienes una casa, un ordenador y ningún suscriptor. <b>Grabas una
+        partida, la editas —momentos, título, miniatura— y la publicas</b>; el
+        canal crece, entra dinero ficticio y lo que compras aparece de verdad
+        en la habitación: la silla, el letrero de neón, la vitrina de placas.
+        Dentro del ordenador hay <b>seis juegos</b>, incluido Polenom, un juego
+        de cartas con quince criaturas propias.
+      </p>
+    </div>
+
+    <div class="putup-body">
+      <div class="reveal" style="--d:1">
+        <div class="putup-specs">
+          <div class="s"><div class="k">Género</div>
+            <div class="v">Simulación<br>y arcade</div></div>
+          <div class="s"><div class="k">Plataforma</div>
+            <div class="v">Navegador<br>PC y móvil</div></div>
+          <div class="s"><div class="k">Casa</div>
+            <div class="v">Seis estancias<br>y jardín</div></div>
+          <div class="s"><div class="k">Partida</div>
+            <div class="v">Se guarda sola<br>en tu navegador</div></div>
+        </div>
+
+        <ul class="putup-mini">
+          <li><b>🏃 Salto neón</b><span>Carreras 3D · 35 s</span></li>
+          <li><b>🎵 Ritmo pixel</b><span>Música · 32 s</span></li>
+          <li><b>🐍 Serpiente de likes</b><span>Retro · 45 s</span></li>
+          <li><b>🚀 Órbita viral</b><span>Naves · 45 s</span></li>
+          <li><b>🧠 Memoria viral</b><span>Parejas · 60 s</span></li>
+          <li><b>🎴 Polenom</b><span>Cartas · 15 criaturas</span></li>
+        </ul>
+
+        <div class="putup-actions">
+          <a class="putup-cta" href="putup.html">
+            Jugar a Putup <span class="arrow" aria-hidden="true">→</span>
+          </a>
+          <button class="putup-ghost" type="button"
+                  data-carrusel="putup-carrusel" data-goto="3">
+            Ver Polenom
+          </button>
+        </div>
+
+        <p class="putup-note">
+          Se juega aquí mismo, sin instalar nada y sin conexión después de la
+          primera carga. Todo el progreso se guarda en tu navegador. También
+          existe como aplicación de Android.
+        </p>
+      </div>
+
+      <div class="reveal" style="--d:2">
+        <div class="carousel" id="putup-carrusel" role="group"
+             aria-roledescription="carrusel"
+             aria-label="Imágenes de Putup">
+          <div class="bar" aria-hidden="true"><i></i></div>
+
+          <div class="stage">
+            <figure class="slide" data-on="true">
+              <img data-src="img/putup-casa.webp" width="1440" height="810"
+                   alt="La casa vista desde arriba: el estudio con el ordenador encendido, el salón, el baño y la cocina, de noche."
+                   decoding="async">
+              <figcaption><b>Tu casa, tu estudio</b>
+                Estudio, salón, cocina, recibidor, baño y jardín. Las paredes
+                que te taparían se recortan solas.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/putup-biblioteca.webp" width="1440" height="810"
+                   alt="La biblioteca del ordenador con las portadas de los seis juegos y el interruptor de grabar la partida."
+                   decoding="async">
+              <figcaption><b>Seis formas de crear</b>
+                Enciende el ordenador, elige juego y graba la partida. Lo que
+                juegas es el material del vídeo.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/putup-salto.webp" width="1440" height="810"
+                   alt="Salto neón: una carretera de rejilla violeta hacia un sol de atardecer, con cajas naranjas que esquivar."
+                   decoding="async">
+              <figcaption><b>Salto neón</b>
+                Carreras en tres carriles bajo un sol sintético. Encadena
+                estrellas y el multiplicador sube hasta ×4.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/putup-polenom.webp" width="1440" height="810"
+                   alt="Combate de Polenom: dos criaturas enfrentadas, el banco, la mano de cartas y los ataques con su coste de energía."
+                   decoding="async">
+              <figcaption><b>Polenom</b>
+                Quince criaturas propias y cinco tipos que se ganan entre sí.
+                Bajas, unes energía y atacas: gana quien logra tres premios.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/putup-editor.webp" width="1440" height="810"
+                   alt="El editor de vídeo: los momentos grabados, el título, tres miniaturas a elegir y el alcance estimado."
+                   decoding="async">
+              <figcaption><b>Dale tu toque</b>
+                Eliges los momentos, el título y la miniatura. El editor te va
+                diciendo el alcance estimado antes de publicar.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/putup-ritmo.webp" width="1440" height="810"
+                   alt="Ritmo pixel: cuatro carriles de flechas de colores con el aviso de salida en pantalla."
+                   decoding="async">
+              <figcaption><b>Ritmo pixel</b>
+                Pulsa cada flecha justo al llegar a la línea. Diez seguidas y
+                el combo se dobla.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/putup-orbita.webp" width="1440" height="810"
+                   alt="Órbita viral: una nave disparando a asteroides sobre un campo de estrellas, con tres vidas y el escudo listo."
+                   decoding="async">
+              <figcaption><b>Órbita viral</b>
+                Tres vidas, asteroides y un escudo de dos segundos que tarda
+                ocho en recargar.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/putup-memoria.webp" width="1440" height="810"
+                   alt="Memoria viral: un tablero de doce cartas con sus símbolos descubiertos durante unos segundos."
+                   decoding="async">
+              <figcaption><b>Memoria viral</b>
+                El tablero te enseña las parejas un momento y se tapa. Tres
+                tableros, sesenta segundos y dos pistas.</figcaption>
+            </figure>
+          </div>
+
+          <button class="arrow-btn prev" type="button" aria-label="Imagen anterior">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="arrow-btn next" type="button" aria-label="Imagen siguiente">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+
+          <div class="carousel-foot">
+            <button class="pp" type="button" data-paused="false"
+                    aria-label="Pausar la presentación">
+              <svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+              <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="dots" role="group" aria-label="Ir a una imagen"></div>
+            <span class="count" aria-hidden="true"><b>01</b> / 08</span>
+          </div>
+
+          <p class="sr-only" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="putup-rail reveal" style="--d:3" aria-label="Datos de Putup">
+      <div><div class="k">Juegos dentro</div><div class="v">06</div></div>
+      <div><div class="k">Estancias</div><div class="v">06</div></div>
+      <div><div class="k">Polenom</div><div class="v">15</div></div>
+      <div><div class="k">Mejoras</div><div class="v">11</div></div>
+      <div><div class="k">Descargas</div><div class="v">Cero</div></div>
+      <div><div class="k">Precio</div><div class="v">Gratis</div></div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ Juegos ════════════════════════════════════════════════ -->
 <section id="juegos" class="sect">
   <div class="wrap">
     <div class="sect-head reveal">
       <h2>Nuestros <em>juegos</em>.</h2>
       <div class="index">
-        <span>// Catálogo / <b>06</b></span>
-        <span>Lemuy, en vivo · el resto, gratis</span>
+        <span>// Catálogo / <b>07</b></span>
+        <span>Dos estrenos · todo gratis</span>
       </div>
     </div>
 
     <div class="games">
 
       <!-- Game 01 -->
-      <article class="game wide reveal" style="--d:1">
+      <article class="game destacado reveal" style="--d:1">
         <a class="art tilt" data-art="foto" href="https://dell.taila1b256.ts.net/"
            target="_blank" rel="noopener" aria-label="Entrar a República de Lemuy">
           <div class="art-canvas" aria-hidden="true">
@@ -1474,7 +1861,36 @@ html[data-motion="0"] .play-frame .led{animation:none}
       </article>
 
       <!-- Game 02 -->
-      <article class="game reveal" style="--d:2">
+      <article class="game destacado reveal" style="--d:2">
+        <a class="art tilt" data-art="foto" href="putup.html"
+           aria-label="Jugar a Putup">
+          <div class="art-canvas" aria-hidden="true">
+            <img src="img/putup-casa.webp" width="1440" height="810" alt=""
+                 loading="lazy" decoding="async">
+          </div>
+          <span class="num" aria-hidden="true">02</span>
+          <span class="tag hot" aria-hidden="true">Nuevo</span>
+          <span class="scrim" aria-hidden="true"></span>
+          <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
+        </a>
+
+        <div class="meta">
+          <h3><a href="putup.html">Putup</a></h3>
+          <span class="yr">2026</span>
+        </div>
+        <p>
+          Simulador de creador: grabas partidas en tu casa, las editas y las
+          publicas para que crezca el canal. Seis juegos dentro del ordenador,
+          entre ellos Polenom, un juego de cartas con quince criaturas propias.
+        </p>
+        <div class="genres">
+          <span>Simulación</span><span>Arcade</span><span>Cartas</span>
+          <a class="play-link" href="#putup">Ver más <b aria-hidden="true">→</b></a>
+        </div>
+      </article>
+
+      <!-- Game 03 -->
+      <article class="game reveal" style="--d:3">
         <a class="art tilt" href="carrera-loca.html" aria-label="Jugar a Carrera Loca">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -1501,7 +1917,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="146" y="152" width="28" height="40" rx="7" fill="#FF4A1C"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">02</span>
+          <span class="num" aria-hidden="true">03</span>
           <span class="tag" aria-hidden="true">Jugable</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -1521,8 +1937,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 03 -->
-      <article class="game reveal" style="--d:3">
+      <!-- Game 04 -->
+      <article class="game reveal" style="--d:4">
         <a class="art tilt" href="breach-2044.html" aria-label="Jugar a BREACH // 2044">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -1557,7 +1973,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="0" y="0" width="320" height="4" fill="#FF2E97" opacity=".7"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">03</span>
+          <span class="num" aria-hidden="true">04</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -1577,8 +1993,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 04 -->
-      <article class="game reveal" style="--d:4">
+      <!-- Game 05 -->
+      <article class="game reveal" style="--d:5">
         <a class="art tilt" href="neon-runner.html" aria-label="Jugar a NEON RUNNER">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -1621,7 +2037,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <path d="M244 108l7-7 7 7-7 7z" fill="none" stroke="#FFE566" stroke-width="2"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">04</span>
+          <span class="num" aria-hidden="true">05</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -1641,8 +2057,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 05 -->
-      <article class="game reveal" style="--d:5">
+      <!-- Game 06 -->
+      <article class="game reveal" style="--d:6">
         <a class="art tilt" href="daemon.html" aria-label="Jugar a DAEMON">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -1680,7 +2096,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="3" y="3" width="314" height="194" fill="none" stroke="#3CFF9E" stroke-width="1.4" opacity=".3"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">05</span>
+          <span class="num" aria-hidden="true">06</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -1700,8 +2116,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 06 -->
-      <article class="game wide reveal" style="--d:6">
+      <!-- Game 07 -->
+      <article class="game wide reveal" style="--d:7">
         <a class="art tilt" href="furious-cars.html" aria-label="Jugar a Furious Cars 1">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -1728,7 +2144,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <circle cx="272" cy="40" r="26" fill="#FF4A1C" opacity=".16"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">06</span>
+          <span class="num" aria-hidden="true">07</span>
           <span class="tag hot" aria-hidden="true">Jugable</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -1750,8 +2166,6 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
     </div>
   </div>
-</section>
-
 </section>
 
 <!-- ═══ Jugar (juego embebido) ════════════════════════════════ -->
@@ -1851,7 +2265,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
           </div>
           <div class="stat">
             <div class="k">Juegos</div>
-            <div class="v" data-count="6" data-pad="2">06</div>
+            <div class="v" data-count="7" data-pad="2">07</div>
           </div>
           <div class="stat">
             <div class="k">Creador</div>
@@ -1932,6 +2346,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
         <ul>
           <li><a href="https://dell.taila1b256.ts.net/" target="_blank"
                  rel="noopener">República de Lemuy ↗</a></li>
+          <li><a href="putup.html">Putup</a></li>
           <li><a href="carrera-loca.html">Carrera Loca</a></li>
           <li><a href="breach-2044.html">BREACH // 2044</a></li>
           <li><a href="neon-runner.html">NEON RUNNER</a></li>
@@ -1944,6 +2359,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
         <ul>
           <li><a href="#estudio">Sobre PoxStar</a></li>
           <li><a href="#lemuy">República de Lemuy</a></li>
+          <li><a href="#putup">Putup</a></li>
           <li><a href="#comunidad">Comunidad</a></li>
           <li><a href="#jugar">Jugar</a></li>
         </ul>
@@ -2269,13 +2685,14 @@ html[data-motion="0"] .play-frame .led{animation:none}
     }, { once: true });
   }
 
-  /* ── Carrusel de República de Lemuy ────────────────────────────
+  /* ── Carrusel ──────────────────────────────────────────────────
      Fundido cruzado sobre imágenes del juego. Avanza solo, pero se
-     para al pasar el ratón, al entrar el foco, al salir de pantalla
-     y con el botón de pausa — que es el que manda. */
-  (function () {
-    var root = document.getElementById('lemuy-carrusel');
-    if (!root) return;
+     para al pasar el ratón, al entrar el foco de teclado, al salir de
+     pantalla y con el botón de pausa — que es el que manda.
+
+     Se monta en cada `.carousel` de la página: hay uno por juego
+     destacado y cada uno lleva su propio estado. */
+  document.querySelectorAll('.carousel').forEach(function (root) {
     var slides = Array.prototype.slice.call(root.querySelectorAll('.slide'));
     if (slides.length < 2) return;
 
@@ -2292,10 +2709,12 @@ html[data-motion="0"] .play-frame .led{animation:none}
     function pad(n) { return (n < 10 ? '0' : '') + n; }
     function corre() { return !paused && !hovered && !hasFocus && onScreen && !noMotion(); }
 
-    /* Las nueve láminas viven una encima de otra en la misma caja, así que
-       para el navegador todas están "en pantalla" y `loading="lazy"` no
-       difería ninguna: se bajaban las nueve —medio mega— al abrir la página.
-       Se cargan a mano: la que toca y la siguiente. */
+    /* Las láminas viven una encima de otra en la misma caja, así que para el
+       navegador todas están "en pantalla" y `loading="lazy"` no difería
+       ninguna: se bajaban todas al abrir la página. Se cargan a mano, la que
+       toca y la siguiente, y ni siquiera la primera va en el HTML: ningún
+       carrusel está sobre el pliegue, así que abrir la home no descarga ni
+       una imagen. */
     function cargar(n) {
       var img = slides[((n % slides.length) + slides.length) % slides.length]
                 .querySelector('img[data-src]');
@@ -2381,14 +2800,16 @@ html[data-motion="0"] .play-frame .led{animation:none}
       x0 = null;
     }, { passive: true });
 
-    // el botón "ver el mapa" salta a su lámina
-    document.querySelectorAll('[data-goto]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        go(parseInt(b.dataset.goto, 10) || 0);
-        root.scrollIntoView({ block: 'center',
-          behavior: noMotion() ? 'auto' : 'smooth' });
+    // Los botones que saltan a una lámina concreta ("ver el mapa"): cada
+    // uno apunta por id al carrusel que le toca, para no mover los demás.
+    document.querySelectorAll('[data-goto][data-carrusel="' + root.id + '"]')
+      .forEach(function (b) {
+        b.addEventListener('click', function () {
+          go(parseInt(b.dataset.goto, 10) || 0);
+          root.scrollIntoView({ block: 'center',
+            behavior: noMotion() ? 'auto' : 'smooth' });
+        });
       });
-    });
 
     var pasoCarrusel = function (dt) {
       elapsed += dt;
@@ -2401,9 +2822,17 @@ html[data-motion="0"] .play-frame .led{animation:none}
       else reloj.baja(pasoCarrusel);
     }
     if ('IntersectionObserver' in window) {
+      // Dos observadores distintos a propósito. El de las imágenes se adelanta
+      // novecientos píxeles para que la lámina esté lista antes de verse; el de
+      // la reproducción es estricto, porque avanzar un carrusel que todavía no
+      // se ve sería tirar láminas a la basura.
+      new IntersectionObserver(function (es) {
+        if (es[0].isIntersecting) { cargar(i); cargar(i + 1); }
+      }, { rootMargin: '900px 0px' }).observe(root);
+
       new IntersectionObserver(function (es) {
         onScreen = es[0].isIntersecting;
-        if (onScreen) { cargar(i); cargar(i + 1); }   // sólo al asomarse
+        if (onScreen) { cargar(i); cargar(i + 1); }
         revisar();
       }, { threshold: 0.25 }).observe(root);
     } else {
@@ -2412,7 +2841,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
     paint();
     if (noMotion() && bar) bar.parentNode.style.display = 'none';
-  })();
+  });
 
   /* ── Newsletter (front-end only, sin backend) ──────────────── */
   var form = document.getElementById('subscribe');
