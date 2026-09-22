@@ -34,9 +34,45 @@ cinco tipos que se ganan entre sí.
 - **E** usar objeto · **C** paredes · **M** sonido · **Esc** pausa
 - En móvil se juega a dedo, con los botones que cada juego necesita
 
-`putup.html` es el juego entero en **un solo archivo de 308 KB**, sin ninguna
-petición externa. Es una copia de `outputs/Putup.html`, que es donde el juego se
-compila; si lo regeneras, vuelve a copiarlo a la raíz.
+`putup.html` es el juego entero en **un solo archivo**, sin ninguna petición
+externa. Ya no es una copia de `outputs/Putup.html`: se genera desde las fuentes
+de `outputs/putup/` con
+
+```bash
+node build-putup.cjs
+```
+
+que mete dentro la hoja de estilos y los 22 scripts. **Si tocas algo en
+`outputs/putup/`, vuelve a ejecutarlo** o el sitio seguirá sirviendo lo viejo.
+
+### El orden de dibujado
+
+El motor pinta con el algoritmo del pintor: agrupa cada objeto, y para decidir
+quién tapa a quién busca un eje que separe sus cajas. Dos cosas iban mal y se
+veían como «la mesa le come el respaldo a la silla» o «se ve un mueble de la
+habitación de al lado»:
+
+- Las relaciones sólo se calculaban **entre una pared y un objeto**. Entre dos
+  muebles se dejaba al orden por profundidad, que no basta cuando se solapan:
+  una silla arrimada a una mesa tiene el centro más lejos y se pintaba debajo.
+- El desempate usaba **el centro de la caja**. Una estantería pegada a la pared
+  tiene el centro casi en el plano del muro, perdía el desempate y salía
+  aplastada contra la pared.
+
+Medido con `?qa=render` (el ayudante que trae el juego: teleporta la cámara y
+vuelca el orden de dibujado en `window.__qaRender`), sobre 40 cámaras repartidas
+por la casa: **de 847 pares mal ordenados a 13**, a cambio de un 4,5 % de fps.
+
+Si vuelves a tocar esto, mide el orden REAL de pintado (`R.drawOrder`), no
+`R.groups`: `R.groups` queda ordenado por profundidad y da cifras que no se
+corresponden con lo que se ve.
+
+### Aviso sobre `outputs/putup/`
+
+Las fuentes de `outputs/putup/` son **más nuevas** que el `outputs/Putup.html`
+que venía en la subida: se diferencian sólo en el motor (92 líneas), una línea
+de `house.js` y seis de `garden.js`; el resto de módulos son idénticos. Lo que
+se publica sale de las fuentes.
 
 **03 · Carrera Loca** — Endless arcade de carreras con estética neón.
 

@@ -172,15 +172,22 @@ function sortGroups(groups) {
     g.front = [];
     g.degree = 0;
   }
-  const fartherFirst = (a, b) => b.sortDepth - a.sortDepth || b.depth - a.depth;
+  // El desempate va por el punto de apoyo en el suelo y sólo después por el centro
+  // de la caja. Al revés, una estantería arrimada a la pared tiene el centro casi
+  // en el plano del muro, perdía el desempate y el muro se pintaba encima: la
+  // estantería salía aplastada contra la pared.
+  const fartherFirst = (a, b) => b.depth - a.depth || b.sortDepth - a.sortDepth;
   groups.sort(fartherFirst);
   for (let i = 0; i < groups.length; i++) {
     const a = groups[i], A = a.sb;
     for (let j = i + 1; j < groups.length; j++) {
       const b = groups[j], B = b.sb;
-      // El orden por cajas se usa para la oclusión que importa: pared frente a objeto.
-      // Entre muebles (o entre tramos contiguos) la profundidad central es más estable.
-      if ((a.kind === 'wall') === (b.kind === 'wall')) continue;
+      // Antes esta relación sólo se calculaba entre una pared y un objeto, y entre
+      // muebles se dejaba al orden por profundidad. Pero el centro no basta entre
+      // dos muebles que se solapan: una silla arrimada a una mesa tiene el centro
+      // más lejos y se pintaba debajo, así que la mesa le comía el respaldo. Ahora
+      // se comparan todos los pares que se solapan en pantalla; `frontOf` devuelve
+      // 0 cuando la separación es ambigua, así que sólo entran relaciones seguras.
       if (A[2] <= B[0] || B[2] <= A[0] || A[3] <= B[1] || B[3] <= A[1]) continue;
       const f = frontOf(a, b, cam);
       if (f > 0) a.behind.push(b); else if (f < 0) b.behind.push(a);

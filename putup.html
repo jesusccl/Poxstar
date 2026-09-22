@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="theme-color" content="#11192b">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Putup · Tu próxima gran historia</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23171e32'/%3E%3Cpath d='M12 9l11 7-11 7z' fill='%23b7f675'/%3E%3C/svg%3E">
   <style>
@@ -543,7 +543,7 @@ body[data-mode="arcade"] .arcade-only { display: inline; }
   .pol-bar span { flex-basis: 100%; font-size: 12px; }
   .pol-bar button { flex: 1; }
 }
-</style>
+  </style>
 </head>
 <body data-mode="home">
   <canvas id="world" aria-label="Estudio de Putup en 3D"></canvas>
@@ -649,7 +649,7 @@ function hsl(h, s, l) {
 /* ---------- Estado del renderizador ---------- */
 const R = {
   ctx: null, w: 0, h: 0, dpr: 1,
-  cam: null, faces: [], groups: [], cur: null, layer: LAYER.OBJ, group: null, base: { depth: 0, gd: 0, sub: 0 },
+  cam: null, faces: [], groups: [], drawOrder: [], sortBreaks: 0, cur: null, layer: LAYER.OBJ, group: null, base: { depth: 0, gd: 0, sub: 0 },
   light: V3.norm([-0.35, 1, 0.45]), ambient: 0.56, diffuse: 0.46,
   lights: [], fog: null, // fog = { color:[r,g,b], near, far }
 };
@@ -696,15 +696,14 @@ function onScreen(p, r = 1) {
 }
 
 /* ---------- Objetos (grupos) ----------
-   Todo lo de la capa OBJ se agrupa por objeto. Cada grupo guarda su caja en el mundo y en pantalla;
-   al pintar se ordenan topológicamente: si dos cajas se solapan en pantalla, se busca un eje que las
-   separe y se pinta primero la que queda al otro lado de la cámara. Así las paredes de una habitación
-   tapan correctamente los muebles de la de al lado. */
-function newGroup(depth) {
-  return { box: [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity], sb: [Infinity, Infinity, -Infinity, -Infinity], faces: [], depth, behind: null, mark: 0 };
+   Todo lo de la capa OBJ se agrupa por objeto. Cada grupo guarda su caja en el mundo y en pantalla.
+   La profundidad del centro da el orden estable general. Para la oclusión pared-objeto se añaden solo
+   las relaciones espaciales inequívocas y se resuelven antes de pintar. */
+function newGroup(depth, kind = 'object') {
+  return { box: [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity], sb: [Infinity, Infinity, -Infinity, -Infinity], faces: [], depth, kind, behind: null };
 }
 /** Empieza un objeto; su punto de apoyo en el suelo desempata cuando las cajas se cruzan. */
-function beginGroup(anchor) { const d = toCam([anchor[0], 0, anchor[2]])[2]; R.cur = newGroup(d); R.group = d; }
+function beginGroup(anchor, kind = 'object') { const d = toCam([anchor[0], 0, anchor[2]])[2]; R.cur = newGroup(d, kind); R.group = d; }
 function endGroup() {
   const g = R.cur;
   R.cur = null;
@@ -731,35 +730,84 @@ function pushFace(f, world) {
     if (p[0] > sb[2]) sb[2] = p[0]; if (p[1] > sb[3]) sb[3] = p[1];
   }
 }
-/** 1 si a está delante de b, -1 si detrás, 0 si no se sabe. */
+/** Rango conservador de profundidad de la caja de un grupo, ya en el eje de la cámara. */
+function groupDepthRange(g) {
+  const b = g.box, c = R.cam, x = (b[0] + b[3]) / 2, y = (b[1] + b[4]) / 2, z = (b[2] + b[5]) / 2;
+  const center = (x - c.pos[0]) * c.f[0] + (y - c.pos[1]) * c.f[1] + (z - c.pos[2]) * c.f[2];
+  const radius = Math.abs(c.f[0]) * (b[3] - b[0]) / 2 + Math.abs(c.f[1]) * (b[4] - b[1]) / 2
+    + Math.abs(c.f[2]) * (b[5] - b[2]) / 2;
+  return [center - radius, center + radius, center];
+}
+/** 1 si a está delante de b, -1 si detrás, 0 si la separación es ambigua en perspectiva. */
 function frontOf(a, b, cam) {
   const A = a.box, B = b.box, e = 1e-3;
+  if (a.zFar < b.zNear - e) return 1;
+  if (b.zFar < a.zNear - e) return -1;
+  let relation = 0;
   for (let k = 0; k < 3; k++) {
-    if (A[k] >= B[k + 3] - e) return cam[k] > (A[k] + B[k + 3]) / 2 ? 1 : -1;
-    if (B[k] >= A[k + 3] - e) return cam[k] > (B[k] + A[k + 3]) / 2 ? -1 : 1;
+    let candidate = 0;
+    if (A[k] > B[k + 3] + e) {
+      if (cam[k] >= A[k] - e) candidate = 1;
+      else if (cam[k] <= B[k + 3] + e) candidate = -1;
+    } else if (B[k] > A[k + 3] + e) {
+      if (cam[k] >= B[k] - e) candidate = -1;
+      else if (cam[k] <= A[k + 3] + e) candidate = 1;
+    }
+    if (!candidate) continue;
+    if (relation && relation !== candidate) return 0;
+    relation = candidate;
   }
-  return a.depth < b.depth ? 1 : b.depth < a.depth ? -1 : 0;
+  return relation;
 }
 function sortGroups(groups) {
   const cam = R.cam.pos, out = [];
-  groups.sort((a, b) => b.depth - a.depth);
-  for (const g of groups) { g.behind = []; g.mark = 0; }
+  for (const g of groups) {
+    [g.zNear, g.zFar, g.sortDepth] = groupDepthRange(g);
+    g.behind = [];
+    g.front = [];
+    g.degree = 0;
+  }
+  // El desempate va por el punto de apoyo en el suelo y sólo después por el centro
+  // de la caja. Al revés, una estantería arrimada a la pared tiene el centro casi
+  // en el plano del muro, perdía el desempate y el muro se pintaba encima: la
+  // estantería salía aplastada contra la pared.
+  const fartherFirst = (a, b) => b.depth - a.depth || b.sortDepth - a.sortDepth;
+  groups.sort(fartherFirst);
   for (let i = 0; i < groups.length; i++) {
     const a = groups[i], A = a.sb;
     for (let j = i + 1; j < groups.length; j++) {
       const b = groups[j], B = b.sb;
+      // Antes esta relación sólo se calculaba entre una pared y un objeto, y entre
+      // muebles se dejaba al orden por profundidad. Pero el centro no basta entre
+      // dos muebles que se solapan: una silla arrimada a una mesa tiene el centro
+      // más lejos y se pintaba debajo, así que la mesa le comía el respaldo. Ahora
+      // se comparan todos los pares que se solapan en pantalla; `frontOf` devuelve
+      // 0 cuando la separación es ambigua, así que sólo entran relaciones seguras.
       if (A[2] <= B[0] || B[2] <= A[0] || A[3] <= B[1] || B[3] <= A[1]) continue;
       const f = frontOf(a, b, cam);
       if (f > 0) a.behind.push(b); else if (f < 0) b.behind.push(a);
     }
   }
-  const visit = g => {
-    if (g.mark) return;
-    g.mark = 1;
-    for (const h of g.behind) visit(h);
+  for (const g of groups) {
+    g.degree = g.behind.length;
+    for (const h of g.behind) h.front.push(g);
+  }
+  const remaining = new Set(groups), ready = groups.filter(g => !g.degree);
+  R.sortBreaks = 0;
+  while (remaining.size) {
+    ready.sort(fartherFirst);
+    let g = ready.shift();
+    if (!g) {
+      g = [...remaining].sort(fartherFirst)[0];
+      R.sortBreaks++;
+    }
+    if (!remaining.delete(g)) continue;
     out.push(g);
-  };
-  for (const g of groups) visit(g);
+    for (const f of g.front) {
+      if (f.degree > 0) f.degree--;
+      if (!f.degree && remaining.has(f)) ready.push(f);
+    }
+  }
   return out;
 }
 
@@ -967,7 +1015,8 @@ function resizeRenderer(canvas) {
   return true;
 }
 function beginFrame() {
-  R.faces.length = 0; R.groups.length = 0; R.lights = []; R.fog = null; R.group = null; R.cur = null; R.layer = LAYER.OBJ;
+  R.faces.length = 0; R.groups.length = 0; R.drawOrder.length = 0; R.sortBreaks = 0;
+  R.lights = []; R.fog = null; R.group = null; R.cur = null; R.layer = LAYER.OBJ;
 }
 const faceOrder = (a, b) => a.layer - b.layer || b.gd - a.gd || b.depth - a.depth || a.sub - b.sub;
 const inGroupOrder = (a, b) => b.depth - a.depth || a.sub - b.sub;
@@ -975,7 +1024,8 @@ function renderFaces() {
   R.faces.sort(faceOrder);
   const before = R.faces.filter(f => f.layer < LAYER.OBJ), after = R.faces.filter(f => f.layer > LAYER.OBJ);
   paintFaces(before);
-  for (const g of sortGroups(R.groups)) paintFaces(g.faces.sort(inGroupOrder));
+  R.drawOrder = sortGroups(R.groups);
+  for (const g of R.drawOrder) paintFaces(g.faces.sort(inGroupOrder));
   paintFaces(after);
 }
 function paintFaces(list) {
@@ -1054,7 +1104,7 @@ function drawPopups() {
   ctx.globalAlpha = 1;
 }
 function clearEffects() { particles.length = 0; popups.length = 0; }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Efectos y música sintetizados con Web Audio (sin archivos externos).
@@ -1168,7 +1218,7 @@ const Sound = (() => {
     coin: () => { tone(988, 0.08, { type: 'square', vol: 0.05 }); tone(1319, 0.25, { type: 'square', vol: 0.05, at: 0.07 }); },
   };
 })();
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Partida guardada, tienda y economía simulada (todo ficticio y local). */
@@ -1359,7 +1409,7 @@ function applyPublish(p, clips, title, thumbIndex, luck = rand(0.92, 1.12)) {
   const crossed = MILESTONES.filter(m => before < m && save.subs >= m);
   return { title, thumb: thumbIndex, views, subs, money, crossed };
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Modelos compuestos por cajas: el creador, su gato y las plantas. */
@@ -1595,7 +1645,7 @@ function textOn(f, a, b, text, color, o = NO, off = 0.01, cell = 0.05, max = 12)
     }
   }
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · La casa: habitaciones, suelos, paredes con vista recortada al estilo Sims, puertas y ventanas.
@@ -1749,7 +1799,7 @@ function segmentPieces(s) {
 function drawSegment(s) {
   const pieces = segmentPieces(s), full = s.h > WALL_H - 0.05, t = WALL_T / 2;
   const mid = (s.a0 + s.a1) / 2;
-  beginGroup(s.axis === 'x' ? [s.at, 0, mid] : [mid, 0, s.at]);
+  beginGroup(s.axis === 'x' ? [s.at, 0, mid] : [mid, 0, s.at], 'wall');
   for (const [sign, room] of [[-1, s.neg], [1, s.pos]]) {
     useLights(room);
     const faceAt = s.at + sign * t, t0 = sign < 0 ? s.at - t : s.at, t1 = sign < 0 ? s.at : s.at + t;
@@ -1902,7 +1952,7 @@ function sideFrame(axis, at, sign) {
 const DECOR = [];
 /** Registra decoración en la cara `sign` de una pared, centrada en `c` (coordenada del mundo a lo largo). */
 function decor(room, axis, at, sign, c, draw, when) { DECOR.push({ room, axis, at, sign, c, draw, when }); }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Muebles del estudio, sus luces y sus colisiones. Las mejoras de la tienda se ven aquí. */
@@ -2364,7 +2414,7 @@ function drawNeonSign(f) {
   polyOn(f, [[left, b - 0.13], [left + 0.25, b], [left, b + 0.13]], 'b7f675', o, 0.04);
   textOn(f, left + 0.31 + (cols * cell) / 2, b, channelName(), pink, o, 0.042, cell, 10);
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Salón, cocina, recibidor y baño: muebles, decoración de pared, luces y colisiones. */
@@ -2836,7 +2886,7 @@ function drawRooms(t) {
     content[r.id](t);
   }
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · El jardín: la parcela como una maqueta flotante con césped, senda, porche, setos, valla,
@@ -3046,8 +3096,9 @@ function drawSummerGarden(t) {
     box(x, GROUND + 1.4, -8.4, 0.11, 2.8, 0.11, '6b4a36');
     box(x, GROUND + 0.06, -8.4, 0.3, 0.12, 0.3, '4a3528');
     endGroup();
-    // Del poste a la pared de la casa, con su caída natural.
-    const z0 = -8.4, z1 = -5.05, top = GROUND + 2.72, n = 9;
+    // Del poste hasta la cara exterior del muro, sin penetrar su espesor.
+    const z0 = -8.4, z1 = HOUSE.z0 - WALL_T / 2 - 0.04, top = GROUND + 2.72, n = 9;
+    beginGroup([x, GROUND, (z0 + z1) / 2]);
     for (let k = 0; k <= n; k++) {
       const u = k / n, z = z0 + (z1 - z0) * u, y = top - Math.sin(u * Math.PI) * 0.55;
       if (k < n) {
@@ -3057,6 +3108,7 @@ function drawSummerGarden(t) {
       const warm = 0.55 + 0.18 * (0.5 + 0.5 * Math.sin(t * 1.6 + k * 0.8));
       box(x, y - 0.08, z, 0.07, 0.09, 0.07, hsl(42, 0.85, warm), { emissive: true, glow: 9, glowColor: 'rgba(255,215,140,.65)' });
     }
+    endGroup();
   }
   // Hamaca colgada de su propio soporte.
   const hx = 16.3, hz = -6.4;
@@ -3135,7 +3187,7 @@ function drawGarden(t) {
     if (on > 0.25) dot3([x, y, z], 0.035, 'd8ff7a', { alpha: on, glow: 10 });
   }
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · La casa al estilo Sims: el creador recorre las habitaciones y el jardín e interactúa con objetos. */
@@ -3427,7 +3479,7 @@ function renderHome(t) {
     R.ctx.fillText('Z z z', R.w / 2, R.h * 0.45);
   }
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Minijuego "Salto neón": tres carriles, bloques que se saltan, muros que se esquivan
@@ -3665,7 +3717,7 @@ function abandonRun() {
   closeModal();
   toast('Partida descartada. ¡A por la siguiente!');
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Dibujo del circuito "Salto neón" y su interfaz sobre el lienzo. */
@@ -3990,7 +4042,7 @@ function renderRun(t) {
   drawSpeedLines();
   drawRunOverlay();
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Biblioteca de juegos del ordenador y marco común de los minijuegos arcade:
@@ -4228,7 +4280,7 @@ function renderArcade(t) {
   } else if (a.go > 0) bigText('¡YA!', null, 1 + (0.7 - a.go) * 0.4, '#b7f675');
   else if (a.outro > 0) bigText(a.message, a.def.outroText(a.s, a), 0.8, '#f7e36b');
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Ritmo pixel: notas que caen en cuatro carriles al compás de la música (128 BPM).
@@ -4417,7 +4469,7 @@ ARCADES.ritmo = {
     };
   },
 };
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Serpiente de likes: come corazones para crecer; chocar con el borde o contigo termina la partida. */
@@ -4576,7 +4628,7 @@ ARCADES.serpiente = {
     };
   },
 };
-</script>
+  </script>
   <script>
 'use strict';
 /* Órbita viral: movimiento continuo, disparos, escudo y asteroides. Coordenadas
@@ -4716,7 +4768,7 @@ ARCADES.orbita = {
     summary:[`☄ ${s.killed} asteroides`,`✦ ${s.stars} cristales`,`♥ ${s.lives} vidas`,`${fmt(s.score)} puntos`],
     suggest:s.killed>=15?`¡Destruí ${s.killed} asteroides en Órbita viral!`:'¡Mi primera misión en Órbita viral!'})
 };
-</script>
+  </script>
   <script>
 'use strict';
 /* Memoria viral: tres tableros de seis parejas. El tiempo, las pistas y la
@@ -4806,7 +4858,7 @@ ARCADES.memoria={
     summary:[`◆ ${s.pairs}/18 parejas`,`↻ ${s.moves} intentos`,`✕ ${s.misses} fallos`,`${fmt(s.score)} puntos`],
     suggest:s.finished?'¡Completé los tres tableros de Memoria viral!':`¡Encontré ${s.pairs} parejas en Memoria viral!`})
 };
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Polenom: tipos, criaturas, objetos e ilustraciones (SVG generado para cada criatura).
@@ -4926,7 +4978,7 @@ function polCardHTML(card, { holo = false, extra = '', cls = '' } = {}) {
       + (a.fx ? `<small>${FX_TEXT[a.fx]}</small>` : '')).join('')}</div>`
     + `<div class="pc-foot"><span>Débil a ${PTYPES[T.weak].icon}</span><span>Retirada ${'●'.repeat(card.retreat)}</span><span class="pc-rar" title="${RARITY_NAME[card.rarity]}">${'★'.repeat(card.rarity)}</span></div></div>`;
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Polenom: reglas del combate por turnos y rival automático.
@@ -5239,7 +5291,7 @@ function updatePolenom(dt) {
     polRender();
   }
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Polenom: mesa de juego, menú, sobres y colección (interfaz HTML). */
@@ -5474,7 +5526,7 @@ function polCollection() {
   show(heading('POLENOM · COLECCIÓN', `${ownedCount()} de ${POLENOMS.length} descubiertos`) + `<div class="collection">${byType}</div><button id="back">← Volver</button>`);
   bind('back', polenomMenu);
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Interfaz HTML: marcadores, misión, avisos y ventanas (ordenador, canal, tienda, editor…). */
@@ -5909,7 +5961,7 @@ function pause() {
   bind('resume', closeModal);
   bind('quit', abandonGame);
 }
-</script>
+  </script>
   <script>
 'use strict';
 /* Putup · Entrada, bucle principal y arranque. */
@@ -6085,6 +6137,41 @@ syncStats();
 stats();
 help();
 requestAnimationFrame(frame);
-</script>
+  </script>
+  <script>
+'use strict';
+/* Ayuda temporal para reproducir fallos del render desde cámaras y puntos exactos. */
+(() => {
+  const q = new URLSearchParams(location.search);
+  if (q.get('qa') !== 'render') return;
+  const number = (name, fallback) => Number.isFinite(Number(q.get(name))) ? Number(q.get(name)) : fallback;
+  player = { x: number('x', 0), z: number('z', 1.5) };
+  avatar.room = roomAt(player.x, player.z);
+  view.angle = view.goal = number('angle', 0.62);
+  view.dist = view.distGoal = number('dist', 14);
+  view.tx = player.x;
+  view.tz = player.z;
+  wallMode = ['cut', 'low', 'up'].includes(q.get('walls')) ? q.get('walls') : 'cut';
+  closeModal();
+  updateWalls(1, cameraPos(), avatar.room, [player.x, player.z]);
+  updateWallsButton();
+  const sink = document.createElement('script');
+  sink.id = 'qa-render-state';
+  sink.type = 'application/json';
+  document.body.appendChild(sink);
+  setInterval(() => {
+    const order = R.drawOrder, index = new Map(R.groups.map((g, i) => [g, i]));
+    window.__qaRender = {
+      camera: R.cam && R.cam.pos,
+      sortBreaks: R.sortBreaks,
+      groups: order.map((g, order) => ({
+        index: index.get(g), order, box: g.box.slice(), screen: g.sb.slice(), depth: g.depth, faces: g.faces.length,
+        behind: (g.behind || []).map(h => index.get(h)),
+      })),
+    };
+    sink.textContent = JSON.stringify(window.__qaRender);
+  }, 200);
+})();
+  </script>
 </body>
 </html>
