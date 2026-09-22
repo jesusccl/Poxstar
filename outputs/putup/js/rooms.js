@@ -14,6 +14,10 @@ const ROOM_SOLIDS = [
   [0.3, 6.9, 0.4, 1.2], [4.55, 10.45, 0.5, 0.5], [4.65, 9.3, 0.42, 1.0], [0.45, 10.45, 0.55, 0.55], [1.35, 10.6, 0.3, 0.3],
   // Baño
   [-3.55, 10.45, 2.32, 0.95], [-4.5, 6.3, 0.8, 0.5], [-2.3, 5.35, 1.1, 0.52], [-0.55, 10.4, 0.5, 0.5], [-0.5, 5.55, 0.5, 0.5],
+  // Casa de al lado · salón
+  [25.0, -1.1, 2.1, 0.82], [25.0, 0.7, 1.1, 0.6], [23.0, -1.3, 0.4, 0.4], [27.3, 4.2, 0.55, 0.55],
+  // Casa de al lado · taller
+  [30.4, -1.3, 2.3, 0.75], [32.6, 1.6, 0.34, 1.9], [29.8, 0.5, 0.38, 0.38], [29.1, 4.3, 0.6, 0.4],
 ];
 
 function roomLights(t) {
@@ -33,6 +37,15 @@ function roomLights(t) {
     ],
     hall: [{ pos: [2.5, 2.7, 8], color: [255, 205, 150], power: 0.6, range: 4.5 }],
     bath: [{ pos: [-2.3, 2.2, 5.5], color: [235, 245, 255], power: 0.65, range: 4 }],
+    // Casa de al lado: el vecino tiene la luz encendida a estas horas.
+    vsala: [
+      { pos: [23.0, 1.8, -1.3], color: [255, 205, 150], power: 0.62, range: 4 },
+      { pos: [25.0, 2.6, 1.0], color: [255, 215, 165], power: 0.5, range: 4.6 },
+    ],
+    vtaller: [
+      { pos: [30.4, 2.4, -1.0], color: [240, 248, 255], power: 0.66, range: 4.4 },
+      { pos: [32.3, 1.7, 1.6], color: [255, 210, 150], power: 0.3, range: 3 },
+    ],
   };
 }
 
@@ -459,9 +472,112 @@ decor('bath', 'x', -5, 1, 10.5, f => {
   boxOn(f, -10.5, 2.28, 0.2, 0.05, 0.3, 'c9ced9', NO, 0.02);
 });
 
+/* ---------- Casa de al lado ----------
+   Dos piezas: el salón de quien vive enfrente y su taller. Usan los mismos
+   ayudantes que el resto de la casa; lo único propio son las coordenadas. */
+function drawVecinaSala(t) {
+  const F = floorFrame(0.01), o = { layer: LAYER.RUG };
+  rectOn(F, 25.0, -1.6, 2.6, 2.0, '9c6f4a', o, 0);
+  rectOn(F, 25.0, -1.6, 2.3, 1.7, 'b0805a', { ...o, over: true }, 0);
+
+  // Sofá de dos plazas contra la pared norte.
+  shadow(25.0, -1.1, 1.1, 0.45, 0.22);
+  beginGroup([25.0, 0, -1.1]);
+  box(25.0, 0.22, -1.1, 2.1, 0.44, 0.82, '7b6a8f', { top: '8d7aa3' });
+  box(25.0, 0.62, -1.42, 2.1, 0.5, 0.2, '6a5b7c');
+  for (const xx of [24.1, 25.9]) box(xx, 0.5, -1.05, 0.18, 0.3, 0.78, '6a5b7c');
+  for (const xx of [24.55, 25.45]) box(xx, 0.5, -1.2, 0.72, 0.12, 0.6, '8d7aa3', { top: '9d8ab3' });
+  box(24.5, 0.62, -0.95, 0.34, 0.24, 0.12, 'f0c75a');
+  endGroup();
+
+  // Mesa baja con taza y libro.
+  shadow(25.0, 0.7, 0.55, 0.35, 0.2);
+  beginGroup([25.0, 0, 0.7]);
+  box(25.0, 0.36, 0.7, 1.1, 0.06, 0.6, 'b88660', { top: 'c99a72' });
+  for (const [xx, zz] of [[24.55, 0.45], [25.45, 0.45], [24.55, 0.95], [25.45, 0.95]])
+    box(xx, 0.18, zz, 0.06, 0.36, 0.06, '6b5440');
+  box(24.78, 0.43, 0.62, 0.12, 0.09, 0.12, 'f4f1e8');
+  box(25.25, 0.41, 0.78, 0.26, 0.04, 0.18, '4d7fa0');
+  endGroup();
+
+  // Lámpara de pie y planta en las esquinas.
+  shadow(23.0, -1.3, 0.3, 0.3, 0.2);
+  beginGroup([23.0, 0, -1.3]);
+  box(23.0, 0.04, -1.3, 0.34, 0.08, 0.34, '3a2f2a');
+  box(23.0, 0.8, -1.3, 0.06, 1.5, 0.06, '5a4636');
+  box(23.0, 1.68, -1.3, 0.42, 0.3, 0.42, 'f0d9a8', { top: 'f7e8c8' });
+  endGroup();
+  shadow(27.3, 4.2, 0.35, 0.35, 0.22);
+  beginGroup([27.3, 0, 4.2]); drawPlant(27.3, 4.2, t + 2.5, 1.05); endGroup();
+
+  // Alfombrilla y zapatos junto a la entrada.
+  rectOn(F, 22.5, -3.0, 0.5, 0.9, '5a4636', o, 0);
+  beginGroup([22.6, 0, 3.8]);
+  box(22.6, 0.05, 3.7, 0.14, 0.1, 0.26, '3f6f59');
+  box(22.6, 0.05, 4.02, 0.14, 0.1, 0.26, '3f6f59');
+  endGroup();
+}
+decor('vsala', 'z', -2, 1, 26.6, f => {
+  boxOn(f, 26.6, 1.85, 0.72, 0.56, 0.04, '5a4636');
+  rectOn(f, 26.6, 1.85, 0.6, 0.44, 'e8dcc0', NO, 0.045);
+  polyOn(f, [[26.35, 1.66], [27.0, 1.66], [26.78, 1.96], [26.5, 1.82]], '7fa37a', { over: true }, 0.045);
+  discOn(f, 26.42, 1.98, 0.07, 'f0c75a', { over: true }, 0.045, 10);
+});
+decor('vsala', 'x', 22, 1, -0.4, f => {
+  for (let i = 0; i < 3; i++) boxOn(f, 0.4 + i * 0.02, 1.35 + i * 0.42, 0.7, 0.04, 0.16, 'a8845f');
+});
+
+function drawVecinaTaller(t) {
+  const F = floorFrame(0.01), o = { layer: LAYER.RUG };
+  rectOn(F, 30.4, -1.4, 1.9, 1.1, '6f7a6a', o, 0);
+
+  // Banco de trabajo con tablero, tornillo y herramientas.
+  shadow(30.4, -1.3, 1.2, 0.4, 0.22);
+  beginGroup([30.4, 0, -1.3]);
+  box(30.4, 0.44, -1.3, 2.3, 0.08, 0.75, '9c7a52', { top: 'b08c5e' });
+  for (const xx of [29.4, 31.4]) { box(xx, 0.2, -1.55, 0.1, 0.4, 0.1, '6b5440'); box(xx, 0.2, -1.05, 0.1, 0.4, 0.1, '6b5440'); }
+  box(29.55, 0.56, -1.3, 0.18, 0.16, 0.2, '8d8375', { top: 'a39a8c' });
+  for (const [xx, c] of [[30.1, 'e04a4a'], [30.35, '4d7fa0'], [30.6, 'f0c75a']])
+    box(xx, 0.53, -1.5, 0.07, 0.1, 0.07, c);
+  box(31.0, 0.52, -1.2, 0.34, 0.08, 0.22, '2a2f45');
+  endGroup();
+
+  // Estantería con cajas y botes.
+  shadow(32.55, 1.6, 0.25, 0.9, 0.2);
+  beginGroup([32.55, 0, 1.6]);
+  box(32.6, 0.9, 1.6, 0.34, 1.8, 1.9, 'a8845f', { top: 'b89a6f' });
+  for (const yy of [0.5, 1.0, 1.5]) box(32.55, yy, 1.6, 0.3, 0.05, 1.85, '8a6a48');
+  for (const [yy, zz, c] of [[0.66, 1.0, '4d7fa0'], [0.66, 1.45, 'e04a4a'], [1.16, 1.2, '7fa37a'], [1.16, 2.0, 'f0c75a'], [1.66, 1.6, 'd9a441']])
+    box(32.55, yy, zz, 0.24, 0.26, 0.3, c);
+  endGroup();
+
+  // Taburete y caja de herramientas en el suelo.
+  shadow(29.8, 0.5, 0.26, 0.26, 0.2);
+  beginGroup([29.8, 0, 0.5]);
+  box(29.8, 0.3, 0.5, 0.34, 0.06, 0.34, 'b88660', { top: 'c99a72' });
+  for (const [xx, zz] of [[29.67, 0.37], [29.93, 0.37], [29.67, 0.63], [29.93, 0.63]])
+    box(xx, 0.15, zz, 0.05, 0.3, 0.05, '6b5440');
+  endGroup();
+  shadow(29.1, 4.3, 0.3, 0.22, 0.2);
+  beginGroup([29.1, 0, 4.3]);
+  box(29.1, 0.14, 4.3, 0.6, 0.28, 0.4, 'e04a4a', { top: 'ef6a5a' });
+  box(29.1, 0.32, 4.3, 0.12, 0.08, 0.32, '2a2f45');
+  endGroup();
+}
+decor('vtaller', 'z', -2, 1, 31.6, f => {
+  boxOn(f, 31.6, 1.9, 0.9, 0.06, 0.2, '8a6a48');
+  for (const [dx, c] of [[-0.3, 'e04a4a'], [-0.1, '4d7fa0'], [0.1, 'f0c75a'], [0.3, '7fa37a']])
+    boxOn(f, 31.6 + dx, 2.12, 0.1, 0.34, 0.05, c);
+});
+decor('vtaller', 'x', 28, -1, 3.6, f => {
+  boxOn(f, -3.6, 1.7, 0.5, 0.7, 0.03, '5a4636');
+  rectOn(f, -3.6, 1.7, 0.42, 0.6, 'cfd9c8', NO, 0.035);
+});
+
 function drawRooms(t) {
   const visible = r => onScreen([(r.x0 + r.x1) / 2, 1, (r.z0 + r.z1) / 2], Math.hypot(r.x1 - r.x0, r.z1 - r.z0) / 2 + 1);
-  const content = { studio: drawStudio, living: drawLiving, kitchen: drawKitchen, hall: drawHall, bath: drawBath };
+  const content = { studio: drawStudio, living: drawLiving, kitchen: drawKitchen, hall: drawHall, bath: drawBath,
+                    vsala: drawVecinaSala, vtaller: drawVecinaTaller };
   for (const r of ROOMS) {
     if (!visible(r)) continue;
     useLights(r);

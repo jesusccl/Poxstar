@@ -21,7 +21,8 @@ sitio se enlaza directo (franja del hero, ficha 01 del catálogo, sección
 no abre** — es lo único del sitio que depende de una máquina encendida.
 
 **02 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
-cocina, recibidor, baño y jardín), grabas partidas en el ordenador, las editas
+cocina, recibidor, baño y jardín), con la casa del vecino al otro lado de la
+parcela, y grabas partidas en el ordenador, las editas
 —momentos, título, miniatura— y las publicas para que crezca el canal. El dinero
 ficticio se gasta en mejoras que aparecen de verdad en la habitación.
 
@@ -66,6 +67,26 @@ por la casa: **de 847 pares mal ordenados a 13**, a cambio de un 4,5 % de fps.
 Si vuelves a tocar esto, mide el orden REAL de pintado (`R.drawOrder`), no
 `R.groups`: `R.groups` queda ordenado por profundidad y da cifras que no se
 corresponden con lo que se ve.
+
+### La casa de al lado
+
+La parcela tiene dos casas. La segunda —salón y taller— se añadió aprovechando
+la maquinaria que ya existía: **todo sale de los rectángulos de `ROOMS`**. Los
+tramos de pared, los suelos, las esquinas y las colisiones se generan solos a
+partir de ahí, así que añadir una casa es sobre todo declararla:
+
+- `js/house.js` — dos entradas nuevas en `ROOMS` (con un campo `house` para la
+  etiqueta de sitio), sus huecos en `OPENINGS`, y `HOUSES`, que es la lista por
+  la que ahora pasan los cimientos y el `inHouse()`.
+- `js/rooms.js` — `drawVecinaSala` y `drawVecinaTaller`, sus entradas en el mapa
+  `content`, sus luces y sus colisiones de mueble.
+- `js/garden.js` — la parcela se ensancha (`LOT.x1` de 20 a 38), el sendero de
+  losas entre las dos casas, el escalón de la entrada y algo de arbolado.
+
+Si añades una tercera, ése es el camino. Cuidado con dos cosas: `drawRooms`
+busca cada habitación por id en el mapa `content` y **revienta si falta**, y los
+rectángulos tienen que ir en coordenadas enteras, porque los tramos de pared se
+generan de metro en metro.
 
 ### Aviso sobre `outputs/putup/`
 

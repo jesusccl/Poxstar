@@ -11,8 +11,16 @@ const ROOMS = [
   { id: 'kitchen', name: 'COCINA', x0: 5, x1: 15, z0: 3, z1: 11, floor: ['checker', 'ebe6dc', '5a6178'], paint: 'a9c4ae', wainscot: 'e3ddd0' },
   { id: 'hall', name: 'RECIBIDOR', x0: 0, x1: 5, z0: 5, z1: 11, floor: ['plank', 'b58d69'], paint: 'b3a0c4', wainscot: '76668b' },
   { id: 'bath', name: 'BAÑO', x0: -5, x1: 0, z0: 5, z1: 11, floor: ['checker', 'dfe9ee', 'c3d6df'], paint: '9cc3d2', wainscot: 'eef2f4' },
+  /* La casa de al lado, al otro extremo de la parcela. Comparte toda la maquinaria:
+     los tramos de pared, los suelos y las colisiones salen de estos rectángulos
+     igual que los de la casa del creador. */
+  { id: 'vsala', name: 'SALÓN', house: 'CASA DE AL LADO', x0: 22, x1: 28, z0: -2, z1: 5, floor: ['plank', 'b98a63'], paint: 'd8b98f', wainscot: '9c7550' },
+  { id: 'vtaller', name: 'TALLER', house: 'CASA DE AL LADO', x0: 28, x1: 33, z0: -2, z1: 5, floor: ['checker', 'd9d2c4', '8d8375'], paint: 'a8b7a0', wainscot: 'd7ddd0' },
 ];
 const HOUSE = Object.freeze({ x0: -5, x1: 15, z0: -5, z1: 11 });
+const HOUSE_VECINA = Object.freeze({ x0: 22, x1: 33, z0: -2, z1: 5 });
+/** Todas las casas de la parcela: los cimientos y el "¿estoy dentro?" recorren esto. */
+const HOUSES = Object.freeze([HOUSE, HOUSE_VECINA]);
 const FACADE = Object.freeze({ paint: 'e4dccb', trim: 'f4efe4', cap: 'efe9dc' });
 const TRIM = 'e9e4dc';
 
@@ -30,12 +38,19 @@ const OPENINGS = [
   { axis: 'x', at: 15, c: 8.2, w: 1.4, kind: 'window', bottom: 1.35, top: 2.45 },
   { axis: 'z', at: 11, c: 8.6, w: 1.8, kind: 'window', bottom: 1.0, top: 2.5 },
   { axis: 'x', at: -5, c: 8.0, w: 1.0, kind: 'window', bottom: 1.6, top: 2.5, frosted: true },
+  // Casa de al lado: entrada mirando a la casa del creador, paso interior y ventanas.
+  { axis: 'x', at: 22, c: 3.0, w: 1.2, kind: 'door' },
+  { axis: 'x', at: 28, c: 3.0, w: 1.2, kind: 'door' },
+  { axis: 'z', at: -2, c: 25.0, w: 1.6, kind: 'window', bottom: 1.1, top: 2.5 },
+  { axis: 'z', at: -2, c: 30.5, w: 1.4, kind: 'window', bottom: 1.2, top: 2.5 },
+  { axis: 'x', at: 33, c: 1.5, w: 1.6, kind: 'window', bottom: 1.0, top: 2.5 },
+  { axis: 'z', at: 5, c: 24.5, w: 1.6, kind: 'window', bottom: 1.1, top: 2.5 },
 ];
 const holeTop = o => (o.kind === 'window' ? o.top : o.kind === 'arch' ? 2.5 : DOOR_TOP);
 const holeBottom = o => (o.kind === 'window' ? o.bottom : 0);
 
 function roomAt(x, z) { return ROOMS.find(r => x > r.x0 && x < r.x1 && z > r.z0 && z < r.z1) || null; }
-const inHouse = (x, z) => x > HOUSE.x0 && x < HOUSE.x1 && z > HOUSE.z0 && z < HOUSE.z1;
+const inHouse = (x, z) => HOUSES.some(h => x > h.x0 && x < h.x1 && z > h.z0 && z < h.z1);
 
 /* ---------- Tramos de pared ---------- */
 const SEGMENTS = (() => {
@@ -238,7 +253,10 @@ function drawHouseShell() {
   const cam = R.cam.pos;
   useLights(null);
   R.layer = LAYER.BG;
-  box((HOUSE.x0 + HOUSE.x1) / 2, GROUND / 2 - 0.01, (HOUSE.z0 + HOUSE.z1) / 2, HOUSE.x1 - HOUSE.x0 + WALL_T, -GROUND + 0.02, HOUSE.z1 - HOUSE.z0 + WALL_T, '9d978e', { top: '2e2628' });
+  for (const h of HOUSES) {
+    box((h.x0 + h.x1) / 2, GROUND / 2 - 0.01, (h.z0 + h.z1) / 2, h.x1 - h.x0 + WALL_T,
+        -GROUND + 0.02, h.z1 - h.z0 + WALL_T, '9d978e', { top: '2e2628' });
+  }
   R.layer = LAYER.FLOOR;
   for (const r of ROOMS) {
     if (!onScreen([(r.x0 + r.x1) / 2, 0, (r.z0 + r.z1) / 2], Math.hypot(r.x1 - r.x0, r.z1 - r.z0) / 2)) continue;

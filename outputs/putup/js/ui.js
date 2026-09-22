@@ -74,7 +74,7 @@ function setModeUI() {
   const rec = record ? '● GRABANDO' : 'PRÁCTICA';
   $('#location').textContent = mode === 'run' ? `${rec} · SALTO NEÓN`
     : mode === 'arcade' ? `${rec} · ${gameById(arcade.id).name.toUpperCase()}`
-    : mode === 'cards' ? `${rec} · POLENOM` : '● CASA / ' + placeName();
+    : mode === 'cards' ? `${rec} · POLENOM` : '● ' + placeName();
 }
 /* ---------- Barra táctil ----------
    Un teléfono no tiene teclado: cada modo declara los botones que necesita.

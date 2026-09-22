@@ -2,12 +2,17 @@
 /* Putup · El jardín: la parcela como una maqueta flotante con césped, senda, porche, setos, valla,
    árboles, estanque, buzón y un patio trasero. El suelo del jardín está un escalón por debajo de la casa. */
 
-const LOT = Object.freeze({ x0: -10, x1: 20, z0: -9, z1: 18 });
+const LOT = Object.freeze({ x0: -10, x1: 38, z0: -9, z1: 18 });
 const PORCH = Object.freeze({ x0: 1.3, x1: 3.7, z0: 11, z1: 12.3 });
 const STEP = Object.freeze({ x0: 1.6, x1: 3.4, z0: 12.3, z1: 12.9 });
+const STEP_VECINA = Object.freeze({ x0: 21.4, x1: 22, z0: 2.4, z1: 3.6 });
+/** Losas del sendero que une las dos casas. */
+const LOSAS = [[16.4, 3.0], [17.6, 3.0], [18.8, 3.0], [20.0, 3.0], [21.0, 3.0]];
 const POND = Object.freeze({ x: -7.6, z: 8.8, rx: 1.25, rz: 2.0 });
-const TREES = [[-7.5, -6.5, 1.2], [17.3, -6.8, 1.0], [-7.8, 15.0, 1.1], [17.0, 15.2, 1.3], [-7.8, 3.5, 0.9], [18.2, 4.8, 1.0]];
-const BUSHES = [[-3.8, 11.75], [-1.9, 11.75], [5.7, 11.8], [14.4, 11.8], [15.8, -2.6], [15.8, 1.6], [-5.8, -3.2], [-5.8, 1.4]];
+const TREES = [[-7.5, -6.5, 1.2], [17.3, -6.8, 1.0], [-7.8, 15.0, 1.1], [17.0, 15.2, 1.3], [-7.8, 3.5, 0.9], [18.2, 4.8, 1.0],
+  [26.5, -5.5, 1.15], [35.5, -4.0, 1.0], [27.0, 9.5, 1.2], [35.2, 9.0, 0.95]];
+const BUSHES = [[-3.8, 11.75], [-1.9, 11.75], [5.7, 11.8], [14.4, 11.8], [15.8, -2.6], [15.8, 1.6], [-5.8, -3.2], [-5.8, 1.4],
+  [21.4, 0.8], [21.4, 5.2], [34.6, 2.0]];
 const PATH_LIGHTS = [[1.7, 14.0], [3.3, 15.4], [1.7, 16.8]];
 
 /** Altura del suelo: casa y porche a 0, escalón intermedio y césped más abajo. */
@@ -15,6 +20,7 @@ function groundY(x, z) {
   if (inHouse(x, z)) return 0;
   if (x > PORCH.x0 && x < PORCH.x1 && z >= PORCH.z0 - 0.1 && z < PORCH.z1) return 0;
   if (x > STEP.x0 && x < STEP.x1 && z >= STEP.z0 && z < STEP.z1) return GROUND / 2;
+  if (x > STEP_VECINA.x0 && x < STEP_VECINA.x1 && z > STEP_VECINA.z0 && z < STEP_VECINA.z1) return GROUND / 2;
   return GROUND;
 }
 
@@ -46,7 +52,7 @@ const TUFTS = (() => {
   const list = [];
   for (let i = 0; list.length < 90 && i < 400; i++) {
     const x = LOT.x0 + 0.8 + hash(i * 3.1) * (LOT.x1 - LOT.x0 - 1.6), z = LOT.z0 + 0.8 + hash(i * 7.7) * (LOT.z1 - LOT.z0 - 1.6);
-    if (x > HOUSE.x0 - 0.4 && x < HOUSE.x1 + 0.4 && z > HOUSE.z0 - 0.4 && z < HOUSE.z1 + 1.9) continue;
+    if (HOUSES.some(h => x > h.x0 - 0.4 && x < h.x1 + 0.4 && z > h.z0 - 0.4 && z < h.z1 + 1.9)) continue;
     if (Math.abs(x - 2.5) < 1 && z > 12) continue;
     if (Math.hypot((x - POND.x) / POND.rx, (z - POND.z) / POND.rz) < 1.4) continue;
     list.push({ x, z, s: 0.12 + hash(i) * 0.14, c: hash(i * 5.3) > 0.5 ? '5b8a4c' : '3f6a3a' });
@@ -238,6 +244,17 @@ function drawSummerGarden(t) {
 }
 
 function drawGardenProps(t) {
+  // Sendero de losas entre las dos casas, y el escalón de la entrada del vecino.
+  R.layer = LAYER.DECAL;
+  for (const [x, z] of LOSAS) {
+    face([[x - 0.45, GROUND + 0.012, z + 0.35], [x + 0.45, GROUND + 0.012, z + 0.35],
+          [x + 0.45, GROUND + 0.012, z - 0.35], [x - 0.45, GROUND + 0.012, z - 0.35]], 'b9b2a4');
+  }
+  R.layer = LAYER.OBJ;
+  box((STEP_VECINA.x0 + STEP_VECINA.x1) / 2, GROUND / 4, (STEP_VECINA.z0 + STEP_VECINA.z1) / 2,
+      STEP_VECINA.x1 - STEP_VECINA.x0, -GROUND / 2, STEP_VECINA.z1 - STEP_VECINA.z0,
+      'cfc7b8', { top: 'ded6c6' });
+
   // Farola junto a la verja, balizas de la senda y banco.
   beginGroup([0.9, GROUND, 17.0]);
   box(0.9, GROUND + 0.05, 17.0, 0.3, 0.1, 0.3, '2a2f45');

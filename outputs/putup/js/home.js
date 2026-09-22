@@ -135,7 +135,7 @@ function currentRoom() {
   else if (!inHouse(player.x, player.z)) avatar.room = null;
   return avatar.room;
 }
-const placeName = () => (avatar.room ? avatar.room.name : 'JARDÍN');
+const placeName = () => (avatar.room ? (avatar.room.house || 'CASA') + ' / ' + avatar.room.name : 'JARDÍN');
 
 function updateHome(dt) {
   let ix = held('KeyD', 'ArrowRight') - held('KeyA', 'ArrowLeft');

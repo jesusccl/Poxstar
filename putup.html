@@ -1660,8 +1660,16 @@ const ROOMS = [
   { id: 'kitchen', name: 'COCINA', x0: 5, x1: 15, z0: 3, z1: 11, floor: ['checker', 'ebe6dc', '5a6178'], paint: 'a9c4ae', wainscot: 'e3ddd0' },
   { id: 'hall', name: 'RECIBIDOR', x0: 0, x1: 5, z0: 5, z1: 11, floor: ['plank', 'b58d69'], paint: 'b3a0c4', wainscot: '76668b' },
   { id: 'bath', name: 'BAÑO', x0: -5, x1: 0, z0: 5, z1: 11, floor: ['checker', 'dfe9ee', 'c3d6df'], paint: '9cc3d2', wainscot: 'eef2f4' },
+  /* La casa de al lado, al otro extremo de la parcela. Comparte toda la maquinaria:
+     los tramos de pared, los suelos y las colisiones salen de estos rectángulos
+     igual que los de la casa del creador. */
+  { id: 'vsala', name: 'SALÓN', house: 'CASA DE AL LADO', x0: 22, x1: 28, z0: -2, z1: 5, floor: ['plank', 'b98a63'], paint: 'd8b98f', wainscot: '9c7550' },
+  { id: 'vtaller', name: 'TALLER', house: 'CASA DE AL LADO', x0: 28, x1: 33, z0: -2, z1: 5, floor: ['checker', 'd9d2c4', '8d8375'], paint: 'a8b7a0', wainscot: 'd7ddd0' },
 ];
 const HOUSE = Object.freeze({ x0: -5, x1: 15, z0: -5, z1: 11 });
+const HOUSE_VECINA = Object.freeze({ x0: 22, x1: 33, z0: -2, z1: 5 });
+/** Todas las casas de la parcela: los cimientos y el "¿estoy dentro?" recorren esto. */
+const HOUSES = Object.freeze([HOUSE, HOUSE_VECINA]);
 const FACADE = Object.freeze({ paint: 'e4dccb', trim: 'f4efe4', cap: 'efe9dc' });
 const TRIM = 'e9e4dc';
 
@@ -1679,12 +1687,19 @@ const OPENINGS = [
   { axis: 'x', at: 15, c: 8.2, w: 1.4, kind: 'window', bottom: 1.35, top: 2.45 },
   { axis: 'z', at: 11, c: 8.6, w: 1.8, kind: 'window', bottom: 1.0, top: 2.5 },
   { axis: 'x', at: -5, c: 8.0, w: 1.0, kind: 'window', bottom: 1.6, top: 2.5, frosted: true },
+  // Casa de al lado: entrada mirando a la casa del creador, paso interior y ventanas.
+  { axis: 'x', at: 22, c: 3.0, w: 1.2, kind: 'door' },
+  { axis: 'x', at: 28, c: 3.0, w: 1.2, kind: 'door' },
+  { axis: 'z', at: -2, c: 25.0, w: 1.6, kind: 'window', bottom: 1.1, top: 2.5 },
+  { axis: 'z', at: -2, c: 30.5, w: 1.4, kind: 'window', bottom: 1.2, top: 2.5 },
+  { axis: 'x', at: 33, c: 1.5, w: 1.6, kind: 'window', bottom: 1.0, top: 2.5 },
+  { axis: 'z', at: 5, c: 24.5, w: 1.6, kind: 'window', bottom: 1.1, top: 2.5 },
 ];
 const holeTop = o => (o.kind === 'window' ? o.top : o.kind === 'arch' ? 2.5 : DOOR_TOP);
 const holeBottom = o => (o.kind === 'window' ? o.bottom : 0);
 
 function roomAt(x, z) { return ROOMS.find(r => x > r.x0 && x < r.x1 && z > r.z0 && z < r.z1) || null; }
-const inHouse = (x, z) => x > HOUSE.x0 && x < HOUSE.x1 && z > HOUSE.z0 && z < HOUSE.z1;
+const inHouse = (x, z) => HOUSES.some(h => x > h.x0 && x < h.x1 && z > h.z0 && z < h.z1);
 
 /* ---------- Tramos de pared ---------- */
 const SEGMENTS = (() => {
@@ -1887,7 +1902,10 @@ function drawHouseShell() {
   const cam = R.cam.pos;
   useLights(null);
   R.layer = LAYER.BG;
-  box((HOUSE.x0 + HOUSE.x1) / 2, GROUND / 2 - 0.01, (HOUSE.z0 + HOUSE.z1) / 2, HOUSE.x1 - HOUSE.x0 + WALL_T, -GROUND + 0.02, HOUSE.z1 - HOUSE.z0 + WALL_T, '9d978e', { top: '2e2628' });
+  for (const h of HOUSES) {
+    box((h.x0 + h.x1) / 2, GROUND / 2 - 0.01, (h.z0 + h.z1) / 2, h.x1 - h.x0 + WALL_T,
+        -GROUND + 0.02, h.z1 - h.z0 + WALL_T, '9d978e', { top: '2e2628' });
+  }
   R.layer = LAYER.FLOOR;
   for (const r of ROOMS) {
     if (!onScreen([(r.x0 + r.x1) / 2, 0, (r.z0 + r.z1) / 2], Math.hypot(r.x1 - r.x0, r.z1 - r.z0) / 2)) continue;
@@ -2432,6 +2450,10 @@ const ROOM_SOLIDS = [
   [0.3, 6.9, 0.4, 1.2], [4.55, 10.45, 0.5, 0.5], [4.65, 9.3, 0.42, 1.0], [0.45, 10.45, 0.55, 0.55], [1.35, 10.6, 0.3, 0.3],
   // Baño
   [-3.55, 10.45, 2.32, 0.95], [-4.5, 6.3, 0.8, 0.5], [-2.3, 5.35, 1.1, 0.52], [-0.55, 10.4, 0.5, 0.5], [-0.5, 5.55, 0.5, 0.5],
+  // Casa de al lado · salón
+  [25.0, -1.1, 2.1, 0.82], [25.0, 0.7, 1.1, 0.6], [23.0, -1.3, 0.4, 0.4], [27.3, 4.2, 0.55, 0.55],
+  // Casa de al lado · taller
+  [30.4, -1.3, 2.3, 0.75], [32.6, 1.6, 0.34, 1.9], [29.8, 0.5, 0.38, 0.38], [29.1, 4.3, 0.6, 0.4],
 ];
 
 function roomLights(t) {
@@ -2451,6 +2473,15 @@ function roomLights(t) {
     ],
     hall: [{ pos: [2.5, 2.7, 8], color: [255, 205, 150], power: 0.6, range: 4.5 }],
     bath: [{ pos: [-2.3, 2.2, 5.5], color: [235, 245, 255], power: 0.65, range: 4 }],
+    // Casa de al lado: el vecino tiene la luz encendida a estas horas.
+    vsala: [
+      { pos: [23.0, 1.8, -1.3], color: [255, 205, 150], power: 0.62, range: 4 },
+      { pos: [25.0, 2.6, 1.0], color: [255, 215, 165], power: 0.5, range: 4.6 },
+    ],
+    vtaller: [
+      { pos: [30.4, 2.4, -1.0], color: [240, 248, 255], power: 0.66, range: 4.4 },
+      { pos: [32.3, 1.7, 1.6], color: [255, 210, 150], power: 0.3, range: 3 },
+    ],
   };
 }
 
@@ -2877,9 +2908,112 @@ decor('bath', 'x', -5, 1, 10.5, f => {
   boxOn(f, -10.5, 2.28, 0.2, 0.05, 0.3, 'c9ced9', NO, 0.02);
 });
 
+/* ---------- Casa de al lado ----------
+   Dos piezas: el salón de quien vive enfrente y su taller. Usan los mismos
+   ayudantes que el resto de la casa; lo único propio son las coordenadas. */
+function drawVecinaSala(t) {
+  const F = floorFrame(0.01), o = { layer: LAYER.RUG };
+  rectOn(F, 25.0, -1.6, 2.6, 2.0, '9c6f4a', o, 0);
+  rectOn(F, 25.0, -1.6, 2.3, 1.7, 'b0805a', { ...o, over: true }, 0);
+
+  // Sofá de dos plazas contra la pared norte.
+  shadow(25.0, -1.1, 1.1, 0.45, 0.22);
+  beginGroup([25.0, 0, -1.1]);
+  box(25.0, 0.22, -1.1, 2.1, 0.44, 0.82, '7b6a8f', { top: '8d7aa3' });
+  box(25.0, 0.62, -1.42, 2.1, 0.5, 0.2, '6a5b7c');
+  for (const xx of [24.1, 25.9]) box(xx, 0.5, -1.05, 0.18, 0.3, 0.78, '6a5b7c');
+  for (const xx of [24.55, 25.45]) box(xx, 0.5, -1.2, 0.72, 0.12, 0.6, '8d7aa3', { top: '9d8ab3' });
+  box(24.5, 0.62, -0.95, 0.34, 0.24, 0.12, 'f0c75a');
+  endGroup();
+
+  // Mesa baja con taza y libro.
+  shadow(25.0, 0.7, 0.55, 0.35, 0.2);
+  beginGroup([25.0, 0, 0.7]);
+  box(25.0, 0.36, 0.7, 1.1, 0.06, 0.6, 'b88660', { top: 'c99a72' });
+  for (const [xx, zz] of [[24.55, 0.45], [25.45, 0.45], [24.55, 0.95], [25.45, 0.95]])
+    box(xx, 0.18, zz, 0.06, 0.36, 0.06, '6b5440');
+  box(24.78, 0.43, 0.62, 0.12, 0.09, 0.12, 'f4f1e8');
+  box(25.25, 0.41, 0.78, 0.26, 0.04, 0.18, '4d7fa0');
+  endGroup();
+
+  // Lámpara de pie y planta en las esquinas.
+  shadow(23.0, -1.3, 0.3, 0.3, 0.2);
+  beginGroup([23.0, 0, -1.3]);
+  box(23.0, 0.04, -1.3, 0.34, 0.08, 0.34, '3a2f2a');
+  box(23.0, 0.8, -1.3, 0.06, 1.5, 0.06, '5a4636');
+  box(23.0, 1.68, -1.3, 0.42, 0.3, 0.42, 'f0d9a8', { top: 'f7e8c8' });
+  endGroup();
+  shadow(27.3, 4.2, 0.35, 0.35, 0.22);
+  beginGroup([27.3, 0, 4.2]); drawPlant(27.3, 4.2, t + 2.5, 1.05); endGroup();
+
+  // Alfombrilla y zapatos junto a la entrada.
+  rectOn(F, 22.5, -3.0, 0.5, 0.9, '5a4636', o, 0);
+  beginGroup([22.6, 0, 3.8]);
+  box(22.6, 0.05, 3.7, 0.14, 0.1, 0.26, '3f6f59');
+  box(22.6, 0.05, 4.02, 0.14, 0.1, 0.26, '3f6f59');
+  endGroup();
+}
+decor('vsala', 'z', -2, 1, 26.6, f => {
+  boxOn(f, 26.6, 1.85, 0.72, 0.56, 0.04, '5a4636');
+  rectOn(f, 26.6, 1.85, 0.6, 0.44, 'e8dcc0', NO, 0.045);
+  polyOn(f, [[26.35, 1.66], [27.0, 1.66], [26.78, 1.96], [26.5, 1.82]], '7fa37a', { over: true }, 0.045);
+  discOn(f, 26.42, 1.98, 0.07, 'f0c75a', { over: true }, 0.045, 10);
+});
+decor('vsala', 'x', 22, 1, -0.4, f => {
+  for (let i = 0; i < 3; i++) boxOn(f, 0.4 + i * 0.02, 1.35 + i * 0.42, 0.7, 0.04, 0.16, 'a8845f');
+});
+
+function drawVecinaTaller(t) {
+  const F = floorFrame(0.01), o = { layer: LAYER.RUG };
+  rectOn(F, 30.4, -1.4, 1.9, 1.1, '6f7a6a', o, 0);
+
+  // Banco de trabajo con tablero, tornillo y herramientas.
+  shadow(30.4, -1.3, 1.2, 0.4, 0.22);
+  beginGroup([30.4, 0, -1.3]);
+  box(30.4, 0.44, -1.3, 2.3, 0.08, 0.75, '9c7a52', { top: 'b08c5e' });
+  for (const xx of [29.4, 31.4]) { box(xx, 0.2, -1.55, 0.1, 0.4, 0.1, '6b5440'); box(xx, 0.2, -1.05, 0.1, 0.4, 0.1, '6b5440'); }
+  box(29.55, 0.56, -1.3, 0.18, 0.16, 0.2, '8d8375', { top: 'a39a8c' });
+  for (const [xx, c] of [[30.1, 'e04a4a'], [30.35, '4d7fa0'], [30.6, 'f0c75a']])
+    box(xx, 0.53, -1.5, 0.07, 0.1, 0.07, c);
+  box(31.0, 0.52, -1.2, 0.34, 0.08, 0.22, '2a2f45');
+  endGroup();
+
+  // Estantería con cajas y botes.
+  shadow(32.55, 1.6, 0.25, 0.9, 0.2);
+  beginGroup([32.55, 0, 1.6]);
+  box(32.6, 0.9, 1.6, 0.34, 1.8, 1.9, 'a8845f', { top: 'b89a6f' });
+  for (const yy of [0.5, 1.0, 1.5]) box(32.55, yy, 1.6, 0.3, 0.05, 1.85, '8a6a48');
+  for (const [yy, zz, c] of [[0.66, 1.0, '4d7fa0'], [0.66, 1.45, 'e04a4a'], [1.16, 1.2, '7fa37a'], [1.16, 2.0, 'f0c75a'], [1.66, 1.6, 'd9a441']])
+    box(32.55, yy, zz, 0.24, 0.26, 0.3, c);
+  endGroup();
+
+  // Taburete y caja de herramientas en el suelo.
+  shadow(29.8, 0.5, 0.26, 0.26, 0.2);
+  beginGroup([29.8, 0, 0.5]);
+  box(29.8, 0.3, 0.5, 0.34, 0.06, 0.34, 'b88660', { top: 'c99a72' });
+  for (const [xx, zz] of [[29.67, 0.37], [29.93, 0.37], [29.67, 0.63], [29.93, 0.63]])
+    box(xx, 0.15, zz, 0.05, 0.3, 0.05, '6b5440');
+  endGroup();
+  shadow(29.1, 4.3, 0.3, 0.22, 0.2);
+  beginGroup([29.1, 0, 4.3]);
+  box(29.1, 0.14, 4.3, 0.6, 0.28, 0.4, 'e04a4a', { top: 'ef6a5a' });
+  box(29.1, 0.32, 4.3, 0.12, 0.08, 0.32, '2a2f45');
+  endGroup();
+}
+decor('vtaller', 'z', -2, 1, 31.6, f => {
+  boxOn(f, 31.6, 1.9, 0.9, 0.06, 0.2, '8a6a48');
+  for (const [dx, c] of [[-0.3, 'e04a4a'], [-0.1, '4d7fa0'], [0.1, 'f0c75a'], [0.3, '7fa37a']])
+    boxOn(f, 31.6 + dx, 2.12, 0.1, 0.34, 0.05, c);
+});
+decor('vtaller', 'x', 28, -1, 3.6, f => {
+  boxOn(f, -3.6, 1.7, 0.5, 0.7, 0.03, '5a4636');
+  rectOn(f, -3.6, 1.7, 0.42, 0.6, 'cfd9c8', NO, 0.035);
+});
+
 function drawRooms(t) {
   const visible = r => onScreen([(r.x0 + r.x1) / 2, 1, (r.z0 + r.z1) / 2], Math.hypot(r.x1 - r.x0, r.z1 - r.z0) / 2 + 1);
-  const content = { studio: drawStudio, living: drawLiving, kitchen: drawKitchen, hall: drawHall, bath: drawBath };
+  const content = { studio: drawStudio, living: drawLiving, kitchen: drawKitchen, hall: drawHall, bath: drawBath,
+                    vsala: drawVecinaSala, vtaller: drawVecinaTaller };
   for (const r of ROOMS) {
     if (!visible(r)) continue;
     useLights(r);
@@ -2892,12 +3026,17 @@ function drawRooms(t) {
 /* Putup · El jardín: la parcela como una maqueta flotante con césped, senda, porche, setos, valla,
    árboles, estanque, buzón y un patio trasero. El suelo del jardín está un escalón por debajo de la casa. */
 
-const LOT = Object.freeze({ x0: -10, x1: 20, z0: -9, z1: 18 });
+const LOT = Object.freeze({ x0: -10, x1: 38, z0: -9, z1: 18 });
 const PORCH = Object.freeze({ x0: 1.3, x1: 3.7, z0: 11, z1: 12.3 });
 const STEP = Object.freeze({ x0: 1.6, x1: 3.4, z0: 12.3, z1: 12.9 });
+const STEP_VECINA = Object.freeze({ x0: 21.4, x1: 22, z0: 2.4, z1: 3.6 });
+/** Losas del sendero que une las dos casas. */
+const LOSAS = [[16.4, 3.0], [17.6, 3.0], [18.8, 3.0], [20.0, 3.0], [21.0, 3.0]];
 const POND = Object.freeze({ x: -7.6, z: 8.8, rx: 1.25, rz: 2.0 });
-const TREES = [[-7.5, -6.5, 1.2], [17.3, -6.8, 1.0], [-7.8, 15.0, 1.1], [17.0, 15.2, 1.3], [-7.8, 3.5, 0.9], [18.2, 4.8, 1.0]];
-const BUSHES = [[-3.8, 11.75], [-1.9, 11.75], [5.7, 11.8], [14.4, 11.8], [15.8, -2.6], [15.8, 1.6], [-5.8, -3.2], [-5.8, 1.4]];
+const TREES = [[-7.5, -6.5, 1.2], [17.3, -6.8, 1.0], [-7.8, 15.0, 1.1], [17.0, 15.2, 1.3], [-7.8, 3.5, 0.9], [18.2, 4.8, 1.0],
+  [26.5, -5.5, 1.15], [35.5, -4.0, 1.0], [27.0, 9.5, 1.2], [35.2, 9.0, 0.95]];
+const BUSHES = [[-3.8, 11.75], [-1.9, 11.75], [5.7, 11.8], [14.4, 11.8], [15.8, -2.6], [15.8, 1.6], [-5.8, -3.2], [-5.8, 1.4],
+  [21.4, 0.8], [21.4, 5.2], [34.6, 2.0]];
 const PATH_LIGHTS = [[1.7, 14.0], [3.3, 15.4], [1.7, 16.8]];
 
 /** Altura del suelo: casa y porche a 0, escalón intermedio y césped más abajo. */
@@ -2905,6 +3044,7 @@ function groundY(x, z) {
   if (inHouse(x, z)) return 0;
   if (x > PORCH.x0 && x < PORCH.x1 && z >= PORCH.z0 - 0.1 && z < PORCH.z1) return 0;
   if (x > STEP.x0 && x < STEP.x1 && z >= STEP.z0 && z < STEP.z1) return GROUND / 2;
+  if (x > STEP_VECINA.x0 && x < STEP_VECINA.x1 && z > STEP_VECINA.z0 && z < STEP_VECINA.z1) return GROUND / 2;
   return GROUND;
 }
 
@@ -2936,7 +3076,7 @@ const TUFTS = (() => {
   const list = [];
   for (let i = 0; list.length < 90 && i < 400; i++) {
     const x = LOT.x0 + 0.8 + hash(i * 3.1) * (LOT.x1 - LOT.x0 - 1.6), z = LOT.z0 + 0.8 + hash(i * 7.7) * (LOT.z1 - LOT.z0 - 1.6);
-    if (x > HOUSE.x0 - 0.4 && x < HOUSE.x1 + 0.4 && z > HOUSE.z0 - 0.4 && z < HOUSE.z1 + 1.9) continue;
+    if (HOUSES.some(h => x > h.x0 - 0.4 && x < h.x1 + 0.4 && z > h.z0 - 0.4 && z < h.z1 + 1.9)) continue;
     if (Math.abs(x - 2.5) < 1 && z > 12) continue;
     if (Math.hypot((x - POND.x) / POND.rx, (z - POND.z) / POND.rz) < 1.4) continue;
     list.push({ x, z, s: 0.12 + hash(i) * 0.14, c: hash(i * 5.3) > 0.5 ? '5b8a4c' : '3f6a3a' });
@@ -3128,6 +3268,17 @@ function drawSummerGarden(t) {
 }
 
 function drawGardenProps(t) {
+  // Sendero de losas entre las dos casas, y el escalón de la entrada del vecino.
+  R.layer = LAYER.DECAL;
+  for (const [x, z] of LOSAS) {
+    face([[x - 0.45, GROUND + 0.012, z + 0.35], [x + 0.45, GROUND + 0.012, z + 0.35],
+          [x + 0.45, GROUND + 0.012, z - 0.35], [x - 0.45, GROUND + 0.012, z - 0.35]], 'b9b2a4');
+  }
+  R.layer = LAYER.OBJ;
+  box((STEP_VECINA.x0 + STEP_VECINA.x1) / 2, GROUND / 4, (STEP_VECINA.z0 + STEP_VECINA.z1) / 2,
+      STEP_VECINA.x1 - STEP_VECINA.x0, -GROUND / 2, STEP_VECINA.z1 - STEP_VECINA.z0,
+      'cfc7b8', { top: 'ded6c6' });
+
   // Farola junto a la verja, balizas de la senda y banco.
   beginGroup([0.9, GROUND, 17.0]);
   box(0.9, GROUND + 0.05, 17.0, 0.3, 0.1, 0.3, '2a2f45');
@@ -3326,7 +3477,7 @@ function currentRoom() {
   else if (!inHouse(player.x, player.z)) avatar.room = null;
   return avatar.room;
 }
-const placeName = () => (avatar.room ? avatar.room.name : 'JARDÍN');
+const placeName = () => (avatar.room ? (avatar.room.house || 'CASA') + ' / ' + avatar.room.name : 'JARDÍN');
 
 function updateHome(dt) {
   let ix = held('KeyD', 'ArrowRight') - held('KeyA', 'ArrowLeft');
@@ -5604,7 +5755,7 @@ function setModeUI() {
   const rec = record ? '● GRABANDO' : 'PRÁCTICA';
   $('#location').textContent = mode === 'run' ? `${rec} · SALTO NEÓN`
     : mode === 'arcade' ? `${rec} · ${gameById(arcade.id).name.toUpperCase()}`
-    : mode === 'cards' ? `${rec} · POLENOM` : '● CASA / ' + placeName();
+    : mode === 'cards' ? `${rec} · POLENOM` : '● ' + placeName();
 }
 /* ---------- Barra táctil ----------
    Un teléfono no tiene teclado: cada modo declara los botones que necesita.
