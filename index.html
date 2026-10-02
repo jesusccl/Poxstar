@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 
 <title>PoxStar — Estudio de juegos de AugustoCLive</title>
-<meta name="description" content="PoxStar es el estudio indie de videojuegos de AugustoCLive. Siete juegos gratis en el navegador: República de Lemuy, un MMO de conquista en Chiloé; Putup, simulador de creador con seis juegos dentro; y arcades, runner cyberpunk, shooter de arena y puzzle de intrusión. Sin descargas, sin loot boxes." />
+<meta name="description" content="PoxStar es el estudio indie de videojuegos de AugustoCLive. Ocho juegos gratis en el navegador: Furious Cars 2, carreras en 3D con seis coches, dos circuitos y modo libre; República de Lemuy, un MMO de conquista en Chiloé; Putup, simulador de creador con seis juegos dentro; y arcades, runner cyberpunk, shooter de arena y puzzle de intrusión. Sin descargas, sin loot boxes." />
 <link rel="canonical" href="https://poxstar.com/" />
 <meta name="robots" content="index,follow,max-image-preview:large" />
 <meta name="author" content="AugustoCLive" />
@@ -20,7 +20,7 @@
 <meta property="og:locale" content="es_ES" />
 <meta property="og:url" content="https://poxstar.com/" />
 <meta property="og:title" content="PoxStar — Estudio de juegos de AugustoCLive" />
-<meta property="og:description" content="Juegos pequeños con ideas grandes. Siete juegos en el navegador, gratis y sin descargas — con República de Lemuy y Putup como últimos estrenos." />
+<meta property="og:description" content="Juegos pequeños con ideas grandes. Ocho juegos en el navegador, gratis y sin descargas — con Furious Cars 2 como gran estreno." />
 <meta property="og:image" content="https://poxstar.com/og-image.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -29,7 +29,7 @@
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="PoxStar — Estudio de juegos de AugustoCLive" />
-<meta name="twitter:description" content="Juegos pequeños con ideas grandes. Siete juegos en el navegador, gratis y sin descargas — con República de Lemuy y Putup como últimos estrenos." />
+<meta name="twitter:description" content="Juegos pequeños con ideas grandes. Ocho juegos en el navegador, gratis y sin descargas — con Furious Cars 2 como gran estreno." />
 <meta name="twitter:image" content="https://poxstar.com/og-image.png" />
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF4A1C' d='M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z'/%3E%3C/svg%3E" />
@@ -77,6 +77,22 @@
         "https://youtube.com/AugustoCLive",
         "https://discord.gg/ANgzAWCRS"
       ]
+    },
+    {
+      "@type": "VideoGame",
+      "name": "Furious Cars 2",
+      "url": "https://poxstar.com/furious-cars-2.html",
+      "image": "https://poxstar.com/img/fc2-peloton.webp",
+      "description": "Carreras arcade en 3D: seis coches, ocho pilotos y dos circuitos chilenos, Sierra Dorada y el volcán Osorno. Nitro, derrapes, relator en español y un modo libre para bajarse del auto y recorrer la ciudad.",
+      "genre": ["Carreras", "Arcade", "3D", "Mundo abierto"],
+      "gamePlatform": "Navegador web",
+      "playMode": "SinglePlayer",
+      "applicationCategory": "Game",
+      "operatingSystem": "Web",
+      "inLanguage": "es",
+      "author": { "@id": "https://poxstar.com/#studio" },
+      "publisher": { "@id": "https://poxstar.com/#studio" },
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
     },
     {
       "@type": "VideoGame",
@@ -482,6 +498,25 @@ html[data-theme="dark"] .icon-btn .sun{display:none}
 }
 html[data-motion="0"] .hero-nuevo .marca i{animation:none}
 
+/* El gran estreno ocupa la fila entera, por encima de las otras dos
+   novedades, y lleva el fuego del logotipo de Furious Cars 2. */
+.hero-nuevo.estreno{grid-column:1/-1;padding:16px 20px;
+  background:linear-gradient(100deg,#160707 0%,#3a1008 58%,#6a1f08 100%);
+  border-color:rgba(255,194,26,.38);
+  box-shadow:0 18px 40px -18px rgba(120,20,0,.7), inset 0 1px 0 rgba(255,246,208,.12)}
+.hero-nuevo.estreno:hover{box-shadow:0 24px 50px -18px rgba(150,30,0,.8),
+  inset 0 1px 0 rgba(255,246,208,.16)}
+.hero-nuevo.estreno .marca{font-weight:700;color:#2a0903;
+  background:linear-gradient(96deg,#FFF6D0 0%,#FFC21A 40%,#FF4D12 100%)}
+.hero-nuevo.estreno .marca i{background:#2a0903}
+.hero-nuevo.estreno .que b{font-size:21px;font-style:italic;font-weight:900;
+  text-transform:uppercase;letter-spacing:-.01em;color:#FFE7B0}
+.hero-nuevo.estreno .que b em{display:inline-block;margin-left:.18em;
+  padding:0 .3em;border-radius:.16em;font-style:normal;color:#fff;
+  background:linear-gradient(180deg,#48B8FF,#1447C8);transform:skewX(-10deg)}
+.hero-nuevo.estreno .flecha{color:#FFC21A}
+@media (max-width:560px){.hero-nuevo.estreno .que b{font-size:18px}}
+
 /* El enlace de Lemuy en el menú lleva su punto de "en vivo" */
 .nav a[href="#lemuy"]{display:inline-flex;align-items:center;gap:6px}
 .nav a[href="#lemuy"]::before{content:"";width:6px;height:6px;border-radius:50%;
@@ -563,6 +598,31 @@ html[data-motion="0"] .nav a[href="#lemuy"]::before{animation:none}
 .game.destacado h3{font-size:clamp(28px,3.1vw,38px)}
 .game.wide .art{aspect-ratio:16/8.4}
 .game.wide h3{font-size:clamp(30px,3.6vw,42px)}
+
+/* El gran estreno encabeza el catálogo a lo ancho: imagen grande a la
+   izquierda y la ficha al lado, para que no mida el doble de alto. */
+.game.estreno{grid-column:1/-1;display:grid;
+  grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);
+  grid-template-rows:1fr auto auto auto 1fr;
+  column-gap:clamp(26px,3.4vw,52px)}
+.game.estreno .art{grid-column:1;grid-row:1/-1;aspect-ratio:16/9}
+.game.estreno > :not(.art){grid-column:2}
+.game.estreno .meta{grid-row:2;margin-top:0}
+.game.estreno > p{grid-row:3}
+.game.estreno .genres{grid-row:4}
+.game.estreno h3{font-size:clamp(34px,4.2vw,58px);font-weight:900;font-style:italic;
+  letter-spacing:-.04em}
+.game.estreno h3 em{font-style:normal;display:inline-block;margin-left:.1em;
+  padding:0 .18em;border-radius:.12em;color:#fff;
+  background:linear-gradient(180deg,#48B8FF,#1447C8);transform:skewX(-10deg)}
+.game.estreno > p{font-size:16px}
+.art .tag.estreno{font-weight:700;color:#2a0903;
+  background:linear-gradient(96deg,#FFF6D0 0%,#FFC21A 40%,#FF4D12 100%)}
+@media (max-width:1080px){
+  .game.estreno{grid-column:span 4;display:block}
+  .game.estreno .meta{margin-top:20px}
+}
+@media (max-width:680px){.game.estreno{grid-column:span 1}}
 
 .game{position:relative}
 .game .art{position:relative;aspect-ratio:16/10;border-radius:10px;
@@ -857,6 +917,189 @@ body.scrolled-far .to-top{opacity:1;transform:none;pointer-events:auto}
 
 
 /* ══════════════════════════════════════════════════════════════════
+   Furious Cars 2 — el gran estreno, y por eso va primero y más grande
+   que Lemuy y Putup. Misma estructura que ellas (cabecera, ficha +
+   carrusel, barra de datos), con los colores del propio juego: el
+   fuego del logotipo, el azul del «2» y el asfalto de noche. Tampoco
+   sigue el tema claro/oscuro: es un decorado cerrado.
+   ══════════════════════════════════════════════════════════════════ */
+.fc2{
+  --fc-crema:#FFF6D0;
+  --fc-oro:#FFC21A;
+  --fc-fuego:#FF4D12;
+  --fc-rojo:#B3120A;
+  --fc-azul:#48B8FF;
+  --fc-azul-hondo:#1447C8;
+  --fc-noche:#07070C;
+  position:relative;z-index:2;overflow:hidden;isolation:isolate;
+  color:#F4F1EC;
+  background:
+    radial-gradient(90% 60% at 50% 104%, #5a1a08 0%, #3a1008 26%, #1d0a08 52%, transparent 78%),
+    radial-gradient(120% 80% at 50% 0%, #2a0d08 0%, #12080b 46%, var(--fc-noche) 100%);
+  border-top:1px solid rgba(255,255,255,.14);
+  border-bottom:1px solid rgba(255,255,255,.14);
+}
+.fc2 .wrap{position:relative;z-index:3;
+  padding-top:clamp(76px,10.5vw,132px);padding-bottom:clamp(72px,10vw,120px)}
+
+/* — el decorado: sol bajo y la pista en perspectiva — */
+.fc2-sky{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+/* un resplandor elíptico que se apaga antes del borde de su caja: con el
+   medio disco de antes, el corte recto asomaba junto al botón de jugar */
+.fc2-sol{position:absolute;left:50%;bottom:16%;width:min(96vw,1240px);aspect-ratio:2/1;
+  transform:translateX(-50%);
+  background:radial-gradient(closest-side,
+    rgba(255,194,26,.26) 0%, rgba(255,77,18,.13) 46%, transparent 100%)}
+.fc2-pista{position:absolute;left:50%;bottom:-2%;width:min(150%,2000px);height:44%;
+  transform:translateX(-50%) perspective(560px) rotateX(70deg);transform-origin:50% 100%;
+  background:
+    linear-gradient(90deg, transparent 0 31%, rgba(255,255,255,.2) 31% 31.4%,
+                    transparent 31.4% 68.6%, rgba(255,255,255,.2) 68.6% 69%, transparent 69%),
+    repeating-linear-gradient(0deg, rgba(255,194,26,.6) 0 26px, transparent 26px 64px)
+      50% 0 / 6px 100% no-repeat,
+    linear-gradient(90deg, transparent 0 28%, rgba(18,18,24,.92) 28% 72%, transparent 72%);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 46%);
+  mask-image:linear-gradient(180deg,transparent 0%,#000 46%)}
+
+/* — cabecera — */
+.fc2 .eyebrow{color:var(--fc-oro);opacity:1;display:flex;align-items:center;
+  gap:10px;flex-wrap:wrap}
+.fc2-estreno{display:inline-flex;align-items:center;gap:8px;position:relative;
+  overflow:hidden;border-radius:999px;padding:5px 13px 5px 11px;
+  font-weight:700;color:#2a0903;
+  background:linear-gradient(96deg,var(--fc-crema) 0%,var(--fc-oro) 38%,var(--fc-fuego) 100%);
+  box-shadow:0 0 0 1px rgba(255,194,26,.4), 0 8px 26px -8px rgba(255,77,18,.8)}
+.fc2-estreno svg{width:12px;height:12px;fill:currentColor}
+/* el brillo que cruza la etiqueta cada pocos segundos */
+/* (solo transform: se compone en la GPU y no repinta la página) */
+.fc2-estreno::after{content:"";position:absolute;top:0;bottom:0;left:0;width:30%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);
+  transform:translateX(-140%) skewX(-20deg);animation:fc2Brillo 3.6s ease-in-out infinite}
+@keyframes fc2Brillo{0%,62%{transform:translateX(-140%) skewX(-20deg)}
+  100%{transform:translateX(440%) skewX(-20deg)}}
+html[data-motion="0"] .fc2-estreno::after{animation:none;display:none}
+@media (prefers-reduced-motion:reduce){.fc2-estreno::after{animation:none;display:none}}
+
+.fc2 h2{margin:.18em 0 0;font-family:var(--font-display);font-weight:900;
+  font-style:italic;letter-spacing:-.05em;line-height:.84;
+  font-size:clamp(56px,11.6vw,176px);text-transform:uppercase}
+.fc2 h2 .sm{display:block;font-size:.26em;letter-spacing:-.01em;line-height:1.1;
+  font-weight:800;color:#F4F1EC;margin-bottom:.12em}
+.fc2 h2 .fuego{display:inline-block;padding-right:.08em;
+  background:linear-gradient(180deg,var(--fc-crema) 0%,var(--fc-oro) 34%,
+                             var(--fc-fuego) 70%,var(--fc-rojo) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 5px 0 #3a0703) drop-shadow(0 0 34px rgba(255,80,20,.45))}
+.fc2 h2 .l2{display:block}
+.fc2 h2 .dos{display:inline-block;padding:0 .2em;
+  border-radius:.14em;font-style:normal;letter-spacing:0;color:#fff;
+  background:linear-gradient(180deg,var(--fc-azul),var(--fc-azul-hondo));
+  box-shadow:0 0 0 2px rgba(255,255,255,.14), 0 0 40px rgba(60,150,255,.6);
+  transform:skewX(-10deg)}
+
+.fc2 .lead{margin:28px 0 0;max-width:60ch;font-size:clamp(16px,1.35vw,19px);
+  line-height:1.6;color:rgba(244,241,236,.9)}
+.fc2 .lead b{color:#fff;font-weight:600}
+/* en pantalla ancha el rótulo ocupa media fila: el texto va a su lado,
+   alineado con «CARS 2», en vez de dejar un hueco negro a la derecha */
+@media (min-width:1180px){
+  .fc2-head{display:grid;grid-template-columns:auto minmax(0,1fr);
+    column-gap:clamp(32px,4vw,72px);align-items:end}
+  .fc2-head .eyebrow{grid-column:1/-1}
+  .fc2 .lead{margin:0 0 .5em;max-width:44ch;justify-self:end}
+}
+
+/* — cuerpo: ficha a la izquierda, carrusel a la derecha (más ancho que
+     en Lemuy y Putup: es el estreno y las capturas son lo que vende) — */
+.fc2-body{margin-top:clamp(38px,5vw,60px);
+  display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);
+  gap:clamp(28px,3.6vw,56px);align-items:start}
+@media (max-width:1040px){.fc2-body{grid-template-columns:1fr}}
+/* en una columna, las capturas antes que la ficha */
+@media (max-width:1040px){.fc2-body > :last-child{order:-1}}
+
+.fc2-specs{display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;overflow:hidden}
+.fc2-specs .s{background:rgba(14,8,10,.66);padding:15px 16px 17px}
+.fc2-specs .k{font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--fc-oro);margin-bottom:5px}
+.fc2-specs .v{font-family:var(--font-display);font-weight:800;
+  letter-spacing:-.02em;font-size:clamp(15px,1.45vw,18px);line-height:1.18}
+
+/* el garaje: los seis coches con su color de carrocería */
+.fc2-garaje{margin:22px 0 0;padding:0;list-style:none;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:560px){.fc2-garaje{grid-template-columns:repeat(2,1fr)}}
+.fc2-garaje li{border:1px solid rgba(255,255,255,.16);border-radius:10px;
+  padding:9px 10px 10px;background:rgba(14,8,10,.55);line-height:1.25;
+  border-left:3px solid var(--c)}
+.fc2-garaje b{display:block;font-family:var(--font-display);font-style:italic;
+  font-weight:900;font-size:13.5px;letter-spacing:-.01em;color:#fff}
+.fc2-garaje span{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(244,241,236,.62)}
+
+.fc2-actions{margin-top:clamp(26px,3vw,34px);
+  display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.fc2-cta{position:relative;display:inline-flex;align-items:center;gap:12px;
+  padding:18px 32px;border-radius:12px;border:0;cursor:pointer;
+  font-family:var(--font-display);font-weight:900;font-style:italic;
+  font-size:clamp(16px,1.6vw,20px);letter-spacing:.02em;text-transform:uppercase;
+  color:#fff;background:linear-gradient(180deg,#ff6a2e 0%,#e2260f 60%,#c0170a 100%);
+  box-shadow:0 6px 0 #6d0b05, 0 0 40px -6px rgba(255,70,20,.7),
+             inset 0 1px 0 rgba(255,255,255,.35);
+  transform:skewX(-8deg);
+  transition:transform .2s var(--ease), box-shadow .2s var(--ease), filter .2s}
+.fc2-cta > *{transform:skewX(8deg)}
+.fc2-cta:hover{transform:skewX(-8deg) translateY(-2px);filter:brightness(1.08);
+  box-shadow:0 8px 0 #6d0b05, 0 0 56px -4px rgba(255,90,30,.85),
+             inset 0 1px 0 rgba(255,255,255,.45)}
+.fc2-cta:active{transform:skewX(-8deg) translateY(4px);
+  box-shadow:0 2px 0 #6d0b05, 0 0 30px -6px rgba(255,70,20,.6)}
+.fc2-cta .arrow{display:inline-block;transition:transform .3s var(--ease)}
+.fc2-cta:hover .arrow{transform:skewX(8deg) translateX(4px)}
+.fc2-ghost{display:inline-flex;align-items:center;gap:9px;cursor:pointer;
+  padding:16px 22px;border-radius:999px;background:transparent;color:#F4F1EC;
+  border:1px solid rgba(255,255,255,.34);font-family:var(--font-text);
+  font-size:14px;font-weight:600;
+  transition:background .25s, border-color .25s, transform .25s var(--ease)}
+.fc2-ghost:hover{background:rgba(255,255,255,.12);border-color:#fff;
+  transform:translateY(-2px)}
+.fc2-note{margin:16px 0 0;font-family:var(--font-mono);font-size:11px;
+  letter-spacing:.1em;line-height:1.75;color:rgba(244,241,236,.74);
+  text-transform:uppercase}
+@media (max-width:560px){.fc2-note{letter-spacing:.04em;text-transform:none;
+  font-size:11.5px}}
+
+/* — barra de datos — */
+.fc2-rail{margin-top:clamp(34px,4.5vw,56px);display:grid;
+  grid-template-columns:repeat(6,1fr);gap:1px;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.18);border-radius:12px;overflow:hidden}
+.fc2-rail > div{background:rgba(14,8,10,.62);padding:18px 8px 20px;text-align:center}
+.fc2-rail .k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:rgba(244,241,236,.7);margin-bottom:6px}
+.fc2-rail .v{font-family:var(--font-display);font-weight:900;font-style:italic;
+  font-size:clamp(20px,2.4vw,32px);letter-spacing:-.03em;line-height:1;
+  color:var(--fc-oro)}
+@media (max-width:860px){.fc2-rail{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:420px){.fc2-rail{grid-template-columns:repeat(2,1fr)}}
+
+/* el carrusel del estreno lleva el fuego del logotipo */
+#fc2-carrusel{box-shadow:0 50px 100px -40px rgba(0,0,0,.9),
+                         0 0 0 1px rgba(255,194,26,.24),
+                         0 0 80px -30px rgba(255,77,18,.55)}
+#fc2-carrusel .stage{background:#120a0a}
+#fc2-carrusel .bar i{background:linear-gradient(90deg,
+  var(--fc-oro),var(--fc-fuego),var(--fc-azul))}
+#fc2-carrusel .dot[aria-current="true"]{background:var(--fc-oro);
+  border-color:var(--fc-oro)}
+#fc2-carrusel .arrow-btn:hover{background:var(--fc-fuego);
+  border-color:var(--fc-fuego);color:#fff}
+#fc2-carrusel .count b{color:var(--fc-oro)}
+
+
+/* ══════════════════════════════════════════════════════════════════
    Putup — la otra franja grande. Misma estructura que la de Lemuy
    (son los dos juegos destacados y tienen que pesar igual), pero con
    los colores del propio juego: verde lima, noche azul y el neón del
@@ -997,7 +1240,7 @@ body.scrolled-far .to-top{opacity:1;transform:none;pointer-events:auto}
   grid-template-columns:repeat(6,1fr);gap:1px;
   background:rgba(255,255,255,.18);
   border:1px solid rgba(255,255,255,.18);border-radius:12px;overflow:hidden}
-.putup-rail div{background:rgba(10,20,36,.58);padding:18px 8px 20px;text-align:center}
+.putup-rail > div{background:rgba(10,20,36,.58);padding:18px 8px 20px;text-align:center}
 .putup-rail .k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.15em;
   text-transform:uppercase;color:rgba(238,245,255,.72);margin-bottom:6px}
 .putup-rail .v{font-family:var(--font-display);font-weight:900;
@@ -1252,7 +1495,7 @@ body.scrolled-far .to-top{opacity:1;transform:none;pointer-events:auto}
   grid-template-columns:repeat(6,1fr);gap:1px;
   background:rgba(255,255,255,.2);
   border:1px solid rgba(255,255,255,.2);border-radius:12px;overflow:hidden}
-.lemuy-rail div{background:rgba(23,8,40,.5);padding:18px 8px 20px;text-align:center}
+.lemuy-rail > div{background:rgba(23,8,40,.5);padding:18px 8px 20px;text-align:center}
 .lemuy-rail .k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.15em;
   text-transform:uppercase;color:rgba(255,242,248,.72);margin-bottom:6px}
 .lemuy-rail .v{font-family:var(--font-display);font-weight:900;font-style:italic;
@@ -1316,6 +1559,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
     <nav class="nav" aria-label="Principal">
       <a href="#juegos">Juegos</a>
+      <a href="#furious">Furious 2</a>
       <a href="#lemuy">Lemuy</a>
       <a href="#putup">Putup</a>
       <a href="#jugar">Jugar</a>
@@ -1345,12 +1589,13 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
   <a href="#juegos" style="--i:0">Juegos</a>
-  <a href="#lemuy" style="--i:1">Lemuy</a>
-  <a href="#putup" style="--i:2">Putup</a>
-  <a href="#jugar" style="--i:3">Jugar</a>
-  <a href="#estudio" style="--i:4">Estudio</a>
-  <a href="#comunidad" style="--i:5">Comunidad</a>
-  <p class="foot-note" style="--i:6">// since 2026 · por AugustoCLive</p>
+  <a href="#furious" style="--i:1">Furious Cars 2</a>
+  <a href="#lemuy" style="--i:2">Lemuy</a>
+  <a href="#putup" style="--i:3">Putup</a>
+  <a href="#jugar" style="--i:4">Jugar</a>
+  <a href="#estudio" style="--i:5">Estudio</a>
+  <a href="#comunidad" style="--i:6">Comunidad</a>
+  <p class="foot-note" style="--i:7">// since 2026 · por AugustoCLive</p>
 </div>
 
 <main id="main">
@@ -1363,7 +1608,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <div class="hero-meta">
       <div class="l eyebrow">Estudio independiente</div>
       <div class="c eyebrow">// Estudio de AugustoCLive</div>
-      <div class="r eyebrow">07 juegos · jugables</div>
+      <div class="r eyebrow">08 juegos · jugables</div>
     </div>
 
     <div class="logo-lockup">
@@ -1379,6 +1624,13 @@ html[data-motion="0"] .play-frame .led{animation:none}
     </div>
 
     <div class="hero-nuevos">
+      <a class="hero-nuevo estreno" href="#furious">
+        <span class="marca"><i aria-hidden="true"></i>Gran estreno</span>
+        <span class="que"><b>Furious Cars <em>2</em></b>
+          <span>Carreras en 3D · seis coches, dos circuitos y modo libre</span>
+        </span>
+        <span class="flecha" aria-hidden="true">→</span>
+      </a>
       <a class="hero-nuevo" href="#lemuy">
         <span class="marca"><i aria-hidden="true"></i>Nuevo</span>
         <span class="que"><b>República de Lemuy</b>
@@ -1407,7 +1659,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     </div>
 
     <div class="hero-rail" aria-label="Datos del estudio">
-      <div><div class="k">Juegos</div><div class="v">07</div></div>
+      <div><div class="k">Juegos</div><div class="v">08</div></div>
       <div><div class="k">Precio</div><div class="v">Gratis</div></div>
       <div><div class="k">Descargas</div><div class="v">Cero</div></div>
       <div><div class="k">Plataforma</div><div class="v">Navegador</div></div>
@@ -1418,8 +1670,197 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
   <div class="ticker" aria-hidden="true">
     <div class="ticker-track" id="ticker">
-      <span>república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
-      <span>república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+      <span>furious cars 2 · gran estreno <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+      <span>furious cars 2 · gran estreno <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Furious Cars 2 — gran estreno ═════════════════════════ -->
+<section id="furious" class="fc2">
+  <div class="fc2-sky" aria-hidden="true">
+    <span class="fc2-sol"></span>
+    <span class="fc2-pista"></span>
+  </div>
+
+  <div class="wrap">
+    <div class="fc2-head reveal">
+      <p class="eyebrow">
+        <span>// 01 · lo último del estudio</span>
+        <span class="fc2-estreno"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg>Gran estreno</span>
+      </p>
+      <h2><span class="sm">Carreras en 3D · en el navegador</span>
+        <span class="fuego">Furious</span>
+        <span class="l2"><span class="fuego">Cars</span> <span class="dos">2</span></span></h2>
+      <p class="lead">
+        Ocho pilotos en la parrilla y ninguna intención de frenar. Eliges entre
+        <b>seis coches</b>, cargas el nitro derrapando y peleas la punta contra
+        <b>siete rivales</b> en dos circuitos chilenos: los cerros de
+        <b>Sierra Dorada</b> y las faldas del <b>volcán Osorno</b>, con un
+        relator que va cantando cada adelantamiento. Y cuando te canses de dar
+        vueltas, el <b>modo libre</b>: sin muros ni reloj, te bajas del auto,
+        paseas por la ciudad, te subes a cualquier coche aparcado y lo llevas
+        hasta la cumbre del Osorno.
+      </p>
+    </div>
+
+    <div class="fc2-body">
+      <div class="reveal" style="--d:1">
+        <div class="fc2-specs">
+          <div class="s"><div class="k">Género</div>
+            <div class="v">Carreras<br>arcade en 3D</div></div>
+          <div class="s"><div class="k">Circuitos</div>
+            <div class="v">Sierra Dorada<br>y volcán Osorno</div></div>
+          <div class="s"><div class="k">Modos</div>
+            <div class="v">Carrera de 1 a 5<br>vueltas y libre</div></div>
+          <div class="s"><div class="k">Controles</div>
+            <div class="v">Teclado, mando<br>o pantalla táctil</div></div>
+        </div>
+
+        <ul class="fc2-garaje" aria-label="Los seis coches">
+          <li style="--c:#ff2a3a"><b>Viper GT</b><span>Gran turismo</span></li>
+          <li style="--c:#3d8bff"><b>Phantom R</b><span>Hiperdeportivo</span></li>
+          <li style="--c:#ffc21a"><b>Blaze S</b><span>Rally</span></li>
+          <li style="--c:#ff8a1a"><b>Toro V12</b><span>Hiperdeportivo</span></li>
+          <li style="--c:#b8bcc8"><b>Bravo 69</b><span>Muscle car</span></li>
+          <li style="--c:#e9edf5"><b>Cóndor RS</b><span>Gran turismo</span></li>
+        </ul>
+
+        <div class="fc2-actions">
+          <a class="fc2-cta" href="furious-cars-2.html">
+            <span>¡A correr!</span> <span class="arrow" aria-hidden="true">→</span>
+          </a>
+          <button class="fc2-ghost" type="button"
+                  data-carrusel="fc2-carrusel" data-goto="7">
+            Ver el modo libre
+          </button>
+        </div>
+
+        <p class="fc2-note">
+          Gratis y sin instalar nada: se juega aquí mismo. En el móvil salen
+          botones en pantalla y arranca en calidad rápida.
+        </p>
+      </div>
+
+      <div class="reveal" style="--d:2">
+        <div class="carousel" id="fc2-carrusel" role="group"
+             aria-roledescription="carrusel"
+             aria-label="Imágenes de Furious Cars 2">
+          <div class="bar" aria-hidden="true"><i></i></div>
+
+          <div class="stage">
+            <figure class="slide" data-on="true">
+              <img data-src="img/fc2-peloton.webp" width="1440" height="810"
+                   alt="El pelotón de ocho coches tomando una curva de Sierra Dorada bajo un cartel gigante de Furious Cars 2, con el velocímetro en 237 km/h."
+                   decoding="async">
+              <figcaption><b>Ocho pilotos, cero frenos</b>
+                Tú y siete rivales con inteligencia propia, apretados en la primera
+                curva de Sierra Dorada a más de 230 km/h.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/fc2-garaje.webp" width="1440" height="810"
+                   alt="El menú del juego con el Viper GT elegido, sus barras de velocidad, aceleración y manejo, y las opciones de mapa, modo, gráficos, relator y vueltas."
+                   decoding="async">
+              <figcaption><b>Seis coches, seis caracteres</b>
+                Del Viper GT, fácil de dominar, al Toro V12, el más rápido en recta.
+                Cada uno con su velocidad, aceleración y manejo.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/fc2-parrilla.webp" width="1440" height="810"
+                   alt="La parrilla de salida bajo el pórtico de Furious Cars 2, con el «3» de la cuenta atrás y las luces encendiéndose."
+                   decoding="async">
+              <figcaption><b>Luces rojas</b>
+                Cuenta atrás bajo el pórtico de salida. Sales quinto de ocho: toca
+                remontar.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/fc2-gradas.webp" width="1440" height="810"
+                   alt="Los coches pasan junto a una tribuna llena de público bajo una pancarta roja que dice «¡Vamos, Augusto!»."
+                   decoding="async">
+              <figcaption><b>Frente a la tribuna</b>
+                Pasas junto a las gradas llenas, bajo la pancarta de «¡Vamos,
+                Augusto!», a más de 250 km/h.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/fc2-nitro.webp" width="1440" height="810"
+                   alt="El Toro V12 con dos llamas azules de nitro saliendo de los escapes, rueda a rueda con un rival."
+                   decoding="async">
+              <figcaption><b>Llamaradas azules</b>
+                Derrapa para cargar el nitro y suéltalo en la recta: el coche escupe
+                fuego azul y la imagen se estira.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/fc2-cabina.webp" width="1440" height="810"
+                   alt="Vista desde el capó a 252 km/h, persiguiendo a dos rivales entre cerros y pinos."
+                   decoding="async">
+              <figcaption><b>Tres cámaras</b>
+                Cerca, lejos o desde el capó. Con la C cambias en plena carrera.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/fc2-osorno.webp" width="1440" height="810"
+                   alt="El pelotón subiendo una curva del circuito del volcán Osorno, entre laderas verdes y araucarias."
+                   decoding="async">
+              <figcaption><b>Volcán Osorno</b>
+                El segundo circuito trepa entre araucarias por las faldas del volcán,
+                con Puerto Augusto y el lago Llanquihue abajo.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/fc2-ciudad.webp" width="1440" height="810"
+                   alt="Augusto a pie en la plaza de Ciudad Augusto, junto a su auto aparcado, con una estatua dorada suya sobre la fuente y rascacielos alrededor."
+                   decoding="async">
+              <figcaption><b>Modo libre: a pie</b>
+                Te bajas del auto en Ciudad Augusto, paseas hasta tu estatua dorada
+                y te subes a cualquier coche aparcado.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/fc2-cumbre.webp" width="1440" height="810"
+                   alt="El Toro V12 bajando por la ladera nevada del volcán Osorno; abajo se ven el circuito, las dos tribunas, Puerto Augusto y el lago."
+                   decoding="async">
+              <figcaption><b>Hasta la cumbre</b>
+                Sin muros, el mapa entero es tuyo: desde la ladera nevada del Osorno
+                se ven el circuito, la ciudad y el lago.</figcaption>
+            </figure>
+          </div>
+
+          <button class="arrow-btn prev" type="button" aria-label="Imagen anterior">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="arrow-btn next" type="button" aria-label="Imagen siguiente">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+
+          <div class="carousel-foot">
+            <button class="pp" type="button" data-paused="false"
+                    aria-label="Pausar la presentación">
+              <svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+              <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="dots" role="group" aria-label="Ir a una imagen"></div>
+            <span class="count" aria-hidden="true"><b>01</b> / 09</span>
+          </div>
+
+          <p class="sr-only" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="fc2-rail reveal" style="--d:3" aria-label="Datos de Furious Cars 2">
+      <div><div class="k">Coches</div><div class="v">06</div></div>
+      <div><div class="k">Pilotos</div><div class="v">08</div></div>
+      <div><div class="k">Circuitos</div><div class="v">02</div></div>
+      <div><div class="k">Modos</div><div class="v">02</div></div>
+      <div><div class="k">Descargas</div><div class="v">Cero</div></div>
+      <div><div class="k">Precio</div><div class="v">Gratis</div></div>
     </div>
   </div>
 </section>
@@ -1456,7 +1897,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
   <div class="wrap">
     <div class="lemuy-head reveal">
       <p class="eyebrow">
-        <span>// 06 · lo último del estudio</span>
+        <span>// 02 · nuevo en el estudio</span>
         <span class="live"><i aria-hidden="true"></i>Servidor en vivo</span>
       </p>
       <h2><span class="sm">República de</span><span>Lemuy</span></h2>
@@ -1649,7 +2090,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
   <div class="wrap">
     <div class="putup-head reveal">
       <p class="eyebrow">
-        <span>// 02 · lo último del estudio</span>
+        <span>// 03 · nuevo en el estudio</span>
         <span class="marca-web"><i aria-hidden="true"></i>Se juega en el navegador</span>
       </p>
       <h2><span class="sm">Simulador de creador</span><span>putup</span></h2>
@@ -1823,22 +2264,52 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <div class="sect-head reveal">
       <h2>Nuestros <em>juegos</em>.</h2>
       <div class="index">
-        <span>// Catálogo / <b>07</b></span>
-        <span>Dos estrenos · todo gratis</span>
+        <span>// Catálogo / <b>08</b></span>
+        <span>Gran estreno · todo gratis</span>
       </div>
     </div>
 
     <div class="games">
 
       <!-- Game 01 -->
-      <article class="game destacado reveal" style="--d:1">
+      <article class="game estreno reveal" style="--d:1">
+        <a class="art tilt" data-art="foto" href="furious-cars-2.html"
+           aria-label="Jugar a Furious Cars 2">
+          <div class="art-canvas" aria-hidden="true">
+            <img src="img/fc2-peloton.webp" width="1440" height="810" alt=""
+                 loading="lazy" decoding="async">
+          </div>
+          <span class="num" aria-hidden="true">01</span>
+          <span class="tag estreno" aria-hidden="true">Gran estreno</span>
+          <span class="scrim" aria-hidden="true"></span>
+          <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
+        </a>
+
+        <div class="meta">
+          <h3><a href="furious-cars-2.html">Furious Cars <em>2</em></a></h3>
+          <span class="yr">2026</span>
+        </div>
+        <p>
+          La secuela, ahora en 3D. Seis coches, siete rivales y dos circuitos
+          chilenos —Sierra Dorada y el volcán Osorno— con nitro, derrapes y un
+          relator que narra la carrera. En el modo libre te bajas del auto y
+          recorres la ciudad a pie.
+        </p>
+        <div class="genres">
+          <span>Carreras</span><span>3D</span><span>Mundo abierto</span>
+          <a class="play-link" href="#furious">Ver más <b aria-hidden="true">→</b></a>
+        </div>
+      </article>
+
+      <!-- Game 02 -->
+      <article class="game destacado reveal" style="--d:2">
         <a class="art tilt" data-art="foto" href="https://dell.taila1b256.ts.net/"
            target="_blank" rel="noopener" aria-label="Entrar a República de Lemuy">
           <div class="art-canvas" aria-hidden="true">
             <img src="img/lemuy-chulchuy.webp" width="1440" height="810" alt=""
                  loading="lazy" decoding="async">
           </div>
-          <span class="num" aria-hidden="true">01</span>
+          <span class="num" aria-hidden="true">02</span>
           <span class="tag hot" aria-hidden="true">En vivo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Entrar al servidor <b>↗</b></span>
@@ -1860,15 +2331,15 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 02 -->
-      <article class="game destacado reveal" style="--d:2">
+      <!-- Game 03 -->
+      <article class="game destacado reveal" style="--d:3">
         <a class="art tilt" data-art="foto" href="putup.html"
            aria-label="Jugar a Putup">
           <div class="art-canvas" aria-hidden="true">
             <img src="img/putup-casa.webp" width="1440" height="810" alt=""
                  loading="lazy" decoding="async">
           </div>
-          <span class="num" aria-hidden="true">02</span>
+          <span class="num" aria-hidden="true">03</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -1889,8 +2360,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 03 -->
-      <article class="game reveal" style="--d:3">
+      <!-- Game 04 -->
+      <article class="game reveal" style="--d:4">
         <a class="art tilt" href="carrera-loca.html" aria-label="Jugar a Carrera Loca">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -1917,7 +2388,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="146" y="152" width="28" height="40" rx="7" fill="#FF4A1C"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">03</span>
+          <span class="num" aria-hidden="true">04</span>
           <span class="tag" aria-hidden="true">Jugable</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -1937,8 +2408,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 04 -->
-      <article class="game reveal" style="--d:4">
+      <!-- Game 05 -->
+      <article class="game reveal" style="--d:5">
         <a class="art tilt" href="breach-2044.html" aria-label="Jugar a BREACH // 2044">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -1973,7 +2444,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="0" y="0" width="320" height="4" fill="#FF2E97" opacity=".7"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">04</span>
+          <span class="num" aria-hidden="true">05</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -1993,8 +2464,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 05 -->
-      <article class="game reveal" style="--d:5">
+      <!-- Game 06 -->
+      <article class="game reveal" style="--d:6">
         <a class="art tilt" href="neon-runner.html" aria-label="Jugar a NEON RUNNER">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2037,7 +2508,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <path d="M244 108l7-7 7 7-7 7z" fill="none" stroke="#FFE566" stroke-width="2"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">05</span>
+          <span class="num" aria-hidden="true">06</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2057,8 +2528,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 06 -->
-      <article class="game reveal" style="--d:6">
+      <!-- Game 07 -->
+      <article class="game reveal" style="--d:7">
         <a class="art tilt" href="daemon.html" aria-label="Jugar a DAEMON">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2096,7 +2567,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="3" y="3" width="314" height="194" fill="none" stroke="#3CFF9E" stroke-width="1.4" opacity=".3"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">06</span>
+          <span class="num" aria-hidden="true">07</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2116,8 +2587,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 07 -->
-      <article class="game wide reveal" style="--d:7">
+      <!-- Game 08 -->
+      <article class="game wide reveal" style="--d:8">
         <a class="art tilt" href="furious-cars.html" aria-label="Jugar a Furious Cars 1">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2144,7 +2615,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <circle cx="272" cy="40" r="26" fill="#FF4A1C" opacity=".16"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">07</span>
+          <span class="num" aria-hidden="true">08</span>
           <span class="tag hot" aria-hidden="true">Jugable</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2265,7 +2736,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
           </div>
           <div class="stat">
             <div class="k">Juegos</div>
-            <div class="v" data-count="7" data-pad="2">07</div>
+            <div class="v" data-count="8" data-pad="2">08</div>
           </div>
           <div class="stat">
             <div class="k">Creador</div>
@@ -2344,6 +2815,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
       <div class="foot-col">
         <h3>Juegos</h3>
         <ul>
+          <li><a href="furious-cars-2.html">Furious Cars 2</a></li>
           <li><a href="https://dell.taila1b256.ts.net/" target="_blank"
                  rel="noopener">República de Lemuy ↗</a></li>
           <li><a href="putup.html">Putup</a></li>
@@ -2358,6 +2830,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
         <h3>Navegar</h3>
         <ul>
           <li><a href="#estudio">Sobre PoxStar</a></li>
+          <li><a href="#furious">Furious Cars 2</a></li>
           <li><a href="#lemuy">República de Lemuy</a></li>
           <li><a href="#putup">Putup</a></li>
           <li><a href="#comunidad">Comunidad</a></li>
@@ -2712,9 +3185,11 @@ html[data-motion="0"] .play-frame .led{animation:none}
     /* Las láminas viven una encima de otra en la misma caja, así que para el
        navegador todas están "en pantalla" y `loading="lazy"` no difería
        ninguna: se bajaban todas al abrir la página. Se cargan a mano, la que
-       toca y la siguiente, y ni siquiera la primera va en el HTML: ningún
-       carrusel está sobre el pliegue, así que abrir la home no descarga ni
-       una imagen. */
+       toca y la siguiente, y ni siquiera la primera va en el HTML: el
+       observador de abajo las pide al acercarse. Ni el de Furious Cars 2, que
+       es el primero, está tan cerca: en 1440×900 y en 1920×1080 abrir la home
+       no descarga ninguna imagen (sólo en pantallas de 1440 px de alto o más
+       llegan sus dos primeras láminas). */
     function cargar(n) {
       var img = slides[((n % slides.length) + slides.length) % slides.length]
                 .querySelector('img[data-src]');

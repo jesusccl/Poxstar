@@ -6,7 +6,38 @@ con los juegos jugables directamente en el navegador.
 
 ## 🎮 Juegos
 
-**01 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
+**01 · Furious Cars 2** — *Gran estreno.* La secuela de Furious Cars, ahora en 3D
+(three.js). Ocho pilotos en pista —tú y siete rivales con IA—, **seis coches**
+(Viper GT, Phantom R, Blaze S, Toro V12, Bravo 69 y Cóndor RS) y **dos
+circuitos**: Sierra Dorada y el volcán Osorno. Carrera de 1, 3 o 5 vueltas, o
+**modo libre**: sin muros, te bajas del auto, paseas por la ciudad, te subes a
+cualquier coche aparcado y puedes subir hasta la cumbre del volcán. Un relator
+narra adelantamientos, derrapes y saltos (con voz si el navegador tiene una en
+español; si no, en subtítulos).
+
+- **WASD** / flechas conducir · **Shift** nitro · **espacio** freno de mano
+  (derrapar recarga el nitro)
+- **F** bajar / subir del auto (modo libre) · **C** cámara · **R** volver a la
+  pista · **P** pausa · **M** sonido · **V** relator
+- Funciona con mando; en móvil salen botones en pantalla y arranca en calidad
+  «rápida»
+
+`furious-cars-2.html` es **una copia literal** del juego tal como está en
+[`jesusccl/miprogramagpt`](https://github.com/jesusccl/miprogramagpt), rama
+`claude/compassionate-faraday-68hhm6` (commit `73c8ee1`, 157 KB). Ojo: la
+`main` de ese repo tiene una versión anterior de 82 KB; la buena es la de la
+rama. Si el juego cambia allí, hay que volver a copiarlo.
+
+A diferencia de Putup, **no es autónomo**: carga three.js 0.160 desde jsDelivr
+(con un `importmap`) y sus dos fuentes desde Google Fonts. Necesita conexión
+la primera vez.
+
+Trae un gancho para pruebas automáticas: abriéndolo con `#debug` en la URL
+expone `window.__fc2`, con `sim(segundos)` para adelantar la simulación con
+piloto automático sin tener que pintar cada cuadro. Las ocho capturas de
+`img/fc2-*.webp` salieron así, del juego de verdad, en calidad «ultra».
+
+**02 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
 en Chiloé. Diez villas (de Puqueldón, nivel 1, a Detif, nivel 22), veinticuatro
 criaturas de la mitología chilota, cinco clases, clanes, territorios y banderas.
 
@@ -16,11 +47,11 @@ criaturas de la mitología chilota, cinco clases, clanes, territorios y banderas
 
 No vive en este repo: corre en el servidor propio del estudio y se publica con
 [Tailscale](https://tailscale.com) en <https://dell.taila1b256.ts.net/>. Desde el
-sitio se enlaza directo (franja del hero, ficha 01 del catálogo, sección
+sitio se enlaza directo (franja del hero, ficha 02 del catálogo, sección
 `#lemuy`, pie de página y el launcher). **Si el servidor está apagado, el enlace
 no abre** — es lo único del sitio que depende de una máquina encendida.
 
-**02 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
+**03 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
 cocina, recibidor, baño y jardín), con la casa del vecino al otro lado de la
 parcela, y grabas partidas en el ordenador, las editas
 —momentos, título, miniatura— y las publicas para que crezca el canal. El dinero
@@ -95,9 +126,9 @@ que venía en la subida: se diferencian sólo en el motor (92 líneas), una lín
 de `house.js` y seis de `garden.js`; el resto de módulos son idénticos. Lo que
 se publica sale de las fuentes.
 
-**03 · Carrera Loca** — Endless arcade de carreras con estética neón.
+**04 · Carrera Loca** — Endless arcade de carreras con estética neón.
 
-**04 · BREACH // 2044** — Puzzle de intrusión cyberpunk. Recorres una matriz de
+**05 · BREACH // 2044** — Puzzle de intrusión cyberpunk. Recorres una matriz de
 código alternando fila y columna para llenar el búfer; un démon se sube si su
 secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 
@@ -105,16 +136,16 @@ secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 - Los démones se generan a partir de un recorrido válido real, así que **siempre
   hay solución** dentro del búfer.
 
-**05 · NEON RUNNER** — Runner de gravedad invertible sobre ciudad neón.
+**06 · NEON RUNNER** — Runner de gravedad invertible sobre ciudad neón.
 
 - **Espacio** / clic / toque — invertir gravedad
 
-**06 · DAEMON** — Shooter de arena por oleadas con gráficos vectoriales.
+**07 · DAEMON** — Shooter de arena por oleadas con gráficos vectoriales.
 
 - **WASD** / flechas — moverse · **ratón** — apuntar · **clic** — disparar
 - En móvil: arrastrar para moverse, dispara y apunta solo
 
-**07 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
+**08 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
 
 - ← → / A D — moverse lateral
 - ↑ ↓ / W S — adelantar/frenar (más arriba = más rápido)
@@ -130,15 +161,17 @@ no su orden de salida.
 ```
 .
 ├── index.html          # Página principal
-├── furious-cars.html   # Juego 07 (también embebido en index)
-├── carrera-loca.html   # Juego 03
-├── breach-2044.html    # Juego 04
-├── neon-runner.html    # Juego 05
-├── daemon.html         # Juego 06
-├── putup.html          # Juego 02 — un solo archivo, copia de outputs/Putup.html
+├── furious-cars-2.html # Juego 01 — copia de jesusccl/miprogramagpt (ver arriba)
+├── furious-cars.html   # Juego 08 (también embebido en index)
+├── carrera-loca.html   # Juego 04
+├── breach-2044.html    # Juego 05
+├── neon-runner.html    # Juego 06
+├── daemon.html         # Juego 07
+├── putup.html          # Juego 03 — un solo archivo, generado por build-putup.cjs
+├── build-putup.cjs     # Genera putup.html desde outputs/putup/
 ├── outputs/            # Material de Putup tal y como sale de su compilación
 ├── launcher.html       # Launcher web (no enlazado desde la home)
-├── img/                # Capturas de Lemuy y de Putup para los carruseles
+├── img/                # Capturas de Furious Cars 2, Lemuy y Putup para los carruseles
 ├── tweaks.js           # Panel de tweaks de diseño (opt-in, vanilla JS)
 ├── og-image.png        # Imagen para redes sociales (1200×630)
 ├── robots.txt          # Indexación
@@ -222,6 +255,14 @@ Cosas que se midieron —con Chromium, CPU frenada— y por qué están como est
   el rectángulo se cachea y se escribe una vez por frame.
 - **La hoja de Google Fonts va con `media="print"`** para que no bloquee el
   primer pintado; como ya iba con `display=swap`, no cambia nada visualmente.
+- **La franja de Furious Cars 2** no carga ninguna fuente nueva (el rótulo es
+  Archivo en cursiva, la que ya se usaba, no la Russo One del juego) y su único
+  adorno animado es el brillo de la etiqueta, que sólo mueve `transform`.
+  Medido antes y después, 16 cargas de cada en orden aleatorio con la CPU
+  frenada ×4: primer pintado **672 → 668 ms** (igual), recorrido de la página
+  **42 → 43 fps** (igual), HTML comprimido **+4,8 KB**. Al abrir la home sigue
+  sin bajarse ninguna captura: sus nueve WebP (611 KB en total) llegan de dos
+  en dos según se pasan.
 
 Y algo que se probó y **se descartó porque salió peor**, no por pereza:
 
