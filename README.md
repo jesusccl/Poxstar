@@ -6,7 +6,46 @@ con los juegos jugables directamente en el navegador.
 
 ## 🎮 Juegos
 
-**01 · Furious Cars 2** — *Gran estreno.* La secuela de Furious Cars, ahora en 3D
+**01 · Polemon: Edición Aventura** — *Gran estreno.* Un RPG de criaturas al estilo
+de los clásicos de Game Boy. Eliges inicial (Charmandro, Bulbasor o Squirtel) en
+el laboratorio del Profesor Roble y recorres la región de Kantia —mapa de
+160×156 casillas, 9 ciudades, 15 rutas y 8 mazmorras— capturando entre **121
+especies** de **18 tipos**, con combates por turnos, evoluciones, **8 gimnasios**
+y la Liga. Es un fan-juego no oficial: los gráficos se generan por código y la
+música es propia; la página lo dice junto al juego.
+
+- **Flechas / WASD** moverse · **Z / espacio / Enter** aceptar · **X** cancelar
+- **Mantener B o Mayús** correr · **Esc / C / Q** menú · **M** silenciar
+- En móvil, cruceta y botones A, B y MENÚ en pantalla
+- La partida se guarda en `localStorage` (clave `polemon_save_v1`)
+
+`polemon.html` es el juego entero en **un solo archivo** (474 KB, hasta la fuente
+Press Start 2P va incrustada) y no pide nada de fuera: funciona sin conexión.
+Sale de [`jesusccl/Concurso`](https://github.com/jesusccl/Concurso), rama
+`ccr-f384db3e-cm9qya` (commit `9775b32`), con su propio empaquetador:
+
+```bash
+cd polemon && node tools/build.mjs ../../Poxstar/polemon.html
+```
+
+Si el juego cambia allí, hay que volver a generarlo y copiarlo.
+
+Las diez capturas de `img/polemon-*.webp` salen del lienzo del juego leído
+píxel a píxel (`toDataURL`), usando los guiones de pantallas de su
+`tests/screens.mjs` y algunos propios: el gimnasio de Celestia y el encuentro con
+Miutú se lanzan como en el juego, con su mapa, su líder y su equipo reales. Están
+a ×2 sin suavizado y en WebP sin pérdida (102 KB las diez); en la página se
+pintan con `image-rendering: pixelated`. El logotipo de la sección lo dibuja la
+propia función `drawLogo()` del juego sobre transparente, y pesa tan poco
+(338 bytes) que va incrustado en el HTML.
+
+**Un fallo del juego, sin tocar aquí:** al crear a los líderes de gimnasio,
+`T()` en `js/world/trainers.js` compone `title: 'Líder ' + nombre` pero luego
+hace `Object.assign(..., o)` con el `title: 'Líder'` que se le pasa, que lo
+pisa. Por eso el combate anuncia «¡Líder quiere luchar!» sin el nombre. Se
+arregla en el repo del juego; la copia de aquí sigue al original.
+
+**02 · Furious Cars 2** — La secuela de Furious Cars, ahora en 3D
 (three.js). Ocho pilotos en pista —tú y siete rivales con IA—, **seis coches**
 (Viper GT, Phantom R, Blaze S, Toro V12, Bravo 69 y Cóndor RS) y **dos
 circuitos**: Sierra Dorada y el volcán Osorno. Carrera de 1, 3 o 5 vueltas, o
@@ -37,7 +76,7 @@ expone `window.__fc2`, con `sim(segundos)` para adelantar la simulación con
 piloto automático sin tener que pintar cada cuadro. Las ocho capturas de
 `img/fc2-*.webp` salieron así, del juego de verdad, en calidad «ultra».
 
-**02 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
+**03 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
 en Chiloé. Diez villas (de Puqueldón, nivel 1, a Detif, nivel 22), veinticuatro
 criaturas de la mitología chilota, cinco clases, clanes, territorios y banderas.
 
@@ -47,11 +86,11 @@ criaturas de la mitología chilota, cinco clases, clanes, territorios y banderas
 
 No vive en este repo: corre en el servidor propio del estudio y se publica con
 [Tailscale](https://tailscale.com) en <https://dell.taila1b256.ts.net/>. Desde el
-sitio se enlaza directo (franja del hero, ficha 02 del catálogo, sección
+sitio se enlaza directo (franja del hero, ficha 03 del catálogo, sección
 `#lemuy`, pie de página y el launcher). **Si el servidor está apagado, el enlace
 no abre** — es lo único del sitio que depende de una máquina encendida.
 
-**03 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
+**04 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
 cocina, recibidor, baño y jardín), con la casa del vecino al otro lado de la
 parcela, y grabas partidas en el ordenador, las editas
 —momentos, título, miniatura— y las publicas para que crezca el canal. El dinero
@@ -126,9 +165,9 @@ que venía en la subida: se diferencian sólo en el motor (92 líneas), una lín
 de `house.js` y seis de `garden.js`; el resto de módulos son idénticos. Lo que
 se publica sale de las fuentes.
 
-**04 · Carrera Loca** — Endless arcade de carreras con estética neón.
+**05 · Carrera Loca** — Endless arcade de carreras con estética neón.
 
-**05 · BREACH // 2044** — Puzzle de intrusión cyberpunk. Recorres una matriz de
+**06 · BREACH // 2044** — Puzzle de intrusión cyberpunk. Recorres una matriz de
 código alternando fila y columna para llenar el búfer; un démon se sube si su
 secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 
@@ -136,16 +175,16 @@ secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 - Los démones se generan a partir de un recorrido válido real, así que **siempre
   hay solución** dentro del búfer.
 
-**06 · NEON RUNNER** — Runner de gravedad invertible sobre ciudad neón.
+**07 · NEON RUNNER** — Runner de gravedad invertible sobre ciudad neón.
 
 - **Espacio** / clic / toque — invertir gravedad
 
-**07 · DAEMON** — Shooter de arena por oleadas con gráficos vectoriales.
+**08 · DAEMON** — Shooter de arena por oleadas con gráficos vectoriales.
 
 - **WASD** / flechas — moverse · **ratón** — apuntar · **clic** — disparar
 - En móvil: arrastrar para moverse, dispara y apunta solo
 
-**08 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
+**09 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
 
 - ← → / A D — moverse lateral
 - ↑ ↓ / W S — adelantar/frenar (más arriba = más rápido)
@@ -161,17 +200,18 @@ no su orden de salida.
 ```
 .
 ├── index.html          # Página principal
-├── furious-cars-2.html # Juego 01 — copia de jesusccl/miprogramagpt (ver arriba)
-├── furious-cars.html   # Juego 08 (también embebido en index)
-├── carrera-loca.html   # Juego 04
-├── breach-2044.html    # Juego 05
-├── neon-runner.html    # Juego 06
-├── daemon.html         # Juego 07
-├── putup.html          # Juego 03 — un solo archivo, generado por build-putup.cjs
+├── polemon.html        # Juego 01 — empaquetado desde jesusccl/Concurso (ver arriba)
+├── furious-cars-2.html # Juego 02 — copia de jesusccl/miprogramagpt (ver arriba)
+├── furious-cars.html   # Juego 09 (también embebido en index)
+├── carrera-loca.html   # Juego 05
+├── breach-2044.html    # Juego 06
+├── neon-runner.html    # Juego 07
+├── daemon.html         # Juego 08
+├── putup.html          # Juego 04 — un solo archivo, generado por build-putup.cjs
 ├── build-putup.cjs     # Genera putup.html desde outputs/putup/
 ├── outputs/            # Material de Putup tal y como sale de su compilación
 ├── launcher.html       # Launcher web (no enlazado desde la home)
-├── img/                # Capturas de Furious Cars 2, Lemuy y Putup para los carruseles
+├── img/                # Capturas de Polemon, Furious Cars 2, Lemuy y Putup para los carruseles
 ├── tweaks.js           # Panel de tweaks de diseño (opt-in, vanilla JS)
 ├── og-image.png        # Imagen para redes sociales (1200×630)
 ├── robots.txt          # Indexación
@@ -255,6 +295,17 @@ Cosas que se midieron —con Chromium, CPU frenada— y por qué están como est
   el rectángulo se cachea y se escribe una vez por frame.
 - **La hoja de Google Fonts va con `media="print"`** para que no bloquee el
   primer pintado; como ya iba con `display=swap`, no cambia nada visualmente.
+- **La franja de Polemon** tampoco trae fuentes nuevas: el logotipo es una
+  imagen de 338 bytes incrustada, y las estrellas, una sola caja de 2 px con
+  sus sombras. Medido igual que la de Furious Cars 2: recorrido de la página
+  **57,6 → 57,3 fps** de mediana (10 vueltas de cada, p95 17 ms en las dos) y
+  primer pintado sin diferencia medible (dos tandas que se contradicen:
+  608 → 568 y 592 → 660 ms). HTML comprimido **+5,6 KB**. En 1440×900 y en el
+  móvil abrir la home sigue sin bajar ninguna imagen; en 1920×1080 llegan las
+  dos primeras láminas de Polemon (unos 20 KB).
+- **El menú pasa a la hamburguesa por debajo de 1000 px** (antes, 900). Con
+  ocho enlaces no cabía entre 900 y 1020 px: «Furious 2» se partía en dos
+  líneas y el botón «Jugar ahora» se salía de la pantalla.
 - **La franja de Furious Cars 2** no carga ninguna fuente nueva (el rótulo es
   Archivo en cursiva, la que ya se usaba, no la Russo One del juego) y su único
   adorno animado es el brillo de la etiqueta, que sólo mueve `transform`.

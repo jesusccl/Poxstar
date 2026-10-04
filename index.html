@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 
 <title>PoxStar — Estudio de juegos de AugustoCLive</title>
-<meta name="description" content="PoxStar es el estudio indie de videojuegos de AugustoCLive. Ocho juegos gratis en el navegador: Furious Cars 2, carreras en 3D con seis coches, dos circuitos y modo libre; República de Lemuy, un MMO de conquista en Chiloé; Putup, simulador de creador con seis juegos dentro; y arcades, runner cyberpunk, shooter de arena y puzzle de intrusión. Sin descargas, sin loot boxes." />
+<meta name="description" content="PoxStar es el estudio indie de videojuegos de AugustoCLive. Nueve juegos gratis en el navegador: Polemon, un RPG de criaturas al estilo de los clásicos de Game Boy; Furious Cars 2, carreras en 3D con seis coches, dos circuitos y modo libre; República de Lemuy, un MMO de conquista en Chiloé; Putup, simulador de creador con seis juegos dentro; y arcades, runner cyberpunk, shooter de arena y puzzle de intrusión. Sin descargas, sin loot boxes." />
 <link rel="canonical" href="https://poxstar.com/" />
 <meta name="robots" content="index,follow,max-image-preview:large" />
 <meta name="author" content="AugustoCLive" />
@@ -20,7 +20,7 @@
 <meta property="og:locale" content="es_ES" />
 <meta property="og:url" content="https://poxstar.com/" />
 <meta property="og:title" content="PoxStar — Estudio de juegos de AugustoCLive" />
-<meta property="og:description" content="Juegos pequeños con ideas grandes. Ocho juegos en el navegador, gratis y sin descargas — con Furious Cars 2 como gran estreno." />
+<meta property="og:description" content="Juegos pequeños con ideas grandes. Nueve juegos en el navegador, gratis y sin descargas — con Polemon como gran estreno." />
 <meta property="og:image" content="https://poxstar.com/og-image.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -29,7 +29,7 @@
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="PoxStar — Estudio de juegos de AugustoCLive" />
-<meta name="twitter:description" content="Juegos pequeños con ideas grandes. Ocho juegos en el navegador, gratis y sin descargas — con Furious Cars 2 como gran estreno." />
+<meta name="twitter:description" content="Juegos pequeños con ideas grandes. Nueve juegos en el navegador, gratis y sin descargas — con Polemon como gran estreno." />
 <meta name="twitter:image" content="https://poxstar.com/og-image.png" />
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF4A1C' d='M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z'/%3E%3C/svg%3E" />
@@ -77,6 +77,22 @@
         "https://youtube.com/AugustoCLive",
         "https://discord.gg/ANgzAWCRS"
       ]
+    },
+    {
+      "@type": "VideoGame",
+      "name": "Polemon: Edición Aventura",
+      "url": "https://poxstar.com/polemon.html",
+      "image": "https://poxstar.com/img/polemon-portada.webp",
+      "description": "RPG de criaturas al estilo de los clásicos de Game Boy: 121 especies, combates por turnos, capturas, evoluciones, ocho gimnasios y la Liga en una región de nueve ciudades. Fan-juego no oficial con gráficos y música propios.",
+      "genre": ["RPG", "Aventura", "Estrategia por turnos"],
+      "gamePlatform": "Navegador web",
+      "playMode": "SinglePlayer",
+      "applicationCategory": "Game",
+      "operatingSystem": "Web",
+      "inLanguage": "es",
+      "author": { "@id": "https://poxstar.com/#studio" },
+      "publisher": { "@id": "https://poxstar.com/#studio" },
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
     },
     {
       "@type": "VideoGame",
@@ -323,7 +339,7 @@ body.scrolled .top{backdrop-filter:saturate(1.2)}
 .brand .mark path{fill:#F5F0E8}
 
 .nav{display:flex;align-items:center;gap:28px;font-size:13.5px;font-weight:500}
-.nav a{position:relative;padding:8px 0}
+.nav a{position:relative;padding:8px 0;white-space:nowrap}
 .nav a::after{content:"";position:absolute;left:0;right:100%;bottom:2px;
   height:2px;background:var(--on-accent);transition:right .4s var(--ease)}
 .nav a:hover::after,.nav a[aria-current="true"]::after{right:0}
@@ -352,7 +368,10 @@ html[data-theme="dark"] .icon-btn .sun{display:none}
   animation:pulse 1.6s ease-in-out infinite}
 
 .burger{display:none}
-@media (max-width:900px){
+/* con ocho enlaces el menú ya no cabe a 900 px: se aprieta un poco por
+   debajo de 1120 y pasa a la hamburguesa por debajo de 1000 */
+@media (max-width:1120px){.nav{gap:16px;font-size:13px}}
+@media (max-width:1000px){
   .nav{display:none}
   .cta span:not(.dot){display:none}
   .cta{padding:10px}
@@ -498,24 +517,31 @@ html[data-theme="dark"] .icon-btn .sun{display:none}
 }
 html[data-motion="0"] .hero-nuevo .marca i{animation:none}
 
-/* El gran estreno ocupa la fila entera, por encima de las otras dos
-   novedades, y lleva el fuego del logotipo de Furious Cars 2. */
+/* El gran estreno ocupa la fila entera, por encima de las demás novedades,
+   con los colores de la pantalla de título de Polemon: noche azul, el
+   amarillo del logotipo y su borde azul. */
 .hero-nuevo.estreno{grid-column:1/-1;padding:16px 20px;
-  background:linear-gradient(100deg,#160707 0%,#3a1008 58%,#6a1f08 100%);
-  border-color:rgba(255,194,26,.38);
-  box-shadow:0 18px 40px -18px rgba(120,20,0,.7), inset 0 1px 0 rgba(255,246,208,.12)}
-.hero-nuevo.estreno:hover{box-shadow:0 24px 50px -18px rgba(150,30,0,.8),
-  inset 0 1px 0 rgba(255,246,208,.16)}
-.hero-nuevo.estreno .marca{font-weight:700;color:#2a0903;
-  background:linear-gradient(96deg,#FFF6D0 0%,#FFC21A 40%,#FF4D12 100%)}
-.hero-nuevo.estreno .marca i{background:#2a0903}
-.hero-nuevo.estreno .que b{font-size:21px;font-style:italic;font-weight:900;
-  text-transform:uppercase;letter-spacing:-.01em;color:#FFE7B0}
-.hero-nuevo.estreno .que b em{display:inline-block;margin-left:.18em;
-  padding:0 .3em;border-radius:.16em;font-style:normal;color:#fff;
-  background:linear-gradient(180deg,#48B8FF,#1447C8);transform:skewX(-10deg)}
-.hero-nuevo.estreno .flecha{color:#FFC21A}
-@media (max-width:560px){.hero-nuevo.estreno .que b{font-size:18px}}
+  background:linear-gradient(100deg,#101838 0%,#1f3062 60%,#283c78 100%);
+  border-color:rgba(248,208,48,.45);
+  box-shadow:0 18px 40px -18px rgba(8,14,40,.75), inset 0 1px 0 rgba(255,244,168,.14)}
+.hero-nuevo.estreno:hover{box-shadow:0 24px 50px -18px rgba(8,14,40,.85),
+  inset 0 1px 0 rgba(255,244,168,.2)}
+.hero-nuevo.estreno .marca{font-weight:700;color:#101838;background:#f8d030;
+  border-radius:3px;box-shadow:0 0 0 2px #284890}
+.hero-nuevo.estreno .marca i{background:#101838}
+/* «POLEMON» con el contorno azul del logotipo hecho con sombras duras */
+.hero-nuevo.estreno .que b{font-size:22px;font-weight:900;letter-spacing:.02em;
+  text-transform:uppercase;color:#f8d030;
+  text-shadow:2px 0 #284890,-2px 0 #284890,0 2px #284890,0 -2px #284890,
+              2px 2px #284890,-2px 2px #284890,2px -2px #284890,-2px -2px #284890,0 4px #284890}
+.hero-nuevo.estreno .que b small{font-size:11px;letter-spacing:.3em;margin-left:.7em;
+  color:#F0F0FF;text-shadow:none;font-family:var(--font-mono);font-weight:500}
+.hero-nuevo.estreno .flecha{color:#f8d030}
+@media (max-width:560px){.hero-nuevo.estreno .que b{font-size:19px}
+  .hero-nuevo.estreno .que b small{display:block;margin:6px 0 0}}
+/* con tres novedades debajo, tres columnas; entre medias, la última a lo ancho */
+@media (min-width:980px){.hero-nuevos{grid-template-columns:repeat(3,1fr);max-width:1120px}}
+@media (min-width:761px) and (max-width:979px){.hero-nuevo:nth-child(4){grid-column:1/-1}}
 
 /* El enlace de Lemuy en el menú lleva su punto de "en vivo" */
 .nav a[href="#lemuy"]{display:inline-flex;align-items:center;gap:6px}
@@ -618,6 +644,16 @@ html[data-motion="0"] .nav a[href="#lemuy"]::before{animation:none}
 .game.estreno > p{font-size:16px}
 .art .tag.estreno{font-weight:700;color:#2a0903;
   background:linear-gradient(96deg,#FFF6D0 0%,#FFC21A 40%,#FF4D12 100%)}
+/* Polemon: la etiqueta es un botón del juego y la portada, pixel art nítido.
+   (`polemon` y no `pm`: `.pm` es la sección entera y le pintaría su cielo) */
+.art .tag.estreno.polemon{color:#101838;background:#f8d030;border-radius:3px;
+  box-shadow:0 0 0 2px #284890}
+.game.estreno.polemon h3{font-style:normal;letter-spacing:-.03em}
+.game.polemon .art-canvas img{image-rendering:pixelated}
+/* la segunda ficha a lo ancho, en espejo: imagen a la derecha */
+.game.estreno.espejo{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}
+.game.estreno.espejo .art{grid-column:2}
+.game.estreno.espejo > :not(.art){grid-column:1}
 @media (max-width:1080px){
   .game.estreno{grid-column:span 4;display:block}
   .game.estreno .meta{margin-top:20px}
@@ -917,8 +953,196 @@ body.scrolled-far .to-top{opacity:1;transform:none;pointer-events:auto}
 
 
 /* ══════════════════════════════════════════════════════════════════
-   Furious Cars 2 — el gran estreno, y por eso va primero y más grande
-   que Lemuy y Putup. Misma estructura que ellas (cabecera, ficha +
+   Polemon — el gran estreno. Misma estructura que Furious Cars 2,
+   Lemuy y Putup, pero con la pantalla de título del juego: cielo de
+   noche, estrellas de un píxel, colinas escalonadas, el logotipo
+   amarillo con su borde azul y los cuadros de diálogo azul marino.
+   Decorado cerrado: no sigue el tema claro/oscuro.
+   ══════════════════════════════════════════════════════════════════ */
+.pm{
+  --pm-amarillo:#f8d030;
+  --pm-crema:#fff4a8;
+  --pm-borde:#284890;
+  --pm-noche:#101838;
+  --pm-azul:#283c78;
+  --pm-colina:#3c8040;
+  --pm-pasto:#2e6a34;
+  --pm-caja:#1d2a5c;
+  --pm-papel:#f8f4e4;
+  position:relative;z-index:2;overflow:hidden;isolation:isolate;
+  color:#EEF1FF;
+  background:linear-gradient(180deg,var(--pm-noche) 0%,#16224a 34%,#1f3062 62%,var(--pm-azul) 100%);
+  border-top:1px solid rgba(255,255,255,.14);
+  border-bottom:1px solid rgba(255,255,255,.14);
+}
+.pm .wrap{position:relative;z-index:3;
+  padding-top:clamp(76px,10.5vw,132px);padding-bottom:clamp(110px,13vw,170px)}
+
+/* — el decorado: estrellas cuadradas y las colinas del título — */
+.pm-sky{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+/* una sola caja de 2 px y sus sombras: cuadradas y nítidas, como en el juego */
+.pm-estrellas{position:absolute;left:0;top:0;width:2px;height:2px;background:#fff;
+  box-shadow:
+    6vw 70px #fff, 13vw 190px rgba(255,255,255,.6), 19vw 40px rgba(255,255,255,.8),
+    24vw 260px rgba(255,255,255,.5), 31vw 120px #fff, 37vw 30px rgba(255,255,255,.6),
+    43vw 210px rgba(255,255,255,.7), 49vw 90px rgba(255,255,255,.5), 55vw 300px #fff,
+    61vw 60px rgba(255,255,255,.8), 66vw 170px rgba(255,255,255,.5), 72vw 24px #fff,
+    78vw 240px rgba(255,255,255,.6), 83vw 110px rgba(255,255,255,.8), 89vw 280px rgba(255,255,255,.5),
+    94vw 50px #fff, 9vw 360px rgba(255,255,255,.5), 28vw 420px rgba(255,255,255,.4),
+    52vw 480px rgba(255,255,255,.4), 70vw 400px rgba(255,255,255,.5), 91vw 450px rgba(255,255,255,.4),
+    3vw 520px rgba(255,255,255,.3), 40vw 560px rgba(255,255,255,.3), 80vw 600px rgba(255,255,255,.3)}
+/* colinas: la misma línea ondulada del título, en escalones de 8 px */
+.pm-colinas{position:absolute;left:0;right:0;bottom:0;height:clamp(90px,11vw,150px);
+  background:var(--pm-colina);
+  clip-path:polygon(0 40%,8% 40%,8% 32%,16% 32%,16% 24%,26% 24%,26% 32%,34% 32%,34% 44%,
+    44% 44%,44% 52%,54% 52%,54% 40%,62% 40%,62% 28%,72% 28%,72% 20%,82% 20%,82% 32%,
+    90% 32%,90% 44%,100% 44%,100% 100%,0 100%)}
+.pm-colinas::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34%;
+  background:var(--pm-pasto)}
+
+/* — cabecera — */
+.pm .eyebrow{color:var(--pm-amarillo);opacity:1;display:flex;align-items:center;
+  gap:10px;flex-wrap:wrap}
+/* la etiqueta de estreno, como un botón del juego: cuadrada, amarilla y con borde azul */
+.pm-estreno{display:inline-flex;align-items:center;gap:8px;
+  padding:5px 12px 5px 10px;border-radius:3px;font-weight:700;
+  color:var(--pm-noche);background:var(--pm-amarillo);
+  box-shadow:0 0 0 2px var(--pm-borde), 0 4px 0 2px #11193a}
+.pm-estreno svg{width:12px;height:12px;fill:currentColor}
+
+.pm h2{margin:.35em 0 0;font-weight:400}
+.pm h2 .sm{display:block;font-family:var(--font-display);font-weight:800;
+  font-size:clamp(17px,2vw,26px);letter-spacing:-.01em;text-transform:uppercase;
+  color:#EEF1FF;margin-bottom:.7em}
+.pm-logo{display:block;width:min(100%,800px);height:auto;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 16px 30px rgba(0,0,0,.45))}
+.pm h2 .ed{display:block;margin-top:1em;font-family:var(--font-mono);font-weight:500;
+  font-size:clamp(12px,1.3vw,16px);letter-spacing:.42em;text-transform:uppercase;
+  color:#F0F0FF}
+
+.pm .lead{margin:28px 0 0;max-width:60ch;font-size:clamp(16px,1.35vw,19px);
+  line-height:1.6;color:rgba(238,241,255,.9)}
+.pm .lead b{color:#fff;font-weight:600}
+@media (min-width:1180px){
+  .pm-head{display:grid;grid-template-columns:minmax(0,800px) minmax(0,1fr);
+    column-gap:clamp(32px,4vw,72px);align-items:end}
+  .pm-head .eyebrow{grid-column:1/-1}
+  .pm .lead{margin:0 0 .3em;max-width:44ch;justify-self:end}
+}
+
+/* — cuerpo: ficha a la izquierda, la «consola» a la derecha — */
+.pm-body{margin-top:clamp(38px,5vw,60px);
+  display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);
+  gap:clamp(28px,3.6vw,56px);align-items:start}
+@media (max-width:1040px){.pm-body{grid-template-columns:1fr}
+  .pm-body > :last-child{order:-1}}
+
+.pm-specs{display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;overflow:hidden}
+.pm-specs .s{background:rgba(16,24,56,.72);padding:15px 16px 17px}
+.pm-specs .k{font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--pm-amarillo);margin-bottom:5px}
+.pm-specs .v{font-family:var(--font-display);font-weight:800;
+  letter-spacing:-.02em;font-size:clamp(15px,1.45vw,18px);line-height:1.18}
+
+/* los ocho gimnasios, con el color de su tipo tal y como lo pinta el juego */
+.pm-gimnasios-t{margin:22px 0 8px;font-family:var(--font-mono);font-size:10px;
+  letter-spacing:.15em;text-transform:uppercase;color:rgba(238,241,255,.7)}
+.pm-gimnasios{margin:0;padding:0;list-style:none;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:560px){.pm-gimnasios{grid-template-columns:repeat(2,1fr)}}
+.pm-gimnasios li{border-radius:6px;padding:8px 10px 9px;line-height:1.25;
+  background:rgba(16,24,56,.62);border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 3px 0 0 var(--c)}
+.pm-gimnasios b{display:block;font-size:13px;font-weight:700;color:#fff}
+.pm-gimnasios span{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:rgba(238,241,255,.62)}
+
+.pm-actions{margin-top:clamp(26px,3vw,34px);
+  display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+/* el botón principal es un botón del juego: amarillo, borde azul y sombra dura */
+.pm-cta{display:inline-flex;align-items:center;gap:12px;
+  padding:16px 28px 15px;border-radius:6px;border:0;cursor:pointer;
+  font-family:var(--font-display);font-weight:900;
+  font-size:clamp(16px,1.6vw,20px);letter-spacing:.01em;text-transform:uppercase;
+  color:var(--pm-noche);background:var(--pm-amarillo);
+  box-shadow:0 0 0 3px var(--pm-borde), 0 6px 0 3px #11193a;
+  transition:transform .15s var(--ease), box-shadow .15s var(--ease), background .2s}
+.pm-cta:hover{background:var(--pm-crema);transform:translateY(-2px);
+  box-shadow:0 0 0 3px var(--pm-borde), 0 8px 0 3px #11193a}
+.pm-cta:active{transform:translateY(4px);box-shadow:0 0 0 3px var(--pm-borde), 0 2px 0 3px #11193a}
+.pm-cta .arrow{transition:transform .3s var(--ease)}
+.pm-cta:hover .arrow{transform:translateX(4px)}
+.pm-ghost{display:inline-flex;align-items:center;gap:9px;cursor:pointer;
+  padding:15px 22px;border-radius:999px;background:transparent;color:#EEF1FF;
+  border:1px solid rgba(255,255,255,.34);font-family:var(--font-text);
+  font-size:14px;font-weight:600;
+  transition:background .25s, border-color .25s, transform .25s var(--ease)}
+.pm-ghost:hover{background:rgba(255,255,255,.12);border-color:#fff;transform:translateY(-2px)}
+.pm-note{margin:18px 0 0;font-family:var(--font-mono);font-size:11px;
+  letter-spacing:.06em;line-height:1.75;color:rgba(238,241,255,.74)}
+.pm-note b{color:#fff;font-weight:500}
+
+/* — barra de datos — */
+.pm-rail{margin-top:clamp(34px,4.5vw,56px);display:grid;
+  grid-template-columns:repeat(6,1fr);gap:1px;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.18);border-radius:8px;overflow:hidden}
+.pm-rail > div{background:rgba(16,24,56,.72);padding:18px 8px 20px;text-align:center}
+.pm-rail .k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:rgba(238,241,255,.72);margin-bottom:6px}
+.pm-rail .v{font-family:var(--font-display);font-weight:900;
+  font-size:clamp(20px,2.4vw,32px);letter-spacing:-.03em;line-height:1;
+  color:var(--pm-amarillo)}
+@media (max-width:860px){.pm-rail{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:420px){.pm-rail{grid-template-columns:repeat(2,1fr)}}
+
+/* — el carrusel, como una consola: marco índigo, pantalla 4:3 nítida y el
+     texto en un cuadro de diálogo DEBAJO de la imagen. Encima taparía los
+     mensajes del propio juego, que son media gracia de cada captura. — */
+#polemon-carrusel{container-type:inline-size;border-radius:22px;
+  background:#2c2870;border:0;padding:12px 12px 0;
+  box-shadow:0 44px 90px -40px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.14),
+             inset 0 2px 0 rgba(255,255,255,.12)}
+#polemon-carrusel .stage{aspect-ratio:4/3.5;
+  border-radius:8px;overflow:hidden;background:var(--pm-caja);
+  box-shadow:inset 0 0 0 3px #0c1230}
+/* la altura exacta (imagen 4:3 + cuadro de texto) con unidades de contenedor;
+   la proporción queda sólo de respaldo: con las dos a la vez, el navegador
+   saca el ancho de la altura y la caja se sale de la consola */
+@supports (height:1cqw){
+  #polemon-carrusel .stage{aspect-ratio:auto;height:calc(75cqw + 92px)}
+}
+#polemon-carrusel .slide{display:flex;flex-direction:column}
+#polemon-carrusel .slide img{flex:none;height:auto;aspect-ratio:4/3;
+  object-fit:contain;image-rendering:pixelated;transform:none}
+#polemon-carrusel figcaption{position:static;flex:1;
+  margin:0;padding:13px 16px 12px;background:var(--pm-caja);
+  border-top:3px solid #c8d0f0;box-shadow:inset 0 3px 0 #0c1230;
+  font-size:13.5px;line-height:1.45;color:#E8ECFF}
+#polemon-carrusel figcaption b{font-size:15px;color:var(--pm-amarillo)}
+#polemon-carrusel .arrow-btn{top:calc(37.5cqw + 12px)}
+#polemon-carrusel .bar{top:12px;left:12px;right:12px}
+#polemon-carrusel .bar i{background:var(--pm-amarillo)}
+#polemon-carrusel .carousel-foot{background:transparent;border-top:0;padding:12px 4px 14px}
+#polemon-carrusel .dot[aria-current="true"]{background:var(--pm-amarillo);
+  border-color:var(--pm-amarillo)}
+#polemon-carrusel .arrow-btn:hover{background:var(--pm-amarillo);
+  border-color:var(--pm-amarillo);color:var(--pm-noche)}
+#polemon-carrusel .count b{color:var(--pm-amarillo)}
+@media (max-width:560px){
+  #polemon-carrusel{padding:8px 8px 0;border-radius:16px}
+  @supports (height:1cqw){#polemon-carrusel .stage{height:calc(75cqw + 112px)}}
+  #polemon-carrusel figcaption{font-size:12.5px;padding:10px 12px}
+  #polemon-carrusel .bar{top:8px;left:8px;right:8px}
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   Furious Cars 2 — la otra novedad grande, justo detrás de Polemon.
+   Misma estructura que Lemuy y Putup (cabecera, ficha +
    carrusel, barra de datos), con los colores del propio juego: el
    fuego del logotipo, el azul del «2» y el asfalto de noche. Tampoco
    sigue el tema claro/oscuro: es un decorado cerrado.
@@ -1559,6 +1783,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
     <nav class="nav" aria-label="Principal">
       <a href="#juegos">Juegos</a>
+      <a href="#polemon">Polemon</a>
       <a href="#furious">Furious 2</a>
       <a href="#lemuy">Lemuy</a>
       <a href="#putup">Putup</a>
@@ -1589,13 +1814,14 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
   <a href="#juegos" style="--i:0">Juegos</a>
-  <a href="#furious" style="--i:1">Furious Cars 2</a>
-  <a href="#lemuy" style="--i:2">Lemuy</a>
-  <a href="#putup" style="--i:3">Putup</a>
-  <a href="#jugar" style="--i:4">Jugar</a>
-  <a href="#estudio" style="--i:5">Estudio</a>
-  <a href="#comunidad" style="--i:6">Comunidad</a>
-  <p class="foot-note" style="--i:7">// since 2026 · por AugustoCLive</p>
+  <a href="#polemon" style="--i:1">Polemon</a>
+  <a href="#furious" style="--i:2">Furious Cars 2</a>
+  <a href="#lemuy" style="--i:3">Lemuy</a>
+  <a href="#putup" style="--i:4">Putup</a>
+  <a href="#jugar" style="--i:5">Jugar</a>
+  <a href="#estudio" style="--i:6">Estudio</a>
+  <a href="#comunidad" style="--i:7">Comunidad</a>
+  <p class="foot-note" style="--i:8">// since 2026 · por AugustoCLive</p>
 </div>
 
 <main id="main">
@@ -1608,7 +1834,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <div class="hero-meta">
       <div class="l eyebrow">Estudio independiente</div>
       <div class="c eyebrow">// Estudio de AugustoCLive</div>
-      <div class="r eyebrow">08 juegos · jugables</div>
+      <div class="r eyebrow">09 juegos · jugables</div>
     </div>
 
     <div class="logo-lockup">
@@ -1624,10 +1850,17 @@ html[data-motion="0"] .play-frame .led{animation:none}
     </div>
 
     <div class="hero-nuevos">
-      <a class="hero-nuevo estreno" href="#furious">
+      <a class="hero-nuevo estreno" href="#polemon">
         <span class="marca"><i aria-hidden="true"></i>Gran estreno</span>
-        <span class="que"><b>Furious Cars <em>2</em></b>
-          <span>Carreras en 3D · seis coches, dos circuitos y modo libre</span>
+        <span class="que"><b>Polemon <small>Edición Aventura</small></b>
+          <span>RPG de criaturas como los de Game Boy · 121 especies, 8 gimnasios y la Liga</span>
+        </span>
+        <span class="flecha" aria-hidden="true">→</span>
+      </a>
+      <a class="hero-nuevo" href="#furious">
+        <span class="marca"><i aria-hidden="true"></i>Nuevo</span>
+        <span class="que"><b>Furious Cars 2</b>
+          <span>Carreras en 3D · seis coches y modo libre</span>
         </span>
         <span class="flecha" aria-hidden="true">→</span>
       </a>
@@ -1659,7 +1892,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     </div>
 
     <div class="hero-rail" aria-label="Datos del estudio">
-      <div><div class="k">Juegos</div><div class="v">08</div></div>
+      <div><div class="k">Juegos</div><div class="v">09</div></div>
       <div><div class="k">Precio</div><div class="v">Gratis</div></div>
       <div><div class="k">Descargas</div><div class="v">Cero</div></div>
       <div><div class="k">Plataforma</div><div class="v">Navegador</div></div>
@@ -1670,13 +1903,217 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
   <div class="ticker" aria-hidden="true">
     <div class="ticker-track" id="ticker">
-      <span>furious cars 2 · gran estreno <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
-      <span>furious cars 2 · gran estreno <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+      <span>polemon · gran estreno <i></i> furious cars 2 <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+      <span>polemon · gran estreno <i></i> furious cars 2 <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
     </div>
   </div>
 </section>
 
-<!-- ═══ Furious Cars 2 — gran estreno ═════════════════════════ -->
+<!-- ═══ Polemon — gran estreno ═════════════════════════════════ -->
+<section id="polemon" class="pm">
+  <div class="pm-sky" aria-hidden="true">
+    <span class="pm-estrellas"></span>
+    <span class="pm-colinas"></span>
+  </div>
+
+  <div class="wrap">
+    <div class="pm-head reveal">
+      <p class="eyebrow">
+        <span>// 01 · lo último del estudio</span>
+        <span class="pm-estreno"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg>Gran estreno</span>
+      </p>
+      <h2><span class="sm">RPG de criaturas · en el navegador</span>
+        <img class="pm-logo" width="896" height="136" alt="Polemon"
+             src="data:image/webp;base64,UklGRkoBAABXRUJQVlA4TD0BAAAvf8MhECegkG0EaNgnfAafioK0DZhKmn9rl0DSZlGXbjzXk8x/APL9zo4kOGgbSZKOwlJYCkth+LO67e5U3f9URP8duW3kSPIHZM/mvNcly6WM3pvz0/X130XXS39cMwQbnj5+3hybLNe7a3fR767tnTvo33/VeN8HdLvqdmf7ZAm0u3l6+7LwcKcr/XHje+U9Zv65Au51q3pvPzjf+/e6Y6Z3YAJJtoM5DsyevsdN1ydXsJdZZfp+fZ8efb+ZF8c+jqbvuY/37qxP7f06cpSp6fv1fXr0/WZeHMc4mr7nPt67sz619/8aON/7xRrnvsDsFv/5c4l+99uF8/U43Xmg8z7vnUXgdxeBpOmLRgvrnUvQ3e/u9eKfd57j975Jz/v92t3Zxx3iP38qGT4vjMfgf2fI8tj/90f85z8kCwA=">
+        <span class="ed">Edición Aventura</span></h2>
+      <p class="lead">
+        Un juego de rol al estilo de los clásicos de <b>Game Boy</b>. Eliges a
+        tu primer Polemon en el laboratorio del Profesor Roble y sales a
+        recorrer <b>Kantia</b>: nueve ciudades, quince rutas, cuevas, una torre
+        y un volcán. Capturas criaturas entre <b>121 especies</b>, las
+        entrenas, las ves evolucionar y peleas por turnos contra más de cien
+        entrenadores hasta reunir las <b>ocho medallas</b> y plantarte ante la
+        Liga.
+      </p>
+    </div>
+
+    <div class="pm-body">
+      <div class="reveal" style="--d:1">
+        <div class="pm-specs">
+          <div class="s"><div class="k">Género</div>
+            <div class="v">RPG de criaturas<br>por turnos</div></div>
+          <div class="s"><div class="k">Región</div>
+            <div class="v">Kantia: 9 ciudades<br>y 15 rutas</div></div>
+          <div class="s"><div class="k">Criaturas</div>
+            <div class="v">121 especies<br>y 18 tipos</div></div>
+          <div class="s"><div class="k">Partida</div>
+            <div class="v">Se guarda en<br>tu navegador</div></div>
+        </div>
+
+        <p class="pm-gimnasios-t">Los ocho gimnasios</p>
+        <ul class="pm-gimnasios">
+          <li style="--c:#b8a038"><b>Roca</b><span>Plateria</span></li>
+          <li style="--c:#6890f0"><b>Agua</b><span>Celestia</span></li>
+          <li style="--c:#e8c020"><b>Eléctrico</b><span>Carmesí</span></li>
+          <li style="--c:#78c850"><b>Planta</b><span>Azulina</span></li>
+          <li style="--c:#a040a0"><b>Veneno</b><span>Fucsina</span></li>
+          <li style="--c:#f85888"><b>Psíquico</b><span>Azafrana</span></li>
+          <li style="--c:#f08030"><b>Fuego</b><span>Canelo</span></li>
+          <li style="--c:#d8b060"><b>Tierra</b><span>Verdia</span></li>
+        </ul>
+
+        <div class="pm-actions">
+          <a class="pm-cta" href="polemon.html">
+            ¡A la aventura! <span class="arrow" aria-hidden="true">→</span>
+          </a>
+          <button class="pm-ghost" type="button"
+                  data-carrusel="polemon-carrusel" data-goto="3">
+            Ver un combate
+          </button>
+        </div>
+
+        <p class="pm-note">
+          Gratis, sin instalar nada y sin conexión: el juego entero es un solo
+          archivo. En el móvil salen cruceta y botones. <b>Fan-juego no
+          oficial</b>: gráficos, música y código son propios; Pokémon es una
+          marca de Nintendo, Game Freak y Creatures, sin relación con Polemon.
+        </p>
+      </div>
+
+      <div class="reveal" style="--d:2">
+        <div class="carousel" id="polemon-carrusel" role="group"
+             aria-roledescription="carrusel"
+             aria-label="Imágenes de Polemon">
+          <div class="bar" aria-hidden="true"><i></i></div>
+
+          <div class="stage">
+            <figure class="slide" data-on="true">
+              <img data-src="img/polemon-titulo.webp" width="1280" height="960"
+                   alt="Pantalla de título de Polemon Edición Aventura: el logotipo amarillo sobre un cielo estrellado, con el protagonista y una criatura sobre una colina."
+                   decoding="async">
+              <figcaption><b>Polemon: Edición Aventura</b>
+                Un RPG de criaturas como los de Game Boy, con sprites generados por
+                código y música chiptune propia.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/polemon-pueblo.webp" width="1280" height="960"
+                   alt="Pueblo Palito visto desde arriba: una casa de tejado rojo, otra de tejado azul, el laboratorio y el protagonista con gorra roja en el camino."
+                   decoding="async">
+              <figcaption><b>Pueblo Palito</b>
+                Aquí empieza todo: tu casa, la de tu rival —la del tejado azul— y el
+                laboratorio del Profesor Roble.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/polemon-inicial.webp" width="1280" height="960"
+                   alt="En el laboratorio, la ficha de Charmandro y la pregunta «¿Eliges a CHARMANDRO, el Polemon de tipo FUEGO?» con las opciones sí y no."
+                   decoding="async">
+              <figcaption><b>Tu primer compañero</b>
+                Charmandro, Bulbasor o Squirtel: el Profesor Roble te deja quedarte
+                con uno.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/polemon-combate.webp" width="1280" height="960"
+                   alt="Combate en una cueva: Charizardo de nivel 42 contra un Onyx salvaje de nivel 30, con la lista de ataques abierta y sus PP."
+                   decoding="async">
+              <figcaption><b>Combates por turnos</b>
+                Tipos, PP, críticos, estados alterados y más de doscientos ataques,
+                con la tabla de eficacias completa.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/polemon-captura.webp" width="1280" height="960"
+                   alt="Una bola cerrada sobre la plataforma del rival y el mensaje «¡Ya está! ¡Pikachú atrapado!»."
+                   decoding="async">
+              <figcaption><b>¡Ya está!</b>
+                Debilítalo, lanza la bola y cruza los dedos: cuatro tipos de bola y
+                la fórmula de captura de siempre.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/polemon-gimnasio.webp" width="1280" height="960"
+                   alt="Combate en el gimnasio de Celestia: la líder Mistia saca a Horsi, de nivel 18, contra Charizardo."
+                   decoding="async">
+              <figcaption><b>Ocho gimnasios</b>
+                En Celestia manda Mistia y sus Polemon de agua. Cada líder da una
+                medalla y una MT.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/polemon-evolucion.webp" width="1280" height="960"
+                   alt="Pikachú brillando en un fondo de estrellas con el mensaje «¿Qué? ¡Pikachú está evolucionando!»."
+                   decoding="async">
+              <figcaption><b>¿Qué? ¡Está evolucionando!</b>
+                Por nivel, con piedras o por intercambio. Y si no quieres, la
+                cancelas con B.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/polemon-poledex.webp" width="1280" height="960"
+                   alt="La ficha de Charizardo en la Poledex: su sprite grande, sus tipos Fuego y Volador y su descripción."
+                   decoding="async">
+              <figcaption><b>La Poledex</b>
+                121 especies por ver y atrapar, cada una con su ficha, sus tipos y
+                su descripción.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/polemon-mapa.webp" width="1280" height="960"
+                   alt="El mapa de la región de Kantia, con sus ciudades, rutas, el bosque y el mar, y el recuadro «Estás en Pueblo Palito»."
+                   decoding="async">
+              <figcaption><b>La región de Kantia</b>
+                Un mapa de 160×156 casillas: ciudades, rutas, un bosque laberinto,
+                islas y ocho mazmorras.</figcaption>
+            </figure>
+
+            <figure class="slide">
+              <img data-src="img/polemon-legendario.webp" width="1280" height="960"
+                   alt="Encuentro con Miutú, de nivel 70, en la Cueva Celeste, con el mensaje «¡Miutú te ataca!»."
+                   decoding="async">
+              <figcaption><b>Legendarios</b>
+                Tres aves, un guardián en la torre y, al fondo de la Cueva Celeste,
+                Miutú esperando a nivel 70.</figcaption>
+            </figure>
+          </div>
+
+          <button class="arrow-btn prev" type="button" aria-label="Imagen anterior">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="arrow-btn next" type="button" aria-label="Imagen siguiente">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+
+          <div class="carousel-foot">
+            <button class="pp" type="button" data-paused="false"
+                    aria-label="Pausar la presentación">
+              <svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+              <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="dots" role="group" aria-label="Ir a una imagen"></div>
+            <span class="count" aria-hidden="true"><b>01</b> / 10</span>
+          </div>
+
+          <p class="sr-only" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="pm-rail reveal" style="--d:3" aria-label="Datos de Polemon">
+      <div><div class="k">Especies</div><div class="v">121</div></div>
+      <div><div class="k">Tipos</div><div class="v">18</div></div>
+      <div><div class="k">Movimientos</div><div class="v">200+</div></div>
+      <div><div class="k">Gimnasios</div><div class="v">08</div></div>
+      <div><div class="k">Entrenadores</div><div class="v">100+</div></div>
+      <div><div class="k">Precio</div><div class="v">Gratis</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Furious Cars 2 ════════════════════════════════════════ -->
 <section id="furious" class="fc2">
   <div class="fc2-sky" aria-hidden="true">
     <span class="fc2-sol"></span>
@@ -1686,8 +2123,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
   <div class="wrap">
     <div class="fc2-head reveal">
       <p class="eyebrow">
-        <span>// 01 · lo último del estudio</span>
-        <span class="fc2-estreno"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg>Gran estreno</span>
+        <span>// 02 · nuevo en el estudio</span>
+        <span class="fc2-estreno"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg>Nuevo</span>
       </p>
       <h2><span class="sm">Carreras en 3D · en el navegador</span>
         <span class="fuego">Furious</span>
@@ -1897,7 +2334,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
   <div class="wrap">
     <div class="lemuy-head reveal">
       <p class="eyebrow">
-        <span>// 02 · nuevo en el estudio</span>
+        <span>// 03 · nuevo en el estudio</span>
         <span class="live"><i aria-hidden="true"></i>Servidor en vivo</span>
       </p>
       <h2><span class="sm">República de</span><span>Lemuy</span></h2>
@@ -2090,7 +2527,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
   <div class="wrap">
     <div class="putup-head reveal">
       <p class="eyebrow">
-        <span>// 03 · nuevo en el estudio</span>
+        <span>// 04 · nuevo en el estudio</span>
         <span class="marca-web"><i aria-hidden="true"></i>Se juega en el navegador</span>
       </p>
       <h2><span class="sm">Simulador de creador</span><span>putup</span></h2>
@@ -2264,7 +2701,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <div class="sect-head reveal">
       <h2>Nuestros <em>juegos</em>.</h2>
       <div class="index">
-        <span>// Catálogo / <b>08</b></span>
+        <span>// Catálogo / <b>09</b></span>
         <span>Gran estreno · todo gratis</span>
       </div>
     </div>
@@ -2272,15 +2709,45 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <div class="games">
 
       <!-- Game 01 -->
-      <article class="game estreno reveal" style="--d:1">
+      <article class="game estreno polemon reveal" style="--d:1">
+        <a class="art tilt" data-art="foto" href="polemon.html"
+           aria-label="Jugar a Polemon">
+          <div class="art-canvas" aria-hidden="true">
+            <img src="img/polemon-portada.webp" width="1280" height="720" alt=""
+                 loading="lazy" decoding="async">
+          </div>
+          <span class="num" aria-hidden="true">01</span>
+          <span class="tag estreno polemon" aria-hidden="true">Gran estreno</span>
+          <span class="scrim" aria-hidden="true"></span>
+          <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
+        </a>
+
+        <div class="meta">
+          <h3><a href="polemon.html">Polemon</a></h3>
+          <span class="yr">2026</span>
+        </div>
+        <p>
+          Un RPG de criaturas como los de Game Boy: 121 especies por capturar,
+          combates por turnos, evoluciones, ocho gimnasios y la Liga, en una
+          región entera. Fan-juego con gráficos y música propios, en un solo
+          archivo que funciona sin conexión.
+        </p>
+        <div class="genres">
+          <span>RPG</span><span>Aventura</span><span>Pixel art</span>
+          <a class="play-link" href="#polemon">Ver más <b aria-hidden="true">→</b></a>
+        </div>
+      </article>
+
+      <!-- Game 02 -->
+      <article class="game estreno espejo reveal" style="--d:2">
         <a class="art tilt" data-art="foto" href="furious-cars-2.html"
            aria-label="Jugar a Furious Cars 2">
           <div class="art-canvas" aria-hidden="true">
             <img src="img/fc2-peloton.webp" width="1440" height="810" alt=""
                  loading="lazy" decoding="async">
           </div>
-          <span class="num" aria-hidden="true">01</span>
-          <span class="tag estreno" aria-hidden="true">Gran estreno</span>
+          <span class="num" aria-hidden="true">02</span>
+          <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
         </a>
@@ -2301,15 +2768,15 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 02 -->
-      <article class="game destacado reveal" style="--d:2">
+      <!-- Game 03 -->
+      <article class="game destacado reveal" style="--d:3">
         <a class="art tilt" data-art="foto" href="https://dell.taila1b256.ts.net/"
            target="_blank" rel="noopener" aria-label="Entrar a República de Lemuy">
           <div class="art-canvas" aria-hidden="true">
             <img src="img/lemuy-chulchuy.webp" width="1440" height="810" alt=""
                  loading="lazy" decoding="async">
           </div>
-          <span class="num" aria-hidden="true">02</span>
+          <span class="num" aria-hidden="true">03</span>
           <span class="tag hot" aria-hidden="true">En vivo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Entrar al servidor <b>↗</b></span>
@@ -2331,15 +2798,15 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 03 -->
-      <article class="game destacado reveal" style="--d:3">
+      <!-- Game 04 -->
+      <article class="game destacado reveal" style="--d:4">
         <a class="art tilt" data-art="foto" href="putup.html"
            aria-label="Jugar a Putup">
           <div class="art-canvas" aria-hidden="true">
             <img src="img/putup-casa.webp" width="1440" height="810" alt=""
                  loading="lazy" decoding="async">
           </div>
-          <span class="num" aria-hidden="true">03</span>
+          <span class="num" aria-hidden="true">04</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2360,8 +2827,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 04 -->
-      <article class="game reveal" style="--d:4">
+      <!-- Game 05 -->
+      <article class="game reveal" style="--d:5">
         <a class="art tilt" href="carrera-loca.html" aria-label="Jugar a Carrera Loca">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2388,7 +2855,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="146" y="152" width="28" height="40" rx="7" fill="#FF4A1C"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">04</span>
+          <span class="num" aria-hidden="true">05</span>
           <span class="tag" aria-hidden="true">Jugable</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2408,8 +2875,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 05 -->
-      <article class="game reveal" style="--d:5">
+      <!-- Game 06 -->
+      <article class="game reveal" style="--d:6">
         <a class="art tilt" href="breach-2044.html" aria-label="Jugar a BREACH // 2044">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2444,7 +2911,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="0" y="0" width="320" height="4" fill="#FF2E97" opacity=".7"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">05</span>
+          <span class="num" aria-hidden="true">06</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2464,8 +2931,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 06 -->
-      <article class="game reveal" style="--d:6">
+      <!-- Game 07 -->
+      <article class="game reveal" style="--d:7">
         <a class="art tilt" href="neon-runner.html" aria-label="Jugar a NEON RUNNER">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2508,7 +2975,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <path d="M244 108l7-7 7 7-7 7z" fill="none" stroke="#FFE566" stroke-width="2"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">06</span>
+          <span class="num" aria-hidden="true">07</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2528,8 +2995,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 07 -->
-      <article class="game reveal" style="--d:7">
+      <!-- Game 08 -->
+      <article class="game reveal" style="--d:8">
         <a class="art tilt" href="daemon.html" aria-label="Jugar a DAEMON">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2567,7 +3034,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="3" y="3" width="314" height="194" fill="none" stroke="#3CFF9E" stroke-width="1.4" opacity=".3"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">07</span>
+          <span class="num" aria-hidden="true">08</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2587,8 +3054,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 08 -->
-      <article class="game wide reveal" style="--d:8">
+      <!-- Game 09 -->
+      <article class="game wide reveal" style="--d:9">
         <a class="art tilt" href="furious-cars.html" aria-label="Jugar a Furious Cars 1">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2615,7 +3082,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <circle cx="272" cy="40" r="26" fill="#FF4A1C" opacity=".16"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">08</span>
+          <span class="num" aria-hidden="true">09</span>
           <span class="tag hot" aria-hidden="true">Jugable</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2736,7 +3203,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
           </div>
           <div class="stat">
             <div class="k">Juegos</div>
-            <div class="v" data-count="8" data-pad="2">08</div>
+            <div class="v" data-count="9" data-pad="2">09</div>
           </div>
           <div class="stat">
             <div class="k">Creador</div>
@@ -2815,6 +3282,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
       <div class="foot-col">
         <h3>Juegos</h3>
         <ul>
+          <li><a href="polemon.html">Polemon</a></li>
           <li><a href="furious-cars-2.html">Furious Cars 2</a></li>
           <li><a href="https://dell.taila1b256.ts.net/" target="_blank"
                  rel="noopener">República de Lemuy ↗</a></li>
@@ -2830,6 +3298,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
         <h3>Navegar</h3>
         <ul>
           <li><a href="#estudio">Sobre PoxStar</a></li>
+          <li><a href="#polemon">Polemon</a></li>
           <li><a href="#furious">Furious Cars 2</a></li>
           <li><a href="#lemuy">República de Lemuy</a></li>
           <li><a href="#putup">Putup</a></li>
@@ -3186,10 +3655,10 @@ html[data-motion="0"] .play-frame .led{animation:none}
        navegador todas están "en pantalla" y `loading="lazy"` no difería
        ninguna: se bajaban todas al abrir la página. Se cargan a mano, la que
        toca y la siguiente, y ni siquiera la primera va en el HTML: el
-       observador de abajo las pide al acercarse. Ni el de Furious Cars 2, que
-       es el primero, está tan cerca: en 1440×900 y en 1920×1080 abrir la home
-       no descarga ninguna imagen (sólo en pantallas de 1440 px de alto o más
-       llegan sus dos primeras láminas). */
+       observador de abajo las pide al acercarse. El de Polemon, que es el
+       primero, queda a unos 1960 px: en 1440×900 o en el móvil abrir la home
+       no descarga ninguna imagen, y en 1920×1080 llegan sólo sus dos primeras
+       láminas (unos 20 KB: el pixel art comprime muchísimo). */
     function cargar(n) {
       var img = slides[((n % slides.length) + slides.length) % slides.length]
                 .querySelector('img[data-src]');
