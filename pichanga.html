@@ -552,8 +552,8 @@ let IS_TOUCH = matchMedia('(pointer: coarse)').matches;
 /* ── reglas y física ─────────────────────────────────────────── */
 const TICK_MS = 1000 / 60;
 const TEAMS = [
-  { name: 'Rojos', short: 'ROJ', c: '#FF4A1C', d: '#9E2A0B', l: '#FF9A78' },
-  { name: 'Azules', short: 'AZU', c: '#2F7BFF', d: '#163F9C', l: '#93BCFF' }
+  { name: 'Rojos', short: 'ROJ', c: '#FF4A1C', d: '#9E2A0B', l: '#FF9A78', shorts: '#F5F0E8', shortsD: '#C9C1B3', socks: '#FF4A1C' },
+  { name: 'Azules', short: 'AZU', c: '#2F7BFF', d: '#163F9C', l: '#93BCFF', shorts: '#14234A', shortsD: '#0A1430', socks: '#2F7BFF' }
 ];
 const SIZES = {
   chica:   { W: 720,  H: 330, G: 124 },
@@ -1187,7 +1187,75 @@ function buildField(w) {
   g.fillStyle = vg; g.fillRect(-fw / 2, -fh / 2, fw, fh);
 }
 
-const FX = { parts: [], rings: [], trail: [], bubbles: new Map(), ballOff: { x: 0, y: 0 }, lastBall: null };
+const FX = { parts: [], rings: [], trail: [], bubbles: new Map(), ballOff: { x: 0, y: 0 }, lastBall: null,
+  anim: new Map(), cheer: { team: -1, until: 0 }, frame: 0 };
+
+/* ── futbolistas ─────────────────────────────────────────────── */
+// Aspecto estable por nombre: el mismo jugador se ve igual en todas las pantallas.
+const SKINS = [['#F2C9A0', '#D9A77A'], ['#E0AC80', '#C08A5E'], ['#C68A5E', '#A06A42'], ['#8D5A3B', '#6B3F25'], ['#5E3A24', '#432817']];
+const HAIRS = ['#2A1A10', '#141010', '#6B4423', '#C99A4B', '#1D1410', '#B5532C', '#3A3A3A'];
+const LOOKS = new Map();
+function lookOf(name) {
+  let L = LOOKS.get(name);
+  if (L) return L;
+  let h = 2166136261;
+  for (const ch of String(name)) h = Math.imul(h ^ ch.codePointAt(0), 16777619);
+  h >>>= 0;
+  const sk = SKINS[h % SKINS.length];
+  L = { skin: sk[0], skinDark: sk[1], hair: HAIRS[(h >>> 5) % HAIRS.length], hairStyle: (h >>> 11) % 5 };
+  if (LOOKS.size > 200) LOOKS.clear();
+  LOOKS.set(name, L);
+  return L;
+}
+const STRIDE = 26;            // unidades de mundo por ciclo de carrera
+const FIG_H = 48;             // alto aproximado de la figura, para poner encima el nombre y los globos
+
+// Orientación, fase de carrera y chute de cada jugador, en espacio de pantalla.
+function animate(view, now, bsx, bsy) {
+  for (const p of view.players) {
+    let a = FX.anim.get(p.id);
+    if (!a) { a = { run: 0, view: 'front', flip: false, kickT: -1e9, lx: p.x, ly: p.y }; FX.anim.set(p.id, a); }
+    const mx = p.x - a.lx, my = p.y - a.ly, md = Math.hypot(mx, my);
+    if (md < 60) a.run += md / STRIDE;
+    a.lx = p.x; a.ly = p.y;
+    const sp = Math.hypot(p.vx || 0, p.vy || 0);
+    a.move = clamp(sp / 2.3, 0, 1);
+    const [sx, sy] = toScreen(p.x, p.y);
+    let dx, dy;
+    if (sp > .35 && now - a.kickT > 260) [dx, dy] = V.rot ? [p.vy, -p.vx] : [p.vx, p.vy];
+    else { dx = bsx - sx; dy = bsy - sy; }
+    if (Math.abs(dx) + Math.abs(dy) > 1e-3) {
+      const side = Math.abs(dx) / (Math.abs(dx) + Math.abs(dy));
+      const wasSide = a.view === 'side';
+      if (wasSide ? side > .36 : side > .58) { a.view = 'side'; a.flip = dx < 0; }
+      else a.view = dy > 0 ? 'front' : 'back';
+    }
+    a.sx = sx; a.sy = sy;
+  }
+}
+
+function footballerParams(p, a, now, celebrating) {
+  const T = TEAMS[p.team], L = lookOf(p.name || ('#' + p.id));
+  const kt = (now - a.kickT) / 240;
+  return {
+    shirt: T.c, shirtDark: T.d, shirtLight: T.l, shorts: T.shorts, shortsDark: T.shortsD, socks: T.socks,
+    skin: L.skin, skinDark: L.skinDark, hair: L.hair, hairStyle: L.hairStyle,
+    num: p.num === undefined || p.num === null ? '' : String(p.num),
+    view: a.view, flip: a.flip, run: a.run, move: REDUCED ? Math.min(a.move, .5) : a.move,
+    kick: kt >= 0 && kt < 1 ? kt : 0, cheer: celebrating, t: now
+  };
+}
+
+// Futbolista provisional (se sustituye por el diseño definitivo).
+function drawFootballer(g, x, y, k, P) {
+  const ph = (P.run % 1) * TAU, sw = Math.sin(ph) * 5 * k * P.move;
+  g.save();
+  g.fillStyle = P.socks; g.fillRect(x - 6 * k + sw, y - 14 * k, 4 * k, 14 * k); g.fillRect(x + 2 * k - sw, y - 14 * k, 4 * k, 14 * k);
+  g.fillStyle = P.shorts; g.fillRect(x - 7 * k, y - 20 * k, 14 * k, 7 * k);
+  g.fillStyle = P.shirt; g.fillRect(x - 9 * k, y - 34 * k, 18 * k, 15 * k);
+  g.beginPath(); g.arc(x, y - 39 * k, 6 * k, 0, TAU); g.fillStyle = P.skin; g.fill();
+  g.restore();
+}
 
 function spawnConfetti(x, team) {
   if (REDUCED) return;
@@ -1207,30 +1275,33 @@ function spawnDust(x, y, n) {
   }
 }
 
-function drawBall(b) {
+// Balón en pantalla: (cx, cy) es su centro, r su radio en píxeles; (ox, oy) desplaza
+// los pentágonos para que parezca que rueda.
+function drawBall(cx, cy, r, ox0, oy0) {
+  const q = r / B_R, P = 14 * q, PY = P * .87;
   ctx.save();
-  ctx.beginPath(); ctx.arc(b.x, b.y, B_R, 0, TAU); ctx.fillStyle = '#F7F4EE'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fillStyle = '#F7F4EE'; ctx.fill();
   ctx.clip();
-  const P = 14, ox = ((FX.ballOff.x % P) + P) % P, oy = ((FX.ballOff.y % (P * .87 * 2)) + P * .87 * 2) % (P * .87 * 2);
+  const ox = (((ox0 * q) % P) + P) % P, oy = (((oy0 * q) % (PY * 2)) + PY * 2) % (PY * 2);
   ctx.fillStyle = '#16181a';
   for (let j = -3; j <= 2; j++) {
     for (let i = -2; i <= 2; i++) {
-      const cx = b.x + i * P + (j & 1 ? P / 2 : 0) + ox - P, cy = b.y + j * P * .87 + oy - P * .87;
-      if (Math.abs(cx - b.x) > B_R + 4 || Math.abs(cy - b.y) > B_R + 4) continue;
+      const px = cx + i * P + (j & 1 ? P / 2 : 0) + ox - P, py = cy + j * PY + oy - PY;
+      if (Math.abs(px - cx) > r + 4 * q || Math.abs(py - cy) > r + 4 * q) continue;
       ctx.beginPath();
       for (let v = 0; v < 5; v++) {
-        const a = v / 5 * TAU - Math.PI / 2;
-        ctx[v ? 'lineTo' : 'moveTo'](cx + Math.cos(a) * 3.3, cy + Math.sin(a) * 3.3);
+        const an = v / 5 * TAU - Math.PI / 2;
+        ctx[v ? 'lineTo' : 'moveTo'](px + Math.cos(an) * 3.3 * q, py + Math.sin(an) * 3.3 * q);
       }
       ctx.fill();
     }
   }
-  const sh = ctx.createRadialGradient(b.x - 3, b.y - 3.5, 1, b.x, b.y, B_R);
+  const sh = ctx.createRadialGradient(cx - 3 * q, cy - 3.5 * q, q, cx, cy, r);
   sh.addColorStop(0, 'rgba(255,255,255,.35)'); sh.addColorStop(.6, 'rgba(255,255,255,0)'); sh.addColorStop(1, 'rgba(0,0,0,.35)');
-  ctx.fillStyle = sh; ctx.fillRect(b.x - B_R, b.y - B_R, B_R * 2, B_R * 2);
+  ctx.fillStyle = sh; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
   ctx.restore();
-  ctx.beginPath(); ctx.arc(b.x, b.y, B_R, 0, TAU);
-  ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU);
+  ctx.lineWidth = Math.max(1, 1.5 * Math.min(1, q)); ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.stroke();
 }
 
 function render(view) {
@@ -1242,6 +1313,7 @@ function render(view) {
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(fieldCv, -V.fw / 2, -V.fh / 2, V.fw, V.fh);
   const b = view.ball;
+  FX.frame++;
 
   // rodar del balón (pintado, no físico)
   if (FX.lastBall) {
@@ -1253,11 +1325,6 @@ function render(view) {
   }
   FX.lastBall = { x: b.x, y: b.y };
 
-  // sombras
-  ctx.fillStyle = 'rgba(0,0,0,.26)';
-  for (const p of view.players) { ctx.beginPath(); ctx.ellipse(p.x + 3, p.y + 4, P_R, P_R * .92, 0, 0, TAU); ctx.fill(); }
-  ctx.beginPath(); ctx.ellipse(b.x + 2.5, b.y + 3.5, B_R, B_R * .9, 0, 0, TAU); ctx.fill();
-
   // saque: el círculo central se marca para el que espera
   if (view.kickoff && view.phase === 'play') {
     ctx.beginPath(); ctx.arc(0, 0, CC_R, 0, TAU);
@@ -1265,51 +1332,77 @@ function render(view) {
     ctx.lineWidth = 3; ctx.stroke(); ctx.globalAlpha = 1;
   }
 
-  // estela
+  // polvo al esprintar
+  if (!REDUCED && FX.frame % 5 === 0) for (const p of view.players) if (p.sprinting) spawnDust(p.x, p.y, 1);
+
+  // ── desde aquí, en pantalla: los futbolistas se ven en tres cuartos y siempre de pie,
+  // aunque la cancha esté girada en vertical
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const k = V.s, now = performance.now();
+  const lift = B_R * k * .72;               // el balón se apoya en el pasto
+  const [bsx, bsy] = toScreen(b.x, b.y);
+  animate(view, now, bsx, bsy);
+  const cheerTeam = view.phase === 'goal' && now < FX.cheer.until ? FX.cheer.team : -1;
+
+  // estela del balón
   if (!REDUCED) {
     for (let i = 0; i < FX.trail.length - 1; i++) {
       const t = FX.trail[i];
       if (t.s < 4.2) continue;
+      const [tx, ty] = toScreen(t.x, t.y);
       ctx.globalAlpha = (i / FX.trail.length) * .3;
-      ctx.beginPath(); ctx.arc(t.x, t.y, B_R * (.5 + i / FX.trail.length * .5), 0, TAU);
+      ctx.beginPath(); ctx.arc(tx, ty - lift, B_R * k * (.5 + i / FX.trail.length * .5), 0, TAU);
       ctx.fillStyle = '#fff'; ctx.fill();
     }
     ctx.globalAlpha = 1;
   }
 
-  // jugadores
+  // sombras
+  ctx.fillStyle = 'rgba(0,0,0,.28)';
   for (const p of view.players) {
-    const T = TEAMS[p.team];
-    if (p.sprinting && !REDUCED) {
-      ctx.globalAlpha = .18;
-      ctx.beginPath(); ctx.arc(p.x - p.vx * 3, p.y - p.vy * 3, P_R * .9, 0, TAU); ctx.fillStyle = T.c; ctx.fill();
-      ctx.globalAlpha = 1;
+    const a = FX.anim.get(p.id);
+    ctx.beginPath(); ctx.ellipse(a.sx + 2 * k, a.sy + k, 13 * k, 5.5 * k, 0, 0, TAU); ctx.fill();
+  }
+  ctx.beginPath(); ctx.ellipse(bsx + 2 * k, bsy + 1.5 * k, B_R * k, B_R * .42 * k, 0, 0, TAU); ctx.fill();
+
+  // aros en el pasto: chute pulsado (blanco) y carga del cañonazo (dorado)
+  for (const p of view.players) {
+    if (!p.armed && p.charge <= 7) continue;
+    const a = FX.anim.get(p.id);
+    if (p.armed) {
+      ctx.beginPath(); ctx.ellipse(a.sx, a.sy, 17 * k, 7.5 * k, 0, 0, TAU);
+      ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = Math.max(1.5, 2.2 * k); ctx.stroke();
     }
-    const gr = ctx.createRadialGradient(p.x - 5, p.y - 6, 2, p.x, p.y, P_R);
-    gr.addColorStop(0, T.l); gr.addColorStop(.55, T.c); gr.addColorStop(1, T.d);
-    ctx.beginPath(); ctx.arc(p.x, p.y, P_R, 0, TAU); ctx.fillStyle = gr; ctx.fill();
-    ctx.lineWidth = p.armed ? 3.4 : 2;
-    ctx.strokeStyle = p.armed ? '#fff' : 'rgba(0,0,0,.6)';
-    ctx.stroke();
     if (p.charge > 7) {
-      const k = clamp((p.charge - 7) / (PHY.chargeT - 7), 0, 1);
-      ctx.beginPath(); ctx.arc(p.x, p.y, P_R + 5, -Math.PI / 2, -Math.PI / 2 + k * TAU);
-      ctx.strokeStyle = k >= 1 ? '#FFC21A' : 'rgba(255,194,26,.75)'; ctx.lineWidth = 3; ctx.stroke();
+      const c = clamp((p.charge - 7) / (PHY.chargeT - 7), 0, 1);
+      ctx.beginPath(); ctx.ellipse(a.sx, a.sy, 21 * k, 9.5 * k, 0, -Math.PI / 2, -Math.PI / 2 + c * TAU);
+      ctx.strokeStyle = c >= 1 ? '#FFC21A' : 'rgba(255,194,26,.8)'; ctx.lineWidth = Math.max(2, 3 * k); ctx.stroke();
     }
   }
 
-  drawBall(b);
+  // figuras y balón, de atrás hacia adelante
+  const items = view.players.map(p => ({ p, y: FX.anim.get(p.id).sy }));
+  items.push({ p: null, y: bsy });
+  items.sort((u, v) => u.y - v.y);
+  const [rox, roy] = V.rot ? [FX.ballOff.y, -FX.ballOff.x] : [FX.ballOff.x, FX.ballOff.y];
+  for (const it of items) {
+    if (!it.p) { drawBall(bsx, bsy - lift, B_R * k, rox, roy); continue; }
+    const a = FX.anim.get(it.p.id);
+    drawFootballer(ctx, a.sx, a.sy, k, footballerParams(it.p, a, now, cheerTeam === it.p.team));
+  }
 
-  // anillos de chute
+  // anillos de chute alrededor del balón
   for (let i = FX.rings.length - 1; i >= 0; i--) {
     const r = FX.rings[i];
     r.t++;
-    const k = r.t / 14;
-    if (k >= 1) { FX.rings.splice(i, 1); continue; }
-    ctx.beginPath(); ctx.arc(r.x, r.y, B_R + 4 + k * 18 * r.p, 0, TAU);
-    ctx.strokeStyle = `rgba(255,255,255,${(1 - k) * .6})`; ctx.lineWidth = 2; ctx.stroke();
+    const q = r.t / 14;
+    if (q >= 1) { FX.rings.splice(i, 1); continue; }
+    const [rx, ry] = toScreen(r.x, r.y);
+    ctx.beginPath(); ctx.arc(rx, ry - lift, (B_R + 4 + q * 18 * r.p) * k, 0, TAU);
+    ctx.strokeStyle = `rgba(255,255,255,${(1 - q) * .6})`; ctx.lineWidth = 2; ctx.stroke();
   }
-  // partículas
+  // partículas (en el mundo)
+  worldTransform();
   for (let i = FX.parts.length - 1; i >= 0; i--) {
     const q = FX.parts[i];
     q.x += q.vx; q.y += q.vy; q.vx *= .96; q.vy *= .96; q.rot += q.vr;
@@ -1325,17 +1418,14 @@ function render(view) {
 
 function drawLabels(view) {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  const s = V.s, fs = Math.max(9, Math.round(P_R * 1.02 * s));
+  const s = V.s;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   const now = performance.now();
   for (const p of view.players) {
     const [sx, sy] = toScreen(p.x, p.y);
-    ctx.font = `800 ${fs}px Archivo, system-ui, sans-serif`;
-    const num = p.num === undefined || p.num === null ? '' : String(p.num);
-    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillText(num, sx + .8, sy + 1.2);
-    ctx.fillStyle = '#fff'; ctx.fillText(num, sx, sy + .5);
     const showName = p.me || s >= .55;
-    const below = sy + P_R * s + Math.max(8, 9 * Math.min(1.7, s)) + 2;
+    const below = sy + 7 * s + Math.max(7, 8 * Math.min(1.7, s)) + 1;
+    const head = sy - FIG_H * s;
     if (showName && p.name) {
       ctx.font = `${p.me ? 700 : 500} ${Math.max(10, Math.round(11 * Math.min(1.7, s)))}px "Space Grotesk", system-ui, sans-serif`;
       ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineJoin = 'round';
@@ -1349,7 +1439,7 @@ function drawLabels(view) {
       ctx.fillStyle = p.stam < .3 ? '#FF6B5B' : '#3CFF9E'; ctx.fillRect(sx - bw / 2, by3, bw * p.stam, 3);
     }
     if (p.me) {
-      const ty = sy - P_R * s - 9 - Math.max(0, Math.sin(now / 200) * 2);
+      const ty = head - 7 - Math.max(0, Math.sin(now / 200) * 2);
       ctx.beginPath(); ctx.moveTo(sx - 6, ty - 6); ctx.lineTo(sx + 6, ty - 6); ctx.lineTo(sx, ty + 1); ctx.closePath();
       ctx.fillStyle = p.meColor || '#FFE9A8'; ctx.fill();
     }
@@ -1359,7 +1449,7 @@ function drawLabels(view) {
       else {
         ctx.font = '600 12.5px "Space Grotesk", system-ui, sans-serif';
         const tw = Math.min(220, ctx.measureText(bub.text).width), bw = tw + 16, bh = 22;
-        const bx = sx - bw / 2, by2 = sy - P_R * s - 22 - bh;
+        const bx = sx - bw / 2, by2 = head - 16 - bh;
         ctx.fillStyle = 'rgba(245,240,232,.95)';
         roundRect(bx, by2, bw, bh, 8); ctx.fill();
         ctx.beginPath(); ctx.moveTo(sx - 5, by2 + bh); ctx.lineTo(sx + 5, by2 + bh); ctx.lineTo(sx, by2 + bh + 6); ctx.fill();
@@ -1519,7 +1609,7 @@ function startOffline(kind, cfgIn) {
   Sfx.init(); Sfx.crowdLevel(.05);
 }
 
-function resetFx() { FX.parts.length = 0; FX.rings.length = 0; FX.trail.length = 0; FX.bubbles.clear(); FX.lastBall = null; hideBanner(); }
+function resetFx() { FX.parts.length = 0; FX.rings.length = 0; FX.trail.length = 0; FX.bubbles.clear(); FX.anim.clear(); FX.cheer.team = -1; FX.lastBall = null; hideBanner(); }
 
 function simTick() {
   const m = G.match;
@@ -1549,8 +1639,13 @@ function stepAttract() {
   const m = G.attract;
   if (!m) return;
   stepMatch(m);
+  if (m.phase === 'goal' && m.phaseT === 169) {
+    const t = m.goals[m.goals.length - 1].team;
+    spawnConfetti(t === 0 ? m.world.hw : -m.world.hw, t);
+    FX.cheer.team = t; FX.cheer.until = performance.now() + 2800;
+  }
+  for (const e of m.events) if (e.type === 'kick') { const an = FX.anim.get(e.id); if (an) an.kickT = performance.now(); }
   m.events.length = 0;
-  if (m.phase === 'goal' && m.phaseT === 169) spawnConfetti(m.goals[m.goals.length - 1].team === 0 ? m.world.hw : -m.world.hw, m.goals[m.goals.length - 1].team);
   if (m.score[0] + m.score[1] > 9) newAttract();
 }
 
@@ -1612,6 +1707,7 @@ function fx(e) {
     case 'kick':
       Sfx.kick(e.p);
       if (ball) { FX.rings.push({ x: ball.x, y: ball.y, t: 0, p: clamp(e.p / 7, .6, 1.4) }); spawnDust(ball.x, ball.y, 4); }
+      { const an = FX.anim.get(e.id); if (an) an.kickT = performance.now(); }
       if (IS_TOUCH && e.id === G.me && navigator.vibrate) { try { navigator.vibrate(12); } catch (x) { /* nada */ } }
       break;
     case 'post': Sfx.post(); break;
@@ -1620,6 +1716,7 @@ function fx(e) {
     case 'golden': Sfx.whistle(2); flashBanner('¡Gol de oro!', 'El próximo gol gana', '#FFC21A', 2200); break;
     case 'goal': {
       Sfx.goal();
+      FX.cheer.team = e.team; FX.cheer.until = performance.now() + 2800;
       if (w) spawnConfetti(e.team === 0 ? w.hw + 10 : -w.hw - 10, e.team);
       const txt = e.own ? `Autogol de ${e.name}` : e.name ? (e.assist ? `${e.name} · asistencia de ${e.assist}` : e.name) : '';
       flashBanner('¡GOOOL!', txt, TEAMS[e.team].c, 2600);
