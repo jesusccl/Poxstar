@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 
 <title>PoxStar — Estudio de juegos de AugustoCLive</title>
-<meta name="description" content="PoxStar es el estudio indie de videojuegos de AugustoCLive. Nueve juegos gratis en el navegador: Polemon, un RPG de criaturas al estilo de los clásicos de Game Boy; Furious Cars 2, carreras en 3D con seis coches, dos circuitos y modo libre; República de Lemuy, un MMO de conquista en Chiloé; Putup, simulador de creador con seis juegos dentro; y arcades, runner cyberpunk, shooter de arena y puzzle de intrusión. Sin descargas, sin loot boxes." />
+<meta name="description" content="PoxStar es el estudio indie de videojuegos de AugustoCLive. Diez juegos gratis en el navegador: Polemon, un RPG de criaturas al estilo de los clásicos de Game Boy; Pichanga, fútbol 2D online para jugar con amigos; Furious Cars 2, carreras en 3D con seis coches, dos circuitos y modo libre; República de Lemuy, un MMO de conquista en Chiloé; Putup, simulador de creador con seis juegos dentro; y arcades, runner cyberpunk, shooter de arena y puzzle de intrusión. Sin descargas, sin loot boxes." />
 <link rel="canonical" href="https://poxstar.com/" />
 <meta name="robots" content="index,follow,max-image-preview:large" />
 <meta name="author" content="AugustoCLive" />
@@ -20,7 +20,7 @@
 <meta property="og:locale" content="es_ES" />
 <meta property="og:url" content="https://poxstar.com/" />
 <meta property="og:title" content="PoxStar — Estudio de juegos de AugustoCLive" />
-<meta property="og:description" content="Juegos pequeños con ideas grandes. Nueve juegos en el navegador, gratis y sin descargas — con Polemon como gran estreno." />
+<meta property="og:description" content="Juegos pequeños con ideas grandes. Diez juegos en el navegador, gratis y sin descargas — con Polemon como gran estreno." />
 <meta property="og:image" content="https://poxstar.com/og-image.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -29,7 +29,7 @@
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="PoxStar — Estudio de juegos de AugustoCLive" />
-<meta name="twitter:description" content="Juegos pequeños con ideas grandes. Nueve juegos en el navegador, gratis y sin descargas — con Polemon como gran estreno." />
+<meta name="twitter:description" content="Juegos pequeños con ideas grandes. Diez juegos en el navegador, gratis y sin descargas — con Polemon como gran estreno." />
 <meta name="twitter:image" content="https://poxstar.com/og-image.png" />
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF4A1C' d='M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z'/%3E%3C/svg%3E" />
@@ -103,6 +103,22 @@
       "genre": ["Carreras", "Arcade", "3D", "Mundo abierto"],
       "gamePlatform": "Navegador web",
       "playMode": "SinglePlayer",
+      "applicationCategory": "Game",
+      "operatingSystem": "Web",
+      "inLanguage": "es",
+      "author": { "@id": "https://poxstar.com/#studio" },
+      "publisher": { "@id": "https://poxstar.com/#studio" },
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+    },
+    {
+      "@type": "VideoGame",
+      "name": "Pichanga",
+      "url": "https://poxstar.com/pichanga.html",
+      "image": "https://poxstar.com/img/pichanga-portada.webp",
+      "description": "Fútbol 2D online en el navegador: salas privadas con código, partida rápida contra gente al azar y de uno contra uno a cuatro contra cuatro, con bots que completan los equipos. También contra la máquina o a dos en el mismo teclado.",
+      "genre": ["Deportes", "Fútbol", "Multijugador", "Arcade"],
+      "gamePlatform": "Navegador web",
+      "playMode": ["MultiPlayer", "SinglePlayer"],
       "applicationCategory": "Game",
       "operatingSystem": "Web",
       "inLanguage": "es",
@@ -650,6 +666,9 @@ html[data-motion="0"] .nav a[href="#lemuy"]::before{animation:none}
   box-shadow:0 0 0 2px #284890}
 .game.estreno.polemon h3{font-style:normal;letter-spacing:-.03em}
 .game.polemon .art-canvas img{image-rendering:pixelated}
+/* Pichanga: «online» en naranja, como en el logotipo del juego */
+.game.estreno.pichanga h3 em{background:var(--accent);color:#140602;font-size:.62em;
+  vertical-align:.18em;padding:.06em .3em}
 /* la segunda ficha a lo ancho, en espejo: imagen a la derecha */
 .game.estreno.espejo{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}
 .game.estreno.espejo .art{grid-column:2}
@@ -1834,7 +1853,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <div class="hero-meta">
       <div class="l eyebrow">Estudio independiente</div>
       <div class="c eyebrow">// Estudio de AugustoCLive</div>
-      <div class="r eyebrow">09 juegos · jugables</div>
+      <div class="r eyebrow">10 juegos · jugables</div>
     </div>
 
     <div class="logo-lockup">
@@ -1857,6 +1876,13 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </span>
         <span class="flecha" aria-hidden="true">→</span>
       </a>
+      <a class="hero-nuevo" href="pichanga.html">
+        <span class="marca"><i aria-hidden="true"></i>Nuevo</span>
+        <span class="que"><b>Pichanga</b>
+          <span>Fútbol online 2D · juega con tus amigos por código</span>
+        </span>
+        <span class="flecha" aria-hidden="true">→</span>
+      </a>
       <a class="hero-nuevo" href="#furious">
         <span class="marca"><i aria-hidden="true"></i>Nuevo</span>
         <span class="que"><b>Furious Cars 2</b>
@@ -1868,13 +1894,6 @@ html[data-motion="0"] .play-frame .led{animation:none}
         <span class="marca"><i aria-hidden="true"></i>Nuevo</span>
         <span class="que"><b>República de Lemuy</b>
           <span>MMO de conquista en Chiloé · servidor en vivo</span>
-        </span>
-        <span class="flecha" aria-hidden="true">→</span>
-      </a>
-      <a class="hero-nuevo" href="#putup">
-        <span class="marca"><i aria-hidden="true"></i>Nuevo</span>
-        <span class="que"><b>Putup</b>
-          <span>Simulador de creador · seis juegos dentro</span>
         </span>
         <span class="flecha" aria-hidden="true">→</span>
       </a>
@@ -1892,7 +1911,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     </div>
 
     <div class="hero-rail" aria-label="Datos del estudio">
-      <div><div class="k">Juegos</div><div class="v">09</div></div>
+      <div><div class="k">Juegos</div><div class="v">10</div></div>
       <div><div class="k">Precio</div><div class="v">Gratis</div></div>
       <div><div class="k">Descargas</div><div class="v">Cero</div></div>
       <div><div class="k">Plataforma</div><div class="v">Navegador</div></div>
@@ -1903,8 +1922,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
   <div class="ticker" aria-hidden="true">
     <div class="ticker-track" id="ticker">
-      <span>polemon · gran estreno <i></i> furious cars 2 <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
-      <span>polemon · gran estreno <i></i> furious cars 2 <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+      <span>polemon · gran estreno <i></i> pichanga online <i></i> furious cars 2 <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+      <span>polemon · gran estreno <i></i> pichanga online <i></i> furious cars 2 <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
     </div>
   </div>
 </section>
@@ -2701,7 +2720,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <div class="sect-head reveal">
       <h2>Nuestros <em>juegos</em>.</h2>
       <div class="index">
-        <span>// Catálogo / <b>09</b></span>
+        <span>// Catálogo / <b>10</b></span>
         <span>Gran estreno · todo gratis</span>
       </div>
     </div>
@@ -2769,14 +2788,44 @@ html[data-motion="0"] .play-frame .led{animation:none}
       </article>
 
       <!-- Game 03 -->
-      <article class="game destacado reveal" style="--d:3">
+      <article class="game estreno pichanga reveal" id="pichanga" style="--d:3">
+        <a class="art tilt" data-art="foto" href="pichanga.html"
+           aria-label="Jugar a Pichanga">
+          <div class="art-canvas" aria-hidden="true">
+            <img src="img/pichanga-portada.webp" width="1440" height="810" alt=""
+                 loading="lazy" decoding="async">
+          </div>
+          <span class="num" aria-hidden="true">03</span>
+          <span class="tag hot" aria-hidden="true">Nuevo · Online</span>
+          <span class="scrim" aria-hidden="true"></span>
+          <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
+        </a>
+
+        <div class="meta">
+          <h3><a href="pichanga.html">Pichanga <em>online</em></a></h3>
+          <span class="yr">2026</span>
+        </div>
+        <p>
+          Fútbol 2D para jugar con tus amigos: abres una sala, pasas el código
+          y a la cancha. De uno contra uno a cuatro contra cuatro, con bots que
+          completan los equipos y partida rápida contra gente al azar. Sin
+          conexión, contra la máquina o a dos en el mismo teclado.
+        </p>
+        <div class="genres">
+          <span>Fútbol</span><span>Multijugador</span><span>Online</span>
+          <a class="play-link" href="pichanga.html">Jugar <b aria-hidden="true">↗</b></a>
+        </div>
+      </article>
+
+      <!-- Game 04 -->
+      <article class="game destacado reveal" style="--d:4">
         <a class="art tilt" data-art="foto" href="https://dell.taila1b256.ts.net/"
            target="_blank" rel="noopener" aria-label="Entrar a República de Lemuy">
           <div class="art-canvas" aria-hidden="true">
             <img src="img/lemuy-chulchuy.webp" width="1440" height="810" alt=""
                  loading="lazy" decoding="async">
           </div>
-          <span class="num" aria-hidden="true">03</span>
+          <span class="num" aria-hidden="true">04</span>
           <span class="tag hot" aria-hidden="true">En vivo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Entrar al servidor <b>↗</b></span>
@@ -2798,15 +2847,15 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 04 -->
-      <article class="game destacado reveal" style="--d:4">
+      <!-- Game 05 -->
+      <article class="game destacado reveal" style="--d:5">
         <a class="art tilt" data-art="foto" href="putup.html"
            aria-label="Jugar a Putup">
           <div class="art-canvas" aria-hidden="true">
             <img src="img/putup-casa.webp" width="1440" height="810" alt=""
                  loading="lazy" decoding="async">
           </div>
-          <span class="num" aria-hidden="true">04</span>
+          <span class="num" aria-hidden="true">05</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2827,8 +2876,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 05 -->
-      <article class="game reveal" style="--d:5">
+      <!-- Game 06 -->
+      <article class="game reveal" style="--d:6">
         <a class="art tilt" href="carrera-loca.html" aria-label="Jugar a Carrera Loca">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2855,7 +2904,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="146" y="152" width="28" height="40" rx="7" fill="#FF4A1C"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">05</span>
+          <span class="num" aria-hidden="true">06</span>
           <span class="tag" aria-hidden="true">Jugable</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2875,8 +2924,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 06 -->
-      <article class="game reveal" style="--d:6">
+      <!-- Game 07 -->
+      <article class="game reveal" style="--d:7">
         <a class="art tilt" href="breach-2044.html" aria-label="Jugar a BREACH // 2044">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2911,7 +2960,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="0" y="0" width="320" height="4" fill="#FF2E97" opacity=".7"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">06</span>
+          <span class="num" aria-hidden="true">07</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2931,8 +2980,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 07 -->
-      <article class="game reveal" style="--d:7">
+      <!-- Game 08 -->
+      <article class="game reveal" style="--d:8">
         <a class="art tilt" href="neon-runner.html" aria-label="Jugar a NEON RUNNER">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -2975,7 +3024,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <path d="M244 108l7-7 7 7-7 7z" fill="none" stroke="#FFE566" stroke-width="2"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">07</span>
+          <span class="num" aria-hidden="true">08</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -2995,8 +3044,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 08 -->
-      <article class="game reveal" style="--d:8">
+      <!-- Game 09 -->
+      <article class="game reveal" style="--d:9">
         <a class="art tilt" href="daemon.html" aria-label="Jugar a DAEMON">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -3034,7 +3083,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <rect x="3" y="3" width="314" height="194" fill="none" stroke="#3CFF9E" stroke-width="1.4" opacity=".3"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">08</span>
+          <span class="num" aria-hidden="true">09</span>
           <span class="tag hot" aria-hidden="true">Nuevo</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -3054,8 +3103,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
         </div>
       </article>
 
-      <!-- Game 09 -->
-      <article class="game wide reveal" style="--d:9">
+      <!-- Game 10 -->
+      <article class="game wide reveal" style="--d:10">
         <a class="art tilt" href="furious-cars.html" aria-label="Jugar a Furious Cars 1">
           <div class="art-canvas" aria-hidden="true">
             <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img">
@@ -3082,7 +3131,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
               <circle cx="272" cy="40" r="26" fill="#FF4A1C" opacity=".16"/>
             </svg>
           </div>
-          <span class="num" aria-hidden="true">09</span>
+          <span class="num" aria-hidden="true">10</span>
           <span class="tag hot" aria-hidden="true">Jugable</span>
           <span class="scrim" aria-hidden="true"></span>
           <span class="float" aria-hidden="true">Jugar ahora <b>↗</b></span>
@@ -3203,7 +3252,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
           </div>
           <div class="stat">
             <div class="k">Juegos</div>
-            <div class="v" data-count="9" data-pad="2">09</div>
+            <div class="v" data-count="10" data-pad="2">10</div>
           </div>
           <div class="stat">
             <div class="k">Creador</div>
@@ -3283,6 +3332,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
         <h3>Juegos</h3>
         <ul>
           <li><a href="polemon.html">Polemon</a></li>
+          <li><a href="pichanga.html">Pichanga</a></li>
           <li><a href="furious-cars-2.html">Furious Cars 2</a></li>
           <li><a href="https://dell.taila1b256.ts.net/" target="_blank"
                  rel="noopener">República de Lemuy ↗</a></li>
