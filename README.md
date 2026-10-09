@@ -195,6 +195,47 @@ Los cinco arcades del repo guardan récord en `localStorage` y respetan
 `prefers-reduced-motion`. El número de cada ficha es su posición en el catálogo,
 no su orden de salida.
 
+## 🎃 Halloween
+
+Del **1 de octubre al 2 de noviembre** la portada se viste de noche sola: el
+hero pasa a un cielo nocturno con luna, telarañas, una araña colgando,
+murciélagos y un cementerio al pie; el logotipo se convierte en una calabaza
+con vela, «poxstar» se pinta de calabaza con goterones, la cinta lleva
+calabazas en vez de puntos y el resto de la página toma tonos pergamino y
+ciruela (o morado casi negro en el tema oscuro).
+
+Es una capa aparte, fácil de quitar o de alargar:
+
+- Un script en el `<head>` pone la clase `halloween` en `<html>` si la fecha
+  cae en la temporada, antes del primer pintado (sin fogonazo naranja).
+  Para probarlo fuera de fecha: `?halloween=1`; para verlo sin él: `?halloween=0`.
+- Todo el estilo va en el bloque «Halloween» del CSS, bajo `html.halloween`.
+  Los adornos del hero están en `<div class="hw">` y, fuera de temporada,
+  en `display:none`: comprobado píxel a píxel, la portada queda idéntica.
+- Para cambiar las fechas, la condición está en ese script del `<head>`.
+
+Lo que se aprendió midiendo (CPU ×4, contexto nuevo cada vez):
+
+- **Nada de `filter` en el rótulo.** El resplandor con `drop-shadow` se
+  recalculaba en cada fotograma y, con el hero a la vista, el desplazamiento
+  bajaba de 41 a 26 fps; ahora es un degradado de fondo detrás.
+- **Sin `var()` dentro de `@keyframes`**: con variables, Chrome no puede llevar
+  la animación a la GPU. Los murciélagos se reparten con el retraso.
+- **El halo de la luna es un degradado**, no una sombra desenfocada de 180 px.
+- **Los adornos sólo existen con el hero en pantalla** (`.hw-fuera` lo
+  marca un IntersectionObserver) y **entran después del primer pintado**
+  (`.hw-listo`, con un fundido).
+
+Resultado: recorrido de la página 28,9 → 27,5 fps (10 vueltas de cada),
+hilo principal en reposo igual, y el primer pintado unos 100 ms más tarde
+con la CPU frenada ×4 (unos 25 ms en un equipo normal).
+
+Ojo al medir: la página lleva `scroll-behavior: smooth`. Un `scrollTo` por
+fotograma inicia cada vez un desplazamiento suave que apenas avanza, así que
+hay que poner `scroll-behavior: auto` antes, o lo que se mide es el hero.
+Las cifras de recorrido de Furious Cars 2 y Polemon de más abajo se tomaron
+sin eso: valen como comparación antes/después, pero miden sobre todo el hero.
+
 ## 📁 Estructura
 
 ```

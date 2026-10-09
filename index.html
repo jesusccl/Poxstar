@@ -219,6 +219,20 @@
 }
 </script>
 
+<script>
+/* Temporada de Halloween: del 1 de octubre al 2 de noviembre la portada se
+   viste de noche. Va aquí, antes de los estilos, para que la clase esté
+   puesta antes del primer pintado y no haya un fogonazo naranja.
+   ?halloween=1 / ?halloween=0 la fuerzan para probar fuera de fecha. */
+(function () {
+  var d = new Date(), m = d.getMonth(), q = /[?&]halloween=([01])/.exec(location.search);
+  if (q ? q[1] !== '1' : !(m === 9 || (m === 10 && d.getDate() <= 2))) return;
+  document.documentElement.classList.add('halloween');
+  var t = document.querySelector('meta[name="theme-color"]');
+  if (t) t.setAttribute('content', '#E8590C');
+})();
+</script>
+
 <style>
 /* ══════════════════════════════════════════════════════════════════
    PoxStar — v0.8
@@ -1756,6 +1770,216 @@ html[data-motion="0"] .cta .dot,
 html[data-motion="0"] .facade .play-btn,
 html[data-motion="0"] .play-frame .led{animation:none}
 
+/* ══════════════════════════════════════════════════════════════════
+   Halloween — una capa de temporada. Sólo actúa con html.halloween, que
+   pone el script del <head> del 1 de octubre al 2 de noviembre (o con
+   ?halloween=1 / ?halloween=0 para probar). Fuera de esas fechas no se
+   ve nada: el marcado de los adornos está en display:none.
+   Todo lo que se mueve anima sólo transform u opacity, en elementos
+   HTML, para que lo haga la GPU sin repintar; y se queda quieto con
+   «reducir movimiento» o con las animaciones apagadas.
+   ══════════════════════════════════════════════════════════════════ */
+.hw,.hw-calabaza,.hw-saludo,.ticker-track .hw-t{display:none}
+
+/* — paleta: calabaza quemada, pergamino y tinta ciruela; de noche, morado casi negro — */
+html.halloween{--accent:#E8590C;--paper:#F2E9DA;--paper-2:#E7DAC4;--ink:#1A0F22}
+html.halloween[data-theme="dark"]{--paper:#0D0913;--paper-2:#170F20;--ink:#F3E9DA}
+
+/* — el hero, de noche (decorado cerrado: igual en tema claro y oscuro) — */
+.halloween .hero{--on-accent:#F3E6D0;--on-accent-line:rgba(243,230,208,.16);
+  background:
+    radial-gradient(80% 42% at 50% 100%, rgba(232,89,12,.34) 0%, transparent 70%),
+    linear-gradient(180deg,#0b0514 0%,#170a29 36%,#26103a 68%,#3a1430 100%)}
+/* el resplandor naranja del rótulo es este degradado de fondo, no un filtro:
+   un drop-shadow sobre el rótulo se recalculaba en cada fotograma y, con el
+   hero a la vista, el desplazamiento bajaba de 41 a 26 fps */
+.halloween .hero-glow{background:
+  radial-gradient(34% 16% at 50% 41%, rgba(255,120,30,.26) 0%, transparent 100%),
+  radial-gradient(42% 38% at 50% 36%, rgba(255,140,40,.14) 0%, transparent 70%)}
+.halloween .hw{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+/* los adornos entran justo después del primer pintado (el script pone
+   .hw-listo), con un fundido: así no retrasan lo primero que se ve */
+html.hw-listo:not(.hw-fuera) .hw{display:block;animation:hw-aparece .9s ease-out both}
+@keyframes hw-aparece{from{opacity:0}to{opacity:1}}
+
+.hw-estrellas{position:absolute;left:0;top:0;width:2px;height:2px;border-radius:50%;
+  background:#fff;opacity:.85;
+  box-shadow:
+    4vw 120px rgba(255,255,255,.7), 11vw 240px rgba(255,255,255,.5), 17vw 70px #fff,
+    23vw 330px rgba(255,255,255,.4), 29vw 150px rgba(255,255,255,.6), 36vw 40px rgba(255,255,255,.8),
+    42vw 260px rgba(255,255,255,.4), 48vw 110px #fff, 55vw 200px rgba(255,255,255,.5),
+    61vw 60px rgba(255,255,255,.7), 67vw 300px rgba(255,255,255,.4), 73vw 140px #fff,
+    79vw 34px rgba(255,255,255,.6), 85vw 220px rgba(255,255,255,.5), 91vw 90px #fff,
+    96vw 280px rgba(255,255,255,.4), 8vw 420px rgba(255,255,255,.3), 33vw 470px rgba(255,255,255,.3),
+    58vw 430px rgba(255,255,255,.3), 88vw 480px rgba(255,255,255,.3)}
+
+/* la luna llena, arriba a la derecha: por encima del rótulo, sin tocarlo */
+.hw-luna{position:absolute;right:8%;top:clamp(120px,12vw,175px);
+  width:clamp(84px,12vw,180px);aspect-ratio:1;border-radius:50%;
+  background:
+    radial-gradient(18% 18% at 34% 38%, rgba(196,170,112,.38) 0 60%, transparent 62%),
+    radial-gradient(11% 11% at 62% 62%, rgba(196,170,112,.32) 0 60%, transparent 62%),
+    radial-gradient(8% 8% at 66% 30%, rgba(196,170,112,.3) 0 60%, transparent 62%),
+    radial-gradient(circle at 40% 36%, #fffaf0 0%, #f6e8c3 55%, #e8d39c 100%)}
+/* el halo es un degradado, no una sombra desenfocada: la sombra de 180 px
+   era lo más caro de pintar de todo el decorado */
+.hw-luna::before{content:"";position:absolute;inset:-70%;z-index:-1;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,236,190,.24) 0%,rgba(255,200,120,.12) 32%,
+    rgba(255,190,110,.05) 50%,transparent 70%)}
+
+/* telarañas en las dos esquinas de arriba */
+.hw-tela{position:absolute;top:0;width:clamp(120px,15vw,230px);height:auto;
+  fill:none;stroke:rgba(243,230,208,.32);stroke-width:1.2}
+.hw-tela.izq{left:0}
+.hw-tela.der{right:0;transform:scaleX(-1)}
+
+/* la araña cuelga de su hilo y sube y baja despacio */
+.hw-arana{position:absolute;left:15%;top:0;width:34px;
+  animation:hw-arana 5.5s ease-in-out infinite alternate}
+.hw-arana .hilo{position:absolute;left:50%;bottom:28px;width:1px;height:420px;
+  background:rgba(243,230,208,.45)}
+.hw-arana svg{position:relative;margin-top:150px;width:34px;height:34px}
+.hw-arana path{stroke:#05020a;stroke-width:2;fill:none;stroke-linecap:round}
+.hw-arana ellipse,.hw-arana circle{fill:#05020a}
+@keyframes hw-arana{from{transform:translate3d(0,-70px,0)}to{transform:translate3d(0,0,0)}}
+/* en el móvil los datos de arriba van apilados a la izquierda: la araña, al centro */
+@media (max-width:640px){.hw-arana{left:62%}}
+
+/* murciélagos: cruzan el cielo (vuelo) mientras baten las alas (aleteo).
+   Los fotogramas clave van con valores fijos, sin var(): con variables
+   dentro, Chrome no puede llevar la animación a la GPU y la calcula en el
+   hilo principal en cada fotograma. Todos salen de left:0 y se reparten
+   con el retraso; --x sólo sirve para dejarlos quietos y repartidos. */
+.hw-bat{position:absolute;left:0;top:var(--y);width:var(--w);
+  animation:hw-vuelo var(--t) linear infinite;animation-delay:var(--d)}
+.hw-bat > span{display:block;animation:hw-aleteo .22s ease-in-out infinite alternate}
+.hw-bat svg{width:100%;height:auto;fill:#07030d}
+.hw-bat.b1{--x:20%;--y:16%;--w:54px;--t:21s;--d:-3s}
+.hw-bat.b2{--x:62%;--y:26%;--w:36px;--t:27s;--d:-14s;animation-direction:reverse}
+.hw-bat.b3{--x:40%;--y:9%;--w:28px;--t:33s;--d:-22s}
+.hw-bat.b4{--x:80%;--y:38%;--w:44px;--t:24s;--d:-9s;animation-direction:reverse}
+@keyframes hw-vuelo{
+  0%  {transform:translate3d(-12vw,0,0)}
+  25% {transform:translate3d(19vw,-26px,0)}
+  50% {transform:translate3d(50vw,8px,0)}
+  75% {transform:translate3d(81vw,-18px,0)}
+  100%{transform:translate3d(112vw,0,0)}}
+@keyframes hw-aleteo{from{transform:scaleY(1)}to{transform:scaleY(.4)}}
+
+/* niebla baja y el cementerio, que se apoya justo encima de la cinta, en
+   la franja que le deja libre la barra de datos (ver .hero-rail más abajo) */
+.hw-niebla{position:absolute;left:0;right:0;bottom:calc(14px + 1.2 * clamp(24px,3.4vw,36px));
+  height:220px;background:linear-gradient(180deg,transparent 0%,
+    rgba(214,200,240,.07) 55%,rgba(214,200,240,.11) 80%,transparent 100%)}
+.hw-cementerio{position:absolute;left:0;width:100%;height:clamp(110px,13vw,190px);
+  bottom:calc(14px + 1.2 * clamp(24px,3.4vw,36px))}
+.hw-cementerio .s{fill:#08040f}
+.hw-cementerio .calabaza ellipse{fill:#d9530a;stroke:#8f2f05;stroke-width:1}
+.hw-cementerio .calabaza .t{stroke:#3f6212;stroke-width:3;fill:none}
+.hw-cementerio .calabaza .c{fill:#ffd23f}
+
+/* — el logotipo: la estrella se convierte en calabaza con vela dentro — */
+.halloween .logo-mark{position:relative;background:transparent;box-shadow:none}
+.halloween .logo-mark > svg:not(.hw-calabaza){display:none}
+.halloween .hw-calabaza{display:block;position:relative;z-index:1;width:124%;height:124%}
+.hw-calabaza .tallo{fill:#4d7c0f}
+.hw-calabaza .lado{fill:#d1500a}
+.hw-calabaza .centro{fill:#f06d10}
+.hw-calabaza .surco{fill:none;stroke:#a33a06;stroke-width:2}
+.hw-calabaza .cara{fill:#ffd23f}
+.hw-calabaza .diente{fill:#f06d10}
+/* el resplandor de la vela parpadea (sólo opacidad) */
+.halloween .logo-mark::after{content:"";position:absolute;inset:-40%;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,170,40,.42) 0%,rgba(255,120,20,.14) 38%,transparent 66%);
+  animation:hw-vela 3.2s ease-in-out infinite}
+@keyframes hw-vela{0%,100%{opacity:.75}18%{opacity:1}22%{opacity:.6}40%{opacity:.95}
+  62%{opacity:.7}70%{opacity:1}}
+
+/* — «poxstar» en calabaza, con goterones que caen al terminar de entrar — */
+.halloween .wordmark span{position:relative;color:transparent;
+  background:linear-gradient(180deg,#ffd27a 0%,#ff9a2e 36%,#ef5f0c 70%,#9c330a 100%);
+  -webkit-background-clip:text;background-clip:text}
+.halloween .wordmark-clip{padding-bottom:.34em;margin-bottom:-.34em}
+.halloween .wordmark span:nth-child(2)::after,
+.halloween .wordmark span:nth-child(4)::after,
+.halloween .wordmark span:nth-child(6)::after{content:"";position:absolute;top:.64em;
+  width:.075em;height:var(--gota,.22em);left:var(--gx,50%);
+  background:linear-gradient(180deg,#d9530a,#a8380a);
+  border-radius:.01em .01em .06em .06em / .01em .01em .07em .07em;
+  transform-origin:top;animation:hw-gota 1.2s var(--ease-out) both;
+  animation-delay:calc(1.25s + var(--i) * .12s)}
+.halloween .wordmark span:nth-child(2){--gx:44%;--gota:.2em}
+.halloween .wordmark span:nth-child(4){--gx:40%;--gota:.3em}
+.halloween .wordmark span:nth-child(6){--gx:64%;--gota:.17em}
+@keyframes hw-gota{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+/* — el saludo, bajo la firma — */
+.halloween .hw-saludo{display:inline-flex;align-items:center;gap:10px;margin:0;
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+  color:#ffd27a;padding:7px 14px;border-radius:999px;
+  border:1px solid rgba(232,89,12,.55);background:rgba(232,89,12,.12)}
+@media (max-width:560px){.halloween .hw-saludo{font-size:10.5px;letter-spacing:.1em;padding:6px 12px}}
+
+/* — textos y botones del hero sobre la noche — */
+.halloween .hero-sub strong{background:rgba(232,89,12,.38);color:#fff}
+.halloween .hero .btn:hover{color:#160a22}
+.halloween .hero .btn.primary{background:var(--accent);color:#160a22;border-color:var(--accent)}
+.halloween .hero .btn.primary::before{background:#F3E6D0}
+.halloween .hero .btn.primary:hover{color:#160a22;border-color:#F3E6D0}
+.halloween .hero-nuevo:not(.estreno){background:#1b0d2b;color:#F5F0E8;
+  border-color:rgba(232,89,12,.38)}
+.halloween .hero-nuevo .marca{color:#160a22}
+.halloween .hero-nuevo .marca i{background:#160a22}
+/* la barra, sin fondo: el cementerio se ve detrás, con separadores finos
+   (y sin pintar los div de dentro, que la regla base también alcanza) */
+.halloween .hero-rail{background:transparent;margin-bottom:clamp(70px,9vw,130px)}
+.halloween .hero-rail div{background:transparent}
+.halloween .hero-rail > div + div{box-shadow:inset 1px 0 0 rgba(243,230,208,.14)}
+@media (max-width:560px){   /* en 2×2: raya entre columnas y entre filas */
+  .halloween .hero-rail > div + div{box-shadow:none}
+  .halloween .hero-rail > div:nth-child(2){box-shadow:inset 1px 0 0 rgba(243,230,208,.14)}
+  .halloween .hero-rail > div:nth-child(3){box-shadow:inset 0 1px 0 rgba(243,230,208,.14)}
+  .halloween .hero-rail > div:nth-child(4){box-shadow:inset 1px 0 0 rgba(243,230,208,.14), inset 0 1px 0 rgba(243,230,208,.14)}
+}
+.halloween .hero-rail .v{color:#ff9a2e}
+
+/* — la cinta: noche y calabazas en vez de puntos — */
+.halloween .ticker{background:#0b0514;color:#ff8a1f;border-top-color:rgba(232,89,12,.45)}
+.halloween .ticker-track .hw-t{display:block}
+.halloween .ticker-track i{position:relative;width:20px;height:16px;border-radius:50%;
+  background:
+    linear-gradient(90deg,transparent 30%,rgba(120,40,0,.55) 30% 34%,transparent 34% 66%,
+                    rgba(120,40,0,.55) 66% 70%,transparent 70%),
+    radial-gradient(circle at 50% 40%,#ff9a2e,#d9530a 70%)}
+.halloween .ticker-track i::before{content:"";position:absolute;left:9px;top:-5px;
+  width:3px;height:6px;border-radius:2px;background:#4d7c0f}
+
+/* — telarañas en las esquinas del catálogo y del pie — */
+.halloween #juegos::before,.halloween .foot::before{content:"";position:absolute;top:0;
+  width:clamp(110px,13vw,200px);aspect-ratio:1;z-index:-1;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M0 0L200 0M0 0L193.2 51.8M0 0L173.2 100M0 0L141.4 141.4M0 0L100 173.2M0 0L51.8 193.2M0 0L0 200M27.9 0Q23.6 3.1 26.9 7.2Q22 9.1 24.1 13.9Q18.8 14.5 19.7 19.7Q14.5 18.8 13.9 24.1Q9.1 22 7.2 26.9Q3.1 23.6 0 27.9M59.7 0Q50.5 6.6 57.7 15.5Q47.1 19.5 51.7 29.9Q40.4 31 42.2 42.2Q31 40.4 29.9 51.7Q19.5 47.1 15.5 57.7Q6.6 50.5 0 59.7M93.3 0Q78.9 10.4 90.1 24.1Q73.5 30.4 80.8 46.7Q63.1 48.4 66 66Q48.4 63.1 46.7 80.8Q30.4 73.5 24.1 90.1Q10.4 78.9 0 93.3M128 0Q108.2 14.2 123.7 33.1Q100.9 41.8 110.9 64Q86.6 66.5 90.5 90.5Q66.5 86.6 64 110.9Q41.8 100.9 33.1 123.7Q14.2 108.2 0 128M163.7 0Q138.3 18.2 158.1 42.4Q128.9 53.4 141.7 81.8Q110.7 84.9 115.7 115.7Q84.9 110.7 81.8 141.7Q53.4 128.9 42.4 158.1Q18.2 138.3 0 163.7M200 0Q169.1 22.3 193.2 51.8Q157.5 65.3 173.2 100Q135.3 103.8 141.4 141.4Q103.8 135.3 100 173.2Q65.3 157.5 51.8 193.2Q22.3 169.1 0 200' fill='none' stroke='%238d8299' stroke-width='1.3'/%3E%3C/svg%3E") no-repeat 0 0/contain;opacity:.55}
+.halloween #juegos::before{right:0;transform:scaleX(-1)}
+.halloween .foot{position:relative;isolation:isolate}
+.halloween .foot::before{left:0}
+
+/* — fuera de la vista, fuera del todo: cuando el hero no se ve (el script lo
+   marca con .hw-fuera) los adornos se retiran —es el :not(.hw-fuera) de la
+   regla de .hw-listo, más arriba—, sin capas que componer. Y la vela, en pausa. — */
+html.hw-fuera .logo-mark::after{animation-play-state:paused}
+
+/* — quieto si así lo pide quien visita — */
+html.halloween[data-motion="0"] .hw,
+html.halloween[data-motion="0"] .hw *,
+html.halloween[data-motion="0"] .wordmark span::after,
+html.halloween[data-motion="0"] .logo-mark::after{animation:none}
+html.halloween[data-motion="0"] .hw-bat{left:var(--x)}
+@media (prefers-reduced-motion:reduce){
+  .halloween .hw,.halloween .hw *,.halloween .wordmark span::after,
+  .halloween .logo-mark::after{animation:none}
+  .halloween .hw-bat{left:var(--x)}
+}
+@media print{.hw{display:none!important}}
+
 @media print{
   .top,.drawer,.ticker,.to-top,.grain,.progress,.cur,.cur-ring,
   .scroll-hint,.play-frame{display:none !important}
@@ -1829,6 +2053,24 @@ html[data-motion="0"] .play-frame .led{animation:none}
 <!-- ═══ Hero ══════════════════════════════════════════════════ -->
 <section class="hero" id="top">
   <div class="hero-glow" aria-hidden="true"></div>
+  <!-- Halloween: sólo se ve con html.halloween (del 1 de octubre al 2 de noviembre) -->
+  <div class="hw" aria-hidden="true">
+    <svg width="0" height="0" style="position:absolute">
+      <symbol id="hw-murcielago" viewBox="0 0 64 32"><path d="M32 7l-1.6 2.6L29 8l.5 3.2c-1 2-.6 5.6 2.5 8.8 3.1-3.2 3.5-6.8 2.5-8.8L35 8l-1.4 1.6ZM29.2 12.2C22 5.5 12 4.5 2 8.2c4 .9 6 3 6 6 3-2 6-1.2 7.2 1.8 3-2 6-1 7 2 2-2 5-2 7 0ZM34.8 12.2C42 5.5 52 4.5 62 8.2c-4 .9-6 3-6 6-3-2-6-1.2-7.2 1.8-3-2-6-1-7 2-2-2-5-2-7 0Z"/></symbol>
+      <symbol id="hw-telarana" viewBox="0 0 200 200"><path d="M0 0L200 0M0 0L193.2 51.8M0 0L173.2 100M0 0L141.4 141.4M0 0L100 173.2M0 0L51.8 193.2M0 0L0 200M27.9 0Q23.6 3.1 26.9 7.2Q22 9.1 24.1 13.9Q18.8 14.5 19.7 19.7Q14.5 18.8 13.9 24.1Q9.1 22 7.2 26.9Q3.1 23.6 0 27.9M59.7 0Q50.5 6.6 57.7 15.5Q47.1 19.5 51.7 29.9Q40.4 31 42.2 42.2Q31 40.4 29.9 51.7Q19.5 47.1 15.5 57.7Q6.6 50.5 0 59.7M93.3 0Q78.9 10.4 90.1 24.1Q73.5 30.4 80.8 46.7Q63.1 48.4 66 66Q48.4 63.1 46.7 80.8Q30.4 73.5 24.1 90.1Q10.4 78.9 0 93.3M128 0Q108.2 14.2 123.7 33.1Q100.9 41.8 110.9 64Q86.6 66.5 90.5 90.5Q66.5 86.6 64 110.9Q41.8 100.9 33.1 123.7Q14.2 108.2 0 128M163.7 0Q138.3 18.2 158.1 42.4Q128.9 53.4 141.7 81.8Q110.7 84.9 115.7 115.7Q84.9 110.7 81.8 141.7Q53.4 128.9 42.4 158.1Q18.2 138.3 0 163.7M200 0Q169.1 22.3 193.2 51.8Q157.5 65.3 173.2 100Q135.3 103.8 141.4 141.4Q103.8 135.3 100 173.2Q65.3 157.5 51.8 193.2Q22.3 169.1 0 200"/></symbol>
+    </svg>
+    <span class="hw-estrellas"></span>
+    <span class="hw-luna"></span>
+    <svg class="hw-tela izq" viewBox="0 0 200 200"><use href="#hw-telarana"/></svg>
+    <svg class="hw-tela der" viewBox="0 0 200 200"><use href="#hw-telarana"/></svg>
+    <span class="hw-arana"><i class="hilo"></i><svg viewBox="0 0 40 40"><path d="M17 18L10.7 12L5 10M17 21L8.8 16.5L2 19M17 24L8.8 21L2 28M17 27L11.3 25.5L6 37M23 18L29.3 12L35 10M23 21L31.2 16.5L38 19M23 24L31.2 21L38 28M23 27L28.7 25.5L34 37"/><ellipse cx="20" cy="24" rx="6" ry="7"/><circle cx="20" cy="15" r="4"/></svg></span>
+    <span class="hw-bat b1"><span><svg viewBox="0 0 64 32"><use href="#hw-murcielago"/></svg></span></span>
+    <span class="hw-bat b2"><span><svg viewBox="0 0 64 32"><use href="#hw-murcielago"/></svg></span></span>
+    <span class="hw-bat b3"><span><svg viewBox="0 0 64 32"><use href="#hw-murcielago"/></svg></span></span>
+    <span class="hw-bat b4"><span><svg viewBox="0 0 64 32"><use href="#hw-murcielago"/></svg></span></span>
+    <span class="hw-niebla"></span>
+    <svg class="hw-cementerio" viewBox="0 0 1440 180" preserveAspectRatio="xMidYMax slice"><path class="s" d="M0 180V132C120 118 240 112 360 120S600 140 720 132 960 108 1080 116 1320 136 1440 124V180ZM250 140V97a17 17 0 0 1 34 0V140ZM318 140V105a13 13 0 0 1 26 0V140ZM1010 140V99a15 15 0 0 1 30 0V140ZM1068 140V91a19 19 0 0 1 38 0V140ZM1150 140V108a12 12 0 0 1 24 0V140ZM420 140V110h-9v-7h9v-9h6v9h9v7h-9V140ZM1225 140V116h-9v-7h9v-9h6v9h9v7h-9V140ZM560 136V108l3-6 3 6V136ZM574 136V112l3-6 3 6V136ZM588 136V108l3-6 3 6V136ZM602 136V112l3-6 3 6V136ZM616 136V108l3-6 3 6V136ZM630 136V112l3-6 3 6V136ZM644 136V108l3-6 3 6V136ZM658 136V112l3-6 3 6V136ZM672 136V108l3-6 3 6V136ZM686 136V112l3-6 3 6V136ZM556 114h146v4H556ZM556 128h146v4H556Z"/><path class="s" transform="translate(-72 0)" d="M128 140c-2-30 2-58 0-86-12-8-22-22-26-38 8 10 18 18 28 22-2-12 0-26 6-36-2 12 0 24 4 32 6-8 16-14 26-16-10 8-18 16-22 26 10-2 22 2 30 10-12-4-24-4-32 2 2 30-2 56 2 84Z"/><g class="calabaza"><ellipse cx="463.2" cy="124" rx="9.3" ry="12"/><ellipse cx="476.8" cy="124" rx="9.3" ry="12"/><ellipse cx="470" cy="124" rx="10.5" ry="12"/><path class="t" d="M469 113.2q1 -7.5 4.5 -8.2"/><path class="c" d="M463.7 123.2l2.4 -4.2 2.4 4.2ZM471.5 123.2l2.4 -4.2 2.4 4.2ZM463.2 127q6.8 6 13.5 0l-3.3 1.8-3.5 -1.8-3.3 1.8-3.5 -1.8Z"/></g><g class="calabaza"><ellipse cx="495.5" cy="132" rx="6.2" ry="8"/><ellipse cx="504.5" cy="132" rx="6.2" ry="8"/><ellipse cx="500" cy="132" rx="7" ry="8"/><path class="t" d="M499 124.8q1 -5 3 -5.5"/><path class="c" d="M495.8 131.5l1.6 -2.8 1.6 2.8ZM501 131.5l1.6 -2.8 1.6 2.8ZM495.5 134q4.5 4 9 0l-2.2 1.2-2.3 -1.2-2.2 1.2-2.3 -1.2Z"/></g><g class="calabaza"><ellipse cx="924.1" cy="123.6" rx="8.1" ry="10.4"/><ellipse cx="935.9" cy="123.6" rx="8.1" ry="10.4"/><ellipse cx="930" cy="123.6" rx="9.1" ry="10.4"/><path class="t" d="M929 114.2q1 -6.5 3.9 -7.2"/><path class="c" d="M924.5 122.9l2.1 -3.6 2.1 3.6ZM931.3 122.9l2.1 -3.6 2.1 3.6ZM924.1 126.2q5.9 5.2 11.7 0l-2.9 1.6-3 -1.6-2.9 1.6-3 -1.6Z"/></g></svg>
+  </div>
   <div class="wrap">
 
     <div class="hero-meta">
@@ -1840,6 +2082,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
     <div class="logo-lockup">
       <div class="logo-mark" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg>
+        <svg class="hw-calabaza" viewBox="0 0 100 100"><path class="tallo" d="M47 22c-1-8 2-14 9-16l3 4c-5 2-6 6-5 12Z"/><ellipse class="lado" cx="31" cy="58" rx="25" ry="31"/><ellipse class="lado" cx="69" cy="58" rx="25" ry="31"/><ellipse class="centro" cx="50" cy="58" rx="22" ry="34"/><path class="surco" d="M50 26c-7 10-7 54 0 64M50 26c7 10 7 54 0 64M28 30c-10 10-12 44 0 58M72 30c10 10 12 44 0 58"/><path class="cara" d="M28 50l9-12 9 12ZM54 50l9-12 9 12ZM46 60l4-6 4 6ZM23 62Q50 92 77 62Q50 75 23 62Z"/><path class="diente" d="M37 67h6v6h-6ZM57 67h6v6h-6Z"/></svg>
       </div>
 
       <h1 class="wordmark wordmark-clip" aria-label="PoxStar"><span style="--i:0" aria-hidden="true">p</span><span style="--i:1" aria-hidden="true">o</span><span style="--i:2" aria-hidden="true">x</span><span style="--i:3" aria-hidden="true">s</span><span style="--i:4" aria-hidden="true">t</span><span style="--i:5" aria-hidden="true">a</span><span style="--i:6" aria-hidden="true">r</span></h1>
@@ -1847,6 +2090,7 @@ html[data-motion="0"] .play-frame .led{animation:none}
       <p class="logo-caption">// Since 2026 · por
         <a href="https://youtube.com/AugustoCLive" target="_blank" rel="noopener">AugustoCLive</a>
       </p>
+      <p class="hw-saludo">Edición Halloween · ¿truco o trato?</p>
     </div>
 
     <div class="hero-nuevos">
@@ -1903,8 +2147,8 @@ html[data-motion="0"] .play-frame .led{animation:none}
 
   <div class="ticker" aria-hidden="true">
     <div class="ticker-track" id="ticker">
-      <span>polemon · gran estreno <i></i> furious cars 2 <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
-      <span>polemon · gran estreno <i></i> furious cars 2 <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+      <span><b class="hw-t">feliz halloween</b> <i class="hw-t"></i> polemon · gran estreno <i></i> furious cars 2 <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
+      <span><b class="hw-t">feliz halloween</b> <i class="hw-t"></i> polemon · gran estreno <i></i> furious cars 2 <i></i> república de lemuy <i></i> jugar diferente <i></i> un estudio de AugustoCLive <i></i> since 2026 <i></i> sigue a @AugustoCLive <i></i> hecho a mano <i></i></span>
     </div>
   </div>
 </section>
@@ -3460,6 +3704,22 @@ html[data-motion="0"] .play-frame .led{animation:none}
   function suave(factor, k) { return 1 - Math.pow(1 - factor, k); }
 
   /* ── Ticker driven by scroll velocity ──────────────────────── */
+  /* Halloween: los adornos del hero (murciélagos, araña, luna, cementerio)
+     sólo existen mientras el hero está en pantalla; fuera de ella se retiran
+     (ver html.hw-fuera en la hoja) para no componer capas que nadie ve. */
+  var heroHw = document.querySelector('.hero');
+  if (html.classList.contains('halloween')) {
+    // dos fotogramas: el primero ya se ha pintado sin adornos
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { html.classList.add('hw-listo'); });
+    });
+    if (heroHw && 'IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        html.classList.toggle('hw-fuera', !es[0].isIntersecting);
+      }).observe(heroHw);
+    }
+  }
+
   var ticker = document.getElementById('ticker');
   if (ticker && !noMotion()) {
     var offset = 0, half = 0, boost = 0;
