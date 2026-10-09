@@ -6,10 +6,12 @@ con los juegos jugables directamente en el navegador.
 
 ## 🎮 Juegos
 
-**01 · Pichanga** — *Gran estreno · online.* Fútbol 2D visto desde arriba, de uno
-contra uno a cuatro contra cuatro, con futbolistas en pixel art de 16 bits al
-estilo de los clásicos (Sensible Soccer, ISS): corren, chutan y celebran los
-goles, y cada nombre tiene siempre la misma piel, pelo y peinado.
+**01 · Pichanga** — *Gran estreno · online.* Fútbol 2D al estilo de los FIFA de
+los 90, de uno contra uno a cuatro contra cuatro: cámara de transmisión que
+sigue al balón sobre la cancha inclinada, arcos con red y altura, banderines,
+vallas publicitarias, radar de jugadores, marcador y «¡GOOOL!» en letra
+pixelada, y futbolistas en pixel art de 16 bits que corren, chutan y celebran
+(cada nombre tiene siempre la misma piel, pelo y peinado).
 
 - **Con amigos:** «Crear sala privada» da un código de cinco letras y un enlace
   (`pichanga.html#sala=CÓDIGO`). Quien crea la sala es el anfitrión: elige
@@ -75,18 +77,24 @@ Chromium contra un servidor PeerJS local, y así se afinaron los bots, jugando
 partidos de tres minutos entre ellos: unos 7 goles por partido en 1v1, 3 en
 2v2 y 1,5–2 en 3v3 y 4v4; el nivel difícil le gana al normal doce de doce.
 
+**La cámara** (`aimCamera`) sigue al balón con suavizado sin enseñar más allá del
+estadio; la cancha se aplasta en vertical (`SQ = 0.72`) para dar la inclinación
+de las transmisiones, y el zoom deja al futbolista en ~1/8 del alto de la
+pantalla. En móvil vertical se ve todo el ancho y la cancha se gira. Todo es
+una transformación afín, así que la cancha sigue saliendo de una sola imagen
+cacheada.
+
 **Los futbolistas** se dibujan con rectángulos sobre una rejilla de «píxel de
 arte» (`drawFootballer`), en vista tres cuartos y siempre de pie aunque la
 cancha se gire en vertical; se ordenan por profundidad con el balón. La física
-sigue siendo la de un disco de radio 15: la figura se pinta 1,3 veces más
-grande (`FIG_SCALE`) para que se lea. Cuesta unos 50 µs por jugador; con 4
+sigue siendo la de un disco de radio 15: la figura se pinta 1,15 veces más
+grande (`FIG_SCALE`, 1,15) para que se lea. Cuesta unos 50 µs por jugador; con 4
 contra 4 en un móvil simulado (CPU ×4) el cuadro entero se pinta en 1,8 ms de
 mediana. El diseño salió de un banco de pruebas que pinta todas las vistas,
 fases de carrera, chute y celebración a escala grande y a tamaño de móvil.
 
-La portada (`img/pichanga-portada.webp`, 28 KB) es un partido de 3 contra 3 de
-verdad, con bots, capturado al doble de tamaño y recortado alrededor de la
-jugada.
+La portada (`img/pichanga-portada.webp`) es un partido de 3 contra 3 de
+verdad, con bots, capturado tal cual se ve en pantalla.
 
 **02 · Polemon: Edición Aventura** — *Nuevo.* Un RPG de criaturas al estilo
 de los clásicos de Game Boy. Eliges inicial (Charmandro, Bulbasor o Squirtel) en
@@ -386,9 +394,9 @@ Cosas que se midieron —con Chromium, CPU frenada— y por qué están como est
   608 → 568 y 592 → 660 ms). HTML comprimido **+5,6 KB**. En 1440×900 y en el
   móvil abrir la home sigue sin bajar ninguna imagen; en 1920×1080 llegan las
   dos primeras láminas de Polemon (unos 20 KB).
-- **La ficha de Pichanga no pesa al abrir la home:** su portada (28 KB) va
+- **La ficha de Pichanga no pesa al abrir la home:** su portada (44 KB) va
   con `loading="lazy"` y, mirado en 1440×900, 1920×1080 y móvil, no se descarga
-  hasta llegar al catálogo. El juego son 153 KB (47 KB comprimido) y PeerJS
+  hasta llegar al catálogo. El juego son 162 KB (50 KB comprimido) y PeerJS
   (93 KB) sólo baja cuando alguien pulsa un botón online.
 - **El menú pasa a la hamburguesa por debajo de 1000 px** (antes, 900). Con
   ocho enlaces no cabía entre 900 y 1020 px: «Furious 2» se partía en dos

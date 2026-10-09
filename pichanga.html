@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- sin bloquear el primer pintado, como en la portada -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,700;0,800;0,900;1,800;1,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,700;0,800;0,900;1,800;1,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap"
       media="print" onload="this.media='all';this.onload=null">
 <style>
 :root{
@@ -29,6 +29,7 @@
   --acc:#FF4A1C; --red:#FF4A1C; --blue:#2F7BFF; --gold:#FFC21A;
   --f-d:'Archivo',system-ui,sans-serif; --f-t:'Space Grotesk',system-ui,sans-serif;
   --f-m:'JetBrains Mono',ui-monospace,monospace;
+  --f-px:'Press Start 2P',ui-monospace,monospace;
   --ease:cubic-bezier(.2,.8,.2,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -63,6 +64,10 @@ a{color:inherit}
 .mcols{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
 .mcols .grp{margin-bottom:6px}
 .mcols .row > *{flex-basis:150px}
+/* rótulos en la letra pixelada del marcador, como los menús de los juegos de los 90 */
+.field span,.grp h3,.seg b,details.help summary{font-family:var(--f-px);font-size:8px;letter-spacing:.08em;line-height:1.6}
+.btn.big{font-family:var(--f-px);font-weight:400;font-size:15px;letter-spacing:0;gap:6px}
+.btn.big small{font-family:var(--f-t)}
 @media (max-width:780px){
   .panel.menu{width:min(560px,100%)}
   .mhead,.mcols{grid-template-columns:1fr}
@@ -217,23 +222,24 @@ details.help[open] summary::before{content:'– '}
 #waitMsg{margin-bottom:6px;font-weight:600}
 #waitSub{color:var(--muted);font-size:13.5px;margin-bottom:16px}
 
-/* ── marcador ──────────────────────────────────────────────── */
+/* ── marcador (arriba a la izquierda, a lo FIFA de los 90) ──── */
 #hud{position:fixed;top:0;left:0;right:0;z-index:20;pointer-events:none;
   padding:max(8px,env(safe-area-inset-top)) 10px 0}
 #hud[hidden]{display:none}
-.sb{margin:0 auto;width:max-content;display:flex;align-items:stretch;border-radius:11px;overflow:hidden;
-  box-shadow:0 12px 30px -12px rgba(0,0,0,.8);font-family:var(--f-d)}
-.sb .tn{display:flex;align-items:center;padding:0 12px;font-weight:800;font-size:14px;
-  letter-spacing:.08em;color:#fff}
+.sb{position:absolute;left:calc(max(10px,env(safe-area-inset-left)) + 46px);top:max(8px,env(safe-area-inset-top));
+  width:max-content;display:flex;align-items:stretch;border-radius:3px;overflow:hidden;
+  box-shadow:4px 4px 0 rgba(0,0,0,.55);font-family:var(--f-px);border:2px solid #0F0F0F}
+.sb .tn{display:flex;align-items:center;padding:0 9px;font-size:11px;letter-spacing:.04em;color:#fff;
+  text-shadow:2px 2px 0 rgba(0,0,0,.45)}
 .sb .tn.r{background:var(--red)} .sb .tn.b{background:var(--blue)}
-.sb .sc{background:var(--ink);color:#0F0F0F;font-weight:900;font-size:24px;padding:3px 12px;
-  display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums;line-height:1.15}
+.sb .sc{background:var(--ink);color:#0F0F0F;font-size:16px;padding:9px 10px 7px;
+  display:flex;align-items:center;gap:8px;line-height:1}
 .sb .sc em{font-style:normal;opacity:.4;font-weight:700}
-.sb .clk{background:#0F0F0F;color:var(--ink);font-family:var(--f-m);font-weight:700;font-size:14px;
-  display:flex;align-items:center;padding:0 12px;min-width:66px;justify-content:center;
-  font-variant-numeric:tabular-nums}
+.sb .clk{background:#0F0F0F;color:#FFC21A;font-family:var(--f-px);font-size:11px;
+  display:flex;align-items:center;padding:0 10px;min-width:64px;justify-content:center}
 .sb .clk.gold{background:var(--gold);color:#1a1200}
-#sub{text-align:center;margin-top:6px;font-family:var(--f-m);font-size:10.5px;letter-spacing:.16em;
+#sub{position:absolute;left:calc(max(10px,env(safe-area-inset-left)) + 48px);top:calc(max(8px,env(safe-area-inset-top)) + 44px);
+  text-align:left;font-family:var(--f-m);font-size:10.5px;letter-spacing:.16em;
   text-transform:uppercase;color:rgba(245,240,232,.85);text-shadow:0 1px 4px #000}
 .hud-r,.hud-l{position:absolute;top:max(8px,env(safe-area-inset-top));display:flex;gap:6px;align-items:center;pointer-events:auto}
 .hud-r{right:max(10px,env(safe-area-inset-right))} .hud-l{left:max(10px,env(safe-area-inset-left))}
@@ -243,9 +249,9 @@ details.help[open] summary::before{content:'– '}
 .ib:hover{border-color:var(--ink)}
 #ping{font-family:var(--f-m);font-size:11px;color:var(--muted);text-shadow:0 1px 3px #000}
 @media (max-width:520px){
-  .sb .tn{padding:0 8px;font-size:12px}
-  .sb .sc{font-size:20px;padding:2px 9px}
-  .sb .clk{font-size:12.5px;min-width:54px;padding:0 8px}
+  .sb .tn{padding:0 6px;font-size:9px}
+  .sb .sc{font-size:13px;padding:8px 7px 6px}
+  .sb .clk{font-size:9px;min-width:50px;padding:0 6px}
   .ib{width:34px;height:34px}
   #ping{display:none}
 }
@@ -253,24 +259,24 @@ details.help[open] summary::before{content:'– '}
 /* ── cartel de gol ─────────────────────────────────────────── */
 #banner{position:fixed;left:0;right:0;top:34%;z-index:24;text-align:center;pointer-events:none}
 #banner[hidden]{display:none}
-#banner b{display:inline-block;font-family:var(--f-d);font-weight:900;font-style:italic;
-  font-size:clamp(46px,11vw,124px);letter-spacing:-.045em;line-height:1;color:#fff;
-  transform:skewX(-8deg);text-shadow:0 6px 0 var(--bc,#0F0F0F),0 20px 50px rgba(0,0,0,.65)}
-#banner span{display:inline-block;margin-top:12px;font-family:var(--f-m);font-size:12.5px;
-  letter-spacing:.18em;text-transform:uppercase;background:rgba(8,12,10,.8);padding:6px 12px;border-radius:8px}
+#banner b{display:inline-block;font-family:var(--f-px);font-weight:400;
+  font-size:clamp(26px,7.5vw,84px);letter-spacing:0;line-height:1.1;color:#FFE14D;
+  text-shadow:4px 4px 0 var(--bc,#0F0F0F),8px 8px 0 #0F0F0F}
+#banner span{display:inline-block;margin-top:18px;font-family:var(--f-px);font-size:10px;line-height:1.5;
+  letter-spacing:.06em;text-transform:uppercase;background:rgba(8,12,10,.85);padding:8px 12px;border:2px solid #F5F0E8}
 #banner span:empty{display:none}
 #banner.pop b{animation:pop .55s cubic-bezier(.2,1.5,.4,1)}
-@keyframes pop{0%{transform:skewX(-8deg) scale(.3);opacity:0}100%{transform:skewX(-8deg) scale(1);opacity:1}}
+@keyframes pop{0%{transform:scale(2.2);opacity:0}60%{transform:scale(.92);opacity:1}100%{transform:scale(1)}}
 
 /* ── chat ──────────────────────────────────────────────────── */
-#feed{position:fixed;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));
+#feed{position:fixed;left:max(12px,env(safe-area-inset-left));bottom:calc(max(12px,env(safe-area-inset-bottom)) + 44px);
   z-index:18;width:min(420px,72vw);display:flex;flex-direction:column;align-items:flex-start;gap:4px;
   pointer-events:none;font-size:13.5px}
 #feed p{background:rgba(8,12,10,.78);padding:5px 10px;border-radius:9px;max-width:100%;
   overflow-wrap:anywhere;transition:opacity .8s}
 #feed p.old{opacity:0}
 #feed p.sys{color:var(--muted);font-style:italic}
-.touch #feed{bottom:auto;top:88px}
+.touch #feed{bottom:auto;top:124px}
 #frmChat{position:fixed;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));
   z-index:22;width:min(440px,calc(100vw - 24px));display:flex;gap:6px}
 #frmChat[hidden]{display:none}
@@ -1071,7 +1077,11 @@ const Sfx = {
 const cv = $('#cv'), ctx = cv.getContext('2d');
 const fieldCv = document.createElement('canvas');
 let CW = 0, CH = 0, DPR = 1;
-const V = { rot: false, s: 1, cx: 0, cy: 0, key: '', fw: 0, fh: 0, k: 1 };
+// Cámara de transmisión, como los FIFA de los 90: la cancha se ve inclinada (SQ aplasta
+// la profundidad) y la cámara sigue al balón. Espacio de vista: u horizontal y v vertical
+// en pantalla (en vertical la cancha se gira 90°).
+const SQ = .72;
+const V = { rot: false, s: 1, cx: 0, cy: 0, key: '', fw: 0, fh: 0, k: 1, camU: 0, camV: 0, camT: 0, snap: true, hu: 0, hv: 0 };
 
 function resize() {
   DPR = Math.min(window.devicePixelRatio || 1, 2);
@@ -1080,35 +1090,51 @@ function resize() {
   V.key = '';
 }
 
-function hudSpace() { return G.live && !$('#hud').hidden ? (CW < 520 ? 66 : 74) : 0; }
-
 function layoutFor(w) {
-  const top = hudSpace();
   const fw = w.W + 2 * (OUT_M + STAND), fh = w.H + 2 * (OUT_M + STAND);
   const rot = CH > CW * 1.15;
-  const pad = rot && !$('#touch').hidden ? 150 : 0;
-  const aw = Math.max(50, CW - 8), ah = Math.max(50, CH - top - 8 - pad);
-  const s = rot ? Math.min(aw / fh, ah / fw) : Math.min(aw / fw, ah / fh);
-  const key = [w.size, CW, CH, DPR, rot, top, pad].join();
+  const key = [w.size, CW, CH, DPR, rot].join();
   if (key === V.key) return;
+  // zoom: el futbolista mide ~1/8 del alto (como en los FIFA de los 90), sin dejar ver
+  // más allá del estadio a los lados; en vertical, todo el ancho de la cancha
+  const s = rot ? CW / (w.H + 2 * OUT_M + 16)
+                : clamp(Math.max(CH / (8.5 * FIG_H * FIG_SCALE), CW / fw), .4, 2.4);
   V.key = key; V.rot = rot; V.s = s; V.fw = fw; V.fh = fh;
-  V.cx = CW / 2; V.cy = top + 4 + ah / 2;
+  V.cx = CW / 2; V.cy = CH / 2;
+  V.hu = (rot ? fh : fw) / 2; V.hv = (rot ? fw : fh) / 2;   // medio estadio en espacio de vista
+  V.snap = true;
   buildField(w);
 }
 
-function toScreen(x, y) { return V.rot ? [V.cx + y * V.s, V.cy - x * V.s] : [V.cx + x * V.s, V.cy + y * V.s]; }
+// Mueve la cámara hacia el balón (u, v en espacio de vista) sin enseñar más allá del estadio.
+function aimCamera(bu, bv, now) {
+  const dt = clamp((now - (V.camT || now)) / 1000, 0, .1);
+  V.camT = now;
+  const halfU = CW / 2 / V.s, halfV = CH / 2 / (V.s * SQ);
+  const lu = Math.max(0, V.hu - halfU), lv = Math.max(0, V.hv - halfV);
+  const tu = clamp(bu, -lu, lu), tv = clamp(bv + 20, -lv, lv);
+  if (V.snap) { V.camU = tu; V.camV = tv; V.snap = false; return; }
+  const f = 1 - Math.exp(-dt * (REDUCED ? 2.5 : 5));
+  V.camU += (tu - V.camU) * f; V.camV += (tv - V.camV) * f;
+}
+
+const toView = (x, y) => V.rot ? [y, -x] : [x, y];
+function toScreen(x, y) {
+  const u = V.rot ? y : x, v = V.rot ? -x : y;
+  return [V.cx + (u - V.camU) * V.s, V.cy + (v - V.camV) * V.s * SQ];
+}
 function screenToWorldDir(x, y) { return V.rot ? [-y, x] : [x, y]; }
 function worldTransform() {
-  const k = V.s * DPR;
-  if (V.rot) ctx.setTransform(0, -k, k, 0, V.cx * DPR, V.cy * DPR);
-  else ctx.setTransform(k, 0, 0, k, V.cx * DPR, V.cy * DPR);
+  const k = V.s * DPR, e = (V.cx - V.camU * V.s) * DPR, f = (V.cy - V.camV * V.s * SQ) * DPR;
+  if (V.rot) ctx.setTransform(0, -k * SQ, k, 0, e, f);
+  else ctx.setTransform(k, 0, 0, k * SQ, e, f);
 }
 
 function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
 function buildField(w) {
   const fw = V.fw, fh = V.fh;
-  const k = Math.min(V.s * DPR, 2.6);
+  const k = Math.min(V.s * DPR, 3);
   V.k = k;
   fieldCv.width = Math.ceil(fw * k); fieldCv.height = Math.ceil(fh * k);
   const g = fieldCv.getContext('2d');
@@ -1129,9 +1155,12 @@ function buildField(w) {
   g.globalAlpha = 1;
   // pasto
   g.fillStyle = '#2f7f3a'; g.fillRect(gx0, gy0, gw, gh);
+  // corte del césped a franjas, bien marcado como en las transmisiones de los 90
   const n = 16, sw = w.W / n;
-  g.fillStyle = 'rgba(255,255,255,.05)';
+  g.fillStyle = 'rgba(255,255,255,.075)';
   for (let i = 0; i < n; i += 2) g.fillRect(-w.hw + i * sw, gy0, sw, gh);
+  g.fillStyle = 'rgba(0,0,0,.035)';
+  for (let j = 0; j * 60 < gh; j += 2) g.fillRect(gx0, gy0 + j * 60, gw, 60);
   for (let i = 0; i < 900; i++) {
     g.fillStyle = R() < .5 ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.035)';
     g.fillRect(gx0 + R() * gw, gy0 + R() * gh, 1.4, 1.4);
@@ -1181,6 +1210,23 @@ function buildField(w) {
     g.beginPath(); g.arc(q.x, q.y, POST_R, 0, TAU);
     g.fillStyle = '#F5F0E8'; g.fill(); g.lineWidth = 1.6; g.strokeStyle = '#0F0F0F'; g.stroke();
   }
+  // vallas publicitarias alrededor del campo
+  const ADS = [['#FF4A1C', '#FFFFFF', 'POXSTAR'], ['#0F0F0F', '#FFC21A', 'PICHANGA'], ['#2F7BFF', '#FFFFFF', 'AUGUSTOCLIVE'],
+    ['#F5F0E8', '#0F0F0F', 'POLEMON'], ['#0F0F0F', '#FF4A1C', 'FURIOUS CARS 2'], ['#FFC21A', '#0F0F0F', 'LEMUY'], ['#1B6B30', '#F5F0E8', 'PUTUP']];
+  const BD = 13, pw = 118;
+  let ai = 0;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  const board = (x, y, wd, ht, vertical) => {
+    const [bg, fg, txt] = ADS[ai++ % ADS.length];
+    g.fillStyle = bg; g.fillRect(x, y, wd, ht);
+    g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x + (vertical ? wd - 1 : 0), y + (vertical ? 0 : ht - 1), vertical ? 1 : wd, vertical ? ht : 1);
+    g.save(); g.translate(x + wd / 2, y + ht / 2); if (vertical) g.rotate(Math.PI / 2);  // así queda derecho con la cancha girada
+    g.font = `900 ${Math.min(9, (vertical ? wd : ht) * .7)}px Archivo, system-ui, sans-serif`;
+    g.fillStyle = fg; g.fillText(txt, 0, .5, (vertical ? ht : wd) - 8); g.restore();
+  };
+  if (!V.rot) for (const yy of [gy0 - BD - 2, gy0 + gh + 2]) for (let x = gx0; x < gx0 + gw - 10; x += pw) board(x, yy, Math.min(pw - 2, gx0 + gw - x), BD, false);
+  else for (const xx of [gx0 - BD - 2, gx0 + gw + 2]) for (let y = gy0; y < gy0 + gh - 10; y += pw) board(xx, y, BD, Math.min(pw - 2, gy0 + gh - y), true);
+
   // viñeta
   const vg = g.createRadialGradient(0, 0, Math.min(fw, fh) * .35, 0, 0, Math.max(fw, fh) * .62);
   vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.38)');
@@ -1211,7 +1257,7 @@ const STRIDE = 26;            // unidades de mundo por ciclo de carrera
 const FIG_H = 48;             // alto aproximado de la figura, para poner encima el nombre y los globos
 // La figura se pinta algo mayor que el radio físico (como en los clásicos), para que se lea
 // bien; la física no cambia.
-const FIG_SCALE = 1.3;
+const FIG_SCALE = 1.15;
 
 // Orientación, fase de carrera y chute de cada jugador, en espacio de pantalla.
 function animate(view, now, bsx, bsy) {
@@ -1699,11 +1745,66 @@ function drawBall(cx, cy, r, ox0, oy0) {
   ctx.lineWidth = Math.max(1, 1.5 * Math.min(1, q)); ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.stroke();
 }
 
+// ── estadio en pantalla: arcos con altura y banderines ──
+const GOAL_H = 40;
+let netPat = null;
+function netPattern() {
+  if (netPat) return netPat;
+  const c = document.createElement('canvas'); c.width = c.height = 8;
+  const g = c.getContext('2d');
+  g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(0, 0); g.lineTo(8, 8); g.moveTo(8, 0); g.lineTo(0, 8); g.stroke();
+  netPat = ctx.createPattern(c, 'repeat');
+  return netPat;
+}
+function poly(pts, fill) {
+  ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.closePath(); ctx.fillStyle = fill; ctx.fill();
+}
+function bar(a, b, wd) {
+  ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+  ctx.lineCap = 'round'; ctx.strokeStyle = 'rgba(15,15,15,.75)'; ctx.lineWidth = wd + 2; ctx.stroke();
+  ctx.strokeStyle = '#F5F0E8'; ctx.lineWidth = wd; ctx.stroke();
+}
+function drawGoalPart(w, gx, near) {
+  const x0 = gx * w.hw, x1 = gx * (w.hw + GOAL_D);
+  let f1 = toScreen(x0, -w.hg), f2 = toScreen(x0, w.hg), b1 = toScreen(x1, -w.hg), b2 = toScreen(x1, w.hg);
+  if (f1[1] > f2[1]) { [f1, f2] = [f2, f1]; [b1, b2] = [b2, b1]; }   // f1/b1: lado lejano
+  const h = GOAL_H * V.s, hb = h * .8, wd = Math.max(2, 3.2 * V.s);
+  const up = (p, d) => [p[0], p[1] - d];
+  const pat = netPattern(), veil = 'rgba(235,240,235,.13)';
+  if (!near) {
+    for (const q of [[b1, up(b1, hb), up(b2, hb), b2], [up(f1, h), up(f2, h), up(b2, hb), up(b1, hb)], [f1, up(f1, h), up(b1, hb), b1]]) {
+      poly(q, veil); poly(q, pat);
+    }
+    ctx.strokeStyle = 'rgba(245,240,232,.7)'; ctx.lineWidth = Math.max(1, 1.4 * V.s);
+    ctx.beginPath(); ctx.moveTo(...up(f1, h)); ctx.lineTo(...up(b1, hb)); ctx.lineTo(...b1);
+    ctx.moveTo(...up(b1, hb)); ctx.lineTo(...up(b2, hb)); ctx.lineTo(...b2); ctx.moveTo(...up(b2, hb)); ctx.lineTo(...up(f2, h)); ctx.stroke();
+    bar(f1, up(f1, h), wd);
+    bar(up(f1, h), up(f2, h), wd);
+  } else {
+    const q = [f2, up(f2, h), up(b2, hb), b2];
+    poly(q, veil); poly(q, pat);
+    bar(f2, up(f2, h), wd);
+    bar(up(f2, h), up(f1, h), wd);
+  }
+}
+function drawFlag(w, fx, fy, now) {
+  const [x, y] = toScreen(fx * w.hw, fy * w.hh), h = 26 * V.s, k = V.s;
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x + 2 * k, y + k, 4 * k, 1.6 * k, 0, 0, TAU); ctx.fill();
+  bar([x, y], [x, y - h], Math.max(1.2, 1.6 * k));
+  const wv = REDUCED ? 0 : Math.sin(now / 180 + fx + fy) * 2 * k;
+  ctx.beginPath(); ctx.moveTo(x, y - h); ctx.lineTo(x + 11 * k, y - h + 3 * k + wv * .3); ctx.lineTo(x, y - h + 7 * k); ctx.closePath();
+  ctx.fillStyle = '#FFC21A'; ctx.fill(); ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 1; ctx.stroke();
+}
+
 function render(view) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = '#0b120d'; ctx.fillRect(0, 0, cv.width, cv.height);
   if (!view) return;
   layoutFor(view.world);
+  { const [bu, bv] = toView(view.ball.x, view.ball.y); aimCamera(bu, bv, performance.now()); }
   worldTransform();
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(fieldCv, -V.fw / 2, -V.fh / 2, V.fw, V.fh);
@@ -1777,11 +1878,20 @@ function render(view) {
   }
 
   // figuras y balón, de atrás hacia adelante
+  const w = view.world;
   const items = view.players.map(p => ({ p, y: FX.anim.get(p.id).sy }));
   items.push({ p: null, y: bsy });
+  // arcos con altura: lo lejano (red y palo de atrás) y lo cercano (palo de delante)
+  for (const gx of [-1, 1]) {
+    const [, ya] = toScreen(gx * w.hw, -w.hg), [, yb] = toScreen(gx * w.hw, w.hg);
+    items.push({ goal: gx, near: false, y: Math.min(ya, yb) - .5 }, { goal: gx, near: true, y: Math.max(ya, yb) + .5 });
+  }
+  for (const fx of [-1, 1]) for (const fy of [-1, 1]) items.push({ flag: true, fx, fy, y: toScreen(fx * w.hw, fy * w.hh)[1] });
   items.sort((u, v) => u.y - v.y);
   const [rox, roy] = V.rot ? [FX.ballOff.y, -FX.ballOff.x] : [FX.ballOff.x, FX.ballOff.y];
   for (const it of items) {
+    if (it.goal) { drawGoalPart(w, it.goal, it.near); continue; }
+    if (it.flag) { drawFlag(w, it.fx, it.fy, now); continue; }
     if (!it.p) { drawBall(bsx, bsy - lift, B_R * k, rox, roy); continue; }
     const a = FX.anim.get(it.p.id);
     drawFootballer(ctx, a.sx, a.sy, fk, footballerParams(it.p, a, now, cheerTeam === it.p.team));
@@ -1853,7 +1963,55 @@ function drawLabels(view) {
       }
     }
   }
+  if (G.live && !G.screen) { drawRadar(view); drawHolder(view); }
 }
+const PIXEL = '"Press Start 2P", ui-monospace, monospace';
+// Radar de jugadores, como el de los FIFA de los 90
+function drawRadar(view) {
+  const w = view.world, touch = IS_TOUCH;
+  const U = V.rot ? w.H : w.W, Vv = V.rot ? w.W : w.H;
+  const rw = Math.round(V.rot ? clamp(CW * .15, 50, 70) : touch ? clamp(CW * .16, 90, 140) : clamp(CW * .15, 110, 200));
+  const rh = Math.round(rw * Vv / U);
+  const top = touch || V.rot;
+  const x0 = top ? CW - rw - 14 : Math.round((CW - rw) / 2), y0 = top ? 58 : CH - rh - 14;
+  ctx.fillStyle = 'rgba(8,14,10,.62)'; ctx.fillRect(x0 - 4, y0 - 4, rw + 8, rh + 8);
+  ctx.strokeStyle = 'rgba(245,240,232,.75)'; ctx.lineWidth = 1;
+  ctx.strokeRect(x0 + .5, y0 + .5, rw - 1, rh - 1);
+  if (V.rot) { ctx.beginPath(); ctx.moveTo(x0, y0 + rh / 2); ctx.lineTo(x0 + rw, y0 + rh / 2); ctx.stroke(); }
+  else { ctx.beginPath(); ctx.moveTo(x0 + rw / 2, y0); ctx.lineTo(x0 + rw / 2, y0 + rh); ctx.stroke(); }
+  const map = (x, y) => { const [u, v] = toView(x, y); return [x0 + (u / U + .5) * rw, y0 + (v / Vv + .5) * rh]; };
+  // lo que se ve en pantalla
+  const halfU = CW / 2 / V.s, halfV = CH / 2 / (V.s * SQ);
+  ctx.save(); ctx.beginPath(); ctx.rect(x0 - 4, y0 - 4, rw + 8, rh + 8); ctx.clip();
+  ctx.strokeStyle = 'rgba(255,194,26,.55)';
+  ctx.strokeRect(x0 + ((V.camU - halfU) / U + .5) * rw, y0 + ((V.camV - halfV) / Vv + .5) * rh, halfU * 2 / U * rw, halfV * 2 / Vv * rh);
+  ctx.restore();
+  for (const p of view.players) {
+    const [x, y] = map(p.x, p.y), r = p.me ? 3.6 : 2.8;
+    ctx.fillStyle = TEAMS[p.team].c; ctx.fillRect(Math.round(x - r), Math.round(y - r), r * 2, r * 2);
+    if (p.me) { ctx.strokeStyle = '#FFE9A8'; ctx.strokeRect(Math.round(x - r) - .5, Math.round(y - r) - .5, r * 2 + 1, r * 2 + 1); }
+  }
+  const [bx, by] = map(view.ball.x, view.ball.y);
+  ctx.fillStyle = '#fff'; ctx.fillRect(Math.round(bx - 1.5), Math.round(by - 1.5), 3, 3);
+}
+// Quién lleva el balón: dorsal y nombre, abajo a la izquierda
+function drawHolder(view) {
+  const b = view.ball;
+  let best = null, bd = P_R + B_R + 10;
+  for (const p of view.players) { const d = Math.hypot(p.x - b.x, p.y - b.y); if (d < bd) { bd = d; best = p; } }
+  if (best) FX.holder = { p: best, until: performance.now() + 900 };
+  const h = FX.holder;
+  if (!h || performance.now() > h.until) return;
+  const p = h.p, T = TEAMS[p.team];
+  const txt = `${p.num} ${String(p.name || '').toUpperCase()}`;
+  ctx.font = `10px ${PIXEL}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  const tw = Math.min(240, ctx.measureText(txt).width);
+  const x = 14, y = IS_TOUCH ? 80 : CH - 36;
+  ctx.fillStyle = 'rgba(8,14,10,.78)'; ctx.fillRect(x, y, tw + 34, 22);
+  ctx.fillStyle = T.c; ctx.fillRect(x, y, 8, 22);
+  ctx.fillStyle = '#F5F0E8'; ctx.fillText(txt, x + 18, y + 12, 240);
+}
+
 function roundRect(x, y, w, h, r) {
   ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
   ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
@@ -2005,7 +2163,7 @@ function startOffline(kind, cfgIn) {
   Sfx.init(); Sfx.crowdLevel(.05);
 }
 
-function resetFx() { FX.parts.length = 0; FX.rings.length = 0; FX.trail.length = 0; FX.bubbles.clear(); FX.anim.clear(); FX.cheer.team = -1; FX.lastBall = null; hideBanner(); }
+function resetFx() { V.snap = true; FX.parts.length = 0; FX.rings.length = 0; FX.trail.length = 0; FX.bubbles.clear(); FX.anim.clear(); FX.cheer.team = -1; FX.lastBall = null; hideBanner(); }
 
 function simTick() {
   const m = G.match;
@@ -3120,6 +3278,7 @@ setInterval(() => { if (G.screen === 'scrLobby' && Net.role === 'client' && Net.
 
 addEventListener('resize', resize);
 resize();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { V.key = ''; });
 syncMute();
 newAttract();
 requestAnimationFrame(t => { G.last = t; frame(t); });
