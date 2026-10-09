@@ -6,7 +6,97 @@ con los juegos jugables directamente en el navegador.
 
 ## 🎮 Juegos
 
-**01 · Polemon: Edición Aventura** — *Gran estreno.* Un RPG de criaturas al estilo
+**01 · Pichanga** — *Gran estreno · online.* Fútbol 2D al estilo de los FIFA de
+los 90, de uno contra uno a cuatro contra cuatro: cámara de transmisión que
+sigue al balón sobre la cancha inclinada, arcos con red y altura, banderines,
+vallas publicitarias, radar de jugadores, marcador y «¡GOOOL!» en letra
+pixelada, y futbolistas en pixel art de 16 bits que corren, chutan y celebran
+(cada nombre tiene siempre la misma piel, pelo y peinado).
+
+- **Con amigos:** «Crear sala privada» da un código de cinco letras y un enlace
+  (`pichanga.html#sala=CÓDIGO`). Quien crea la sala es el anfitrión: elige
+  duración, goles para ganar, cancha, si los bots completan los equipos y su
+  nivel, mueve gente de equipo y decide cuándo empieza. Hay chat en la sala y
+  en el partido.
+- **Partida rápida:** mira seis salas públicas fijas; si alguna tiene hueco
+  entra —a mitad de partido, en lugar de un bot— y si no, abre una. En las
+  públicas el partido arranca solo en cuanto hay dos personas.
+- **Sin conexión:** contra la máquina (1v1, 2v2 o 3v3; fácil, normal o
+  difícil) o dos personas en el mismo teclado.
+
+Controles:
+
+- **WASD / flechas** moverse · **Espacio / X** chutar · **Shift / C** correr
+  (gasta energía) · **Enter / T** chat · **Esc** pausa · **M** sonido
+- Chutar al tocar es un pase; **mantener el chute mientras llegas al balón carga
+  un cañonazo** (el aro dorado), a cambio de ir más lento.
+- Dos en un teclado: J1 WASD + Espacio + Shift izq.; J2 flechas + Enter (o L) +
+  Shift der. (o K). Mando: stick o cruceta, A chuta, B o gatillo corre.
+- En móvil, joystick y botones en pantalla; en vertical la cancha se gira.
+
+`pichanga.html` es **un solo archivo** y para jugar sin conexión no pide nada
+de fuera (las fuentes de Google son opcionales: sin ellas tira de las del
+sistema). El online no tiene servidor propio:
+
+- Va **de navegador a navegador** (WebRTC) con [PeerJS](https://peerjs.com)
+  1.5.4, que se descarga sólo al pulsar un botón online, de cdnjs o, si falla,
+  de jsDelivr, con su hash SRI. El servidor público de PeerJS sólo presenta a
+  los jugadores; el partido viaja directo. Si una red no deja conectar directo,
+  PeerJS usa sus servidores TURN públicos.
+- **Manda el anfitrión:** simula a 60 pasos por segundo y envía el estado 30
+  veces por segundo; los invitados mandan sus controles y pintan lo que les
+  llega interpolado (unos 67 ms por detrás). Por eso conviene que quien abre la
+  sala tenga buena conexión, y si cierra la pestaña la sala se acaba: no hay
+  traspaso de anfitrión. Si sólo cambia de pestaña, un Worker mantiene la
+  simulación, porque el navegador congela `requestAnimationFrame` en segundo
+  plano.
+- Las salas son IDs de PeerJS: `poxstar-pichanga-v1-CÓDIGO` las privadas y
+  `poxstar-pichanga-v1-pub-0…5` las públicas. Si cambias el protocolo, sube el
+  `v1` y `PROTO` a la vez, para que no se mezclen versiones.
+- Lo que llega de otros jugadores se trata como no fiable: nombres y chat se
+  limpian y se pintan como texto, los controles se acotan y hay un tope de
+  mensajes por segundo.
+- Averiguar que una sala no existe tarda unos 5–7 s: el servidor de PeerJS
+  espera 5 s antes de responder que no hay nadie. Por eso la partida rápida
+  tarda eso cuando no hay nadie esperando.
+
+**Probar el online en local**, sin depender del servidor público:
+
+```bash
+npx peerjs --port 9000          # un servidor PeerJS propio
+python -m http.server 8000
+# y en dos ventanas:
+# http://localhost:8000/pichanga.html?peerhost=localhost&peerport=9000&peersecure=0
+```
+
+Con `#debug` en la URL expone `window.__pich`, con `sim(segundos)` para
+adelantar la simulación y `autopilot(true)` para que tu jugador lo lleve la IA.
+Así se probó el online de punta a punta (sala privada, chat, partido, final,
+partida rápida, entrar en lugar de un bot, anfitrión que se va) con varios
+Chromium contra un servidor PeerJS local, y así se afinaron los bots, jugando
+partidos de tres minutos entre ellos: unos 7 goles por partido en 1v1, 3 en
+2v2 y 1,5–2 en 3v3 y 4v4; el nivel difícil le gana al normal doce de doce.
+
+**La cámara** (`aimCamera`) sigue al balón con suavizado sin enseñar más allá del
+estadio; la cancha se aplasta en vertical (`SQ = 0.72`) para dar la inclinación
+de las transmisiones, y el zoom deja al futbolista en ~1/8 del alto de la
+pantalla. En móvil vertical se ve todo el ancho y la cancha se gira. Todo es
+una transformación afín, así que la cancha sigue saliendo de una sola imagen
+cacheada.
+
+**Los futbolistas** se dibujan con rectángulos sobre una rejilla de «píxel de
+arte» (`drawFootballer`), en vista tres cuartos y siempre de pie aunque la
+cancha se gire en vertical; se ordenan por profundidad con el balón. La física
+sigue siendo la de un disco de radio 15: la figura se pinta 1,15 veces más
+grande (`FIG_SCALE`, 1,15) para que se lea. Cuesta unos 50 µs por jugador; con 4
+contra 4 en un móvil simulado (CPU ×4) el cuadro entero se pinta en 1,8 ms de
+mediana. El diseño salió de un banco de pruebas que pinta todas las vistas,
+fases de carrera, chute y celebración a escala grande y a tamaño de móvil.
+
+La portada (`img/pichanga-portada.webp`) es un partido de 3 contra 3 de
+verdad, con bots, capturado tal cual se ve en pantalla.
+
+**02 · Polemon: Edición Aventura** — *Nuevo.* Un RPG de criaturas al estilo
 de los clásicos de Game Boy. Eliges inicial (Charmandro, Bulbasor o Squirtel) en
 el laboratorio del Profesor Roble y recorres la región de Kantia —mapa de
 160×156 casillas, 9 ciudades, 15 rutas y 8 mazmorras— capturando entre **121
@@ -45,7 +135,7 @@ hace `Object.assign(..., o)` con el `title: 'Líder'` que se le pasa, que lo
 pisa. Por eso el combate anuncia «¡Líder quiere luchar!» sin el nombre. Se
 arregla en el repo del juego; la copia de aquí sigue al original.
 
-**02 · Furious Cars 2** — La secuela de Furious Cars, ahora en 3D
+**03 · Furious Cars 2** — La secuela de Furious Cars, ahora en 3D
 (three.js). Ocho pilotos en pista —tú y siete rivales con IA—, **seis coches**
 (Viper GT, Phantom R, Blaze S, Toro V12, Bravo 69 y Cóndor RS) y **dos
 circuitos**: Sierra Dorada y el volcán Osorno. Carrera de 1, 3 o 5 vueltas, o
@@ -76,7 +166,7 @@ expone `window.__fc2`, con `sim(segundos)` para adelantar la simulación con
 piloto automático sin tener que pintar cada cuadro. Las ocho capturas de
 `img/fc2-*.webp` salieron así, del juego de verdad, en calidad «ultra».
 
-**03 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
+**04 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
 en Chiloé. Diez villas (de Puqueldón, nivel 1, a Detif, nivel 22), veinticuatro
 criaturas de la mitología chilota, cinco clases, clanes, territorios y banderas.
 
@@ -90,7 +180,7 @@ sitio se enlaza directo (franja del hero, ficha 03 del catálogo, sección
 `#lemuy`, pie de página y el launcher). **Si el servidor está apagado, el enlace
 no abre** — es lo único del sitio que depende de una máquina encendida.
 
-**04 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
+**05 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
 cocina, recibidor, baño y jardín), con la casa del vecino al otro lado de la
 parcela, y grabas partidas en el ordenador, las editas
 —momentos, título, miniatura— y las publicas para que crezca el canal. El dinero
@@ -165,9 +255,9 @@ que venía en la subida: se diferencian sólo en el motor (92 líneas), una lín
 de `house.js` y seis de `garden.js`; el resto de módulos son idénticos. Lo que
 se publica sale de las fuentes.
 
-**05 · Carrera Loca** — Endless arcade de carreras con estética neón.
+**06 · Carrera Loca** — Endless arcade de carreras con estética neón.
 
-**06 · BREACH // 2044** — Puzzle de intrusión cyberpunk. Recorres una matriz de
+**07 · BREACH // 2044** — Puzzle de intrusión cyberpunk. Recorres una matriz de
 código alternando fila y columna para llenar el búfer; un démon se sube si su
 secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 
@@ -175,16 +265,16 @@ secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 - Los démones se generan a partir de un recorrido válido real, así que **siempre
   hay solución** dentro del búfer.
 
-**07 · NEON RUNNER** — Runner de gravedad invertible sobre ciudad neón.
+**08 · NEON RUNNER** — Runner de gravedad invertible sobre ciudad neón.
 
 - **Espacio** / clic / toque — invertir gravedad
 
-**08 · DAEMON** — Shooter de arena por oleadas con gráficos vectoriales.
+**09 · DAEMON** — Shooter de arena por oleadas con gráficos vectoriales.
 
 - **WASD** / flechas — moverse · **ratón** — apuntar · **clic** — disparar
 - En móvil: arrastrar para moverse, dispara y apunta solo
 
-**09 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
+**10 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
 
 - ← → / A D — moverse lateral
 - ↑ ↓ / W S — adelantar/frenar (más arriba = más rápido)
@@ -241,18 +331,19 @@ sin eso: valen como comparación antes/después, pero miden sobre todo el hero.
 ```
 .
 ├── index.html          # Página principal
-├── polemon.html        # Juego 01 — empaquetado desde jesusccl/Concurso (ver arriba)
-├── furious-cars-2.html # Juego 02 — copia de jesusccl/miprogramagpt (ver arriba)
-├── furious-cars.html   # Juego 09 (también embebido en index)
-├── carrera-loca.html   # Juego 05
-├── breach-2044.html    # Juego 06
-├── neon-runner.html    # Juego 07
-├── daemon.html         # Juego 08
-├── putup.html          # Juego 04 — un solo archivo, generado por build-putup.cjs
+├── polemon.html        # Juego 02 — empaquetado desde jesusccl/Concurso (ver arriba)
+├── furious-cars-2.html # Juego 03 — copia de jesusccl/miprogramagpt (ver arriba)
+├── pichanga.html       # Juego 01 — fútbol online, un solo archivo hecho aquí
+├── furious-cars.html   # Juego 10 (también embebido en index)
+├── carrera-loca.html   # Juego 06
+├── breach-2044.html    # Juego 07
+├── neon-runner.html    # Juego 08
+├── daemon.html         # Juego 09
+├── putup.html          # Juego 05 — un solo archivo, generado por build-putup.cjs
 ├── build-putup.cjs     # Genera putup.html desde outputs/putup/
 ├── outputs/            # Material de Putup tal y como sale de su compilación
 ├── launcher.html       # Launcher web (no enlazado desde la home)
-├── img/                # Capturas de Polemon, Furious Cars 2, Lemuy y Putup para los carruseles
+├── img/                # Capturas de Polemon, Furious Cars 2, Lemuy y Putup, y la portada de Pichanga
 ├── tweaks.js           # Panel de tweaks de diseño (opt-in, vanilla JS)
 ├── og-image.png        # Imagen para redes sociales (1200×630)
 ├── robots.txt          # Indexación
@@ -344,6 +435,10 @@ Cosas que se midieron —con Chromium, CPU frenada— y por qué están como est
   608 → 568 y 592 → 660 ms). HTML comprimido **+5,6 KB**. En 1440×900 y en el
   móvil abrir la home sigue sin bajar ninguna imagen; en 1920×1080 llegan las
   dos primeras láminas de Polemon (unos 20 KB).
+- **La ficha de Pichanga no pesa al abrir la home:** su portada (44 KB) va
+  con `loading="lazy"` y, mirado en 1440×900, 1920×1080 y móvil, no se descarga
+  hasta llegar al catálogo. El juego son 162 KB (50 KB comprimido) y PeerJS
+  (93 KB) sólo baja cuando alguien pulsa un botón online.
 - **El menú pasa a la hamburguesa por debajo de 1000 px** (antes, 900). Con
   ocho enlaces no cabía entre 900 y 1020 px: «Furious 2» se partía en dos
   líneas y el botón «Jugar ahora» se salía de la pantalla.
