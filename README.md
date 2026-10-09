@@ -6,77 +6,7 @@ con los juegos jugables directamente en el navegador.
 
 ## 🎮 Juegos
 
-**01 · Polemon: Edición Aventura** — *Gran estreno.* Un RPG de criaturas al estilo
-de los clásicos de Game Boy. Eliges inicial (Charmandro, Bulbasor o Squirtel) en
-el laboratorio del Profesor Roble y recorres la región de Kantia —mapa de
-160×156 casillas, 9 ciudades, 15 rutas y 8 mazmorras— capturando entre **121
-especies** de **18 tipos**, con combates por turnos, evoluciones, **8 gimnasios**
-y la Liga. Es un fan-juego no oficial: los gráficos se generan por código y la
-música es propia; la página lo dice junto al juego.
-
-- **Flechas / WASD** moverse · **Z / espacio / Enter** aceptar · **X** cancelar
-- **Mantener B o Mayús** correr · **Esc / C / Q** menú · **M** silenciar
-- En móvil, cruceta y botones A, B y MENÚ en pantalla
-- La partida se guarda en `localStorage` (clave `polemon_save_v1`)
-
-`polemon.html` es el juego entero en **un solo archivo** (474 KB, hasta la fuente
-Press Start 2P va incrustada) y no pide nada de fuera: funciona sin conexión.
-Sale de [`jesusccl/Concurso`](https://github.com/jesusccl/Concurso), rama
-`ccr-f384db3e-cm9qya` (commit `9775b32`), con su propio empaquetador:
-
-```bash
-cd polemon && node tools/build.mjs ../../Poxstar/polemon.html
-```
-
-Si el juego cambia allí, hay que volver a generarlo y copiarlo.
-
-Las diez capturas de `img/polemon-*.webp` salen del lienzo del juego leído
-píxel a píxel (`toDataURL`), usando los guiones de pantallas de su
-`tests/screens.mjs` y algunos propios: el gimnasio de Celestia y el encuentro con
-Miutú se lanzan como en el juego, con su mapa, su líder y su equipo reales. Están
-a ×2 sin suavizado y en WebP sin pérdida (102 KB las diez); en la página se
-pintan con `image-rendering: pixelated`. El logotipo de la sección lo dibuja la
-propia función `drawLogo()` del juego sobre transparente, y pesa tan poco
-(338 bytes) que va incrustado en el HTML.
-
-**Un fallo del juego, sin tocar aquí:** al crear a los líderes de gimnasio,
-`T()` en `js/world/trainers.js` compone `title: 'Líder ' + nombre` pero luego
-hace `Object.assign(..., o)` con el `title: 'Líder'` que se le pasa, que lo
-pisa. Por eso el combate anuncia «¡Líder quiere luchar!» sin el nombre. Se
-arregla en el repo del juego; la copia de aquí sigue al original.
-
-**02 · Furious Cars 2** — La secuela de Furious Cars, ahora en 3D
-(three.js). Ocho pilotos en pista —tú y siete rivales con IA—, **seis coches**
-(Viper GT, Phantom R, Blaze S, Toro V12, Bravo 69 y Cóndor RS) y **dos
-circuitos**: Sierra Dorada y el volcán Osorno. Carrera de 1, 3 o 5 vueltas, o
-**modo libre**: sin muros, te bajas del auto, paseas por la ciudad, te subes a
-cualquier coche aparcado y puedes subir hasta la cumbre del volcán. Un relator
-narra adelantamientos, derrapes y saltos (con voz si el navegador tiene una en
-español; si no, en subtítulos).
-
-- **WASD** / flechas conducir · **Shift** nitro · **espacio** freno de mano
-  (derrapar recarga el nitro)
-- **F** bajar / subir del auto (modo libre) · **C** cámara · **R** volver a la
-  pista · **P** pausa · **M** sonido · **V** relator
-- Funciona con mando; en móvil salen botones en pantalla y arranca en calidad
-  «rápida»
-
-`furious-cars-2.html` es **una copia literal** del juego tal como está en
-[`jesusccl/miprogramagpt`](https://github.com/jesusccl/miprogramagpt), rama
-`claude/compassionate-faraday-68hhm6` (commit `73c8ee1`, 157 KB). Ojo: la
-`main` de ese repo tiene una versión anterior de 82 KB; la buena es la de la
-rama. Si el juego cambia allí, hay que volver a copiarlo.
-
-A diferencia de Putup, **no es autónomo**: carga three.js 0.160 desde jsDelivr
-(con un `importmap`) y sus dos fuentes desde Google Fonts. Necesita conexión
-la primera vez.
-
-Trae un gancho para pruebas automáticas: abriéndolo con `#debug` en la URL
-expone `window.__fc2`, con `sim(segundos)` para adelantar la simulación con
-piloto automático sin tener que pintar cada cuadro. Las ocho capturas de
-`img/fc2-*.webp` salieron así, del juego de verdad, en calidad «ultra».
-
-**03 · Pichanga** — *Nuevo · online.* Fútbol 2D visto desde arriba, de uno
+**01 · Pichanga** — *Gran estreno · online.* Fútbol 2D visto desde arriba, de uno
 contra uno a cuatro contra cuatro, con futbolistas en pixel art de 16 bits al
 estilo de los clásicos (Sensible Soccer, ISS): corren, chutan y celebran los
 goles, y cada nombre tiene siempre la misma piel, pelo y peinado.
@@ -157,6 +87,76 @@ fases de carrera, chute y celebración a escala grande y a tamaño de móvil.
 La portada (`img/pichanga-portada.webp`, 28 KB) es un partido de 3 contra 3 de
 verdad, con bots, capturado al doble de tamaño y recortado alrededor de la
 jugada.
+
+**02 · Polemon: Edición Aventura** — *Nuevo.* Un RPG de criaturas al estilo
+de los clásicos de Game Boy. Eliges inicial (Charmandro, Bulbasor o Squirtel) en
+el laboratorio del Profesor Roble y recorres la región de Kantia —mapa de
+160×156 casillas, 9 ciudades, 15 rutas y 8 mazmorras— capturando entre **121
+especies** de **18 tipos**, con combates por turnos, evoluciones, **8 gimnasios**
+y la Liga. Es un fan-juego no oficial: los gráficos se generan por código y la
+música es propia; la página lo dice junto al juego.
+
+- **Flechas / WASD** moverse · **Z / espacio / Enter** aceptar · **X** cancelar
+- **Mantener B o Mayús** correr · **Esc / C / Q** menú · **M** silenciar
+- En móvil, cruceta y botones A, B y MENÚ en pantalla
+- La partida se guarda en `localStorage` (clave `polemon_save_v1`)
+
+`polemon.html` es el juego entero en **un solo archivo** (474 KB, hasta la fuente
+Press Start 2P va incrustada) y no pide nada de fuera: funciona sin conexión.
+Sale de [`jesusccl/Concurso`](https://github.com/jesusccl/Concurso), rama
+`ccr-f384db3e-cm9qya` (commit `9775b32`), con su propio empaquetador:
+
+```bash
+cd polemon && node tools/build.mjs ../../Poxstar/polemon.html
+```
+
+Si el juego cambia allí, hay que volver a generarlo y copiarlo.
+
+Las diez capturas de `img/polemon-*.webp` salen del lienzo del juego leído
+píxel a píxel (`toDataURL`), usando los guiones de pantallas de su
+`tests/screens.mjs` y algunos propios: el gimnasio de Celestia y el encuentro con
+Miutú se lanzan como en el juego, con su mapa, su líder y su equipo reales. Están
+a ×2 sin suavizado y en WebP sin pérdida (102 KB las diez); en la página se
+pintan con `image-rendering: pixelated`. El logotipo de la sección lo dibuja la
+propia función `drawLogo()` del juego sobre transparente, y pesa tan poco
+(338 bytes) que va incrustado en el HTML.
+
+**Un fallo del juego, sin tocar aquí:** al crear a los líderes de gimnasio,
+`T()` en `js/world/trainers.js` compone `title: 'Líder ' + nombre` pero luego
+hace `Object.assign(..., o)` con el `title: 'Líder'` que se le pasa, que lo
+pisa. Por eso el combate anuncia «¡Líder quiere luchar!» sin el nombre. Se
+arregla en el repo del juego; la copia de aquí sigue al original.
+
+**03 · Furious Cars 2** — La secuela de Furious Cars, ahora en 3D
+(three.js). Ocho pilotos en pista —tú y siete rivales con IA—, **seis coches**
+(Viper GT, Phantom R, Blaze S, Toro V12, Bravo 69 y Cóndor RS) y **dos
+circuitos**: Sierra Dorada y el volcán Osorno. Carrera de 1, 3 o 5 vueltas, o
+**modo libre**: sin muros, te bajas del auto, paseas por la ciudad, te subes a
+cualquier coche aparcado y puedes subir hasta la cumbre del volcán. Un relator
+narra adelantamientos, derrapes y saltos (con voz si el navegador tiene una en
+español; si no, en subtítulos).
+
+- **WASD** / flechas conducir · **Shift** nitro · **espacio** freno de mano
+  (derrapar recarga el nitro)
+- **F** bajar / subir del auto (modo libre) · **C** cámara · **R** volver a la
+  pista · **P** pausa · **M** sonido · **V** relator
+- Funciona con mando; en móvil salen botones en pantalla y arranca en calidad
+  «rápida»
+
+`furious-cars-2.html` es **una copia literal** del juego tal como está en
+[`jesusccl/miprogramagpt`](https://github.com/jesusccl/miprogramagpt), rama
+`claude/compassionate-faraday-68hhm6` (commit `73c8ee1`, 157 KB). Ojo: la
+`main` de ese repo tiene una versión anterior de 82 KB; la buena es la de la
+rama. Si el juego cambia allí, hay que volver a copiarlo.
+
+A diferencia de Putup, **no es autónomo**: carga three.js 0.160 desde jsDelivr
+(con un `importmap`) y sus dos fuentes desde Google Fonts. Necesita conexión
+la primera vez.
+
+Trae un gancho para pruebas automáticas: abriéndolo con `#debug` en la URL
+expone `window.__fc2`, con `sim(segundos)` para adelantar la simulación con
+piloto automático sin tener que pintar cada cuadro. Las ocho capturas de
+`img/fc2-*.webp` salieron así, del juego de verdad, en calidad «ultra».
 
 **04 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
 en Chiloé. Diez villas (de Puqueldón, nivel 1, a Detif, nivel 22), veinticuatro
@@ -282,9 +282,9 @@ no su orden de salida.
 ```
 .
 ├── index.html          # Página principal
-├── polemon.html        # Juego 01 — empaquetado desde jesusccl/Concurso (ver arriba)
-├── furious-cars-2.html # Juego 02 — copia de jesusccl/miprogramagpt (ver arriba)
-├── pichanga.html       # Juego 03 — fútbol online, un solo archivo hecho aquí
+├── polemon.html        # Juego 02 — empaquetado desde jesusccl/Concurso (ver arriba)
+├── furious-cars-2.html # Juego 03 — copia de jesusccl/miprogramagpt (ver arriba)
+├── pichanga.html       # Juego 01 — fútbol online, un solo archivo hecho aquí
 ├── furious-cars.html   # Juego 10 (también embebido en index)
 ├── carrera-loca.html   # Juego 06
 ├── breach-2044.html    # Juego 07
