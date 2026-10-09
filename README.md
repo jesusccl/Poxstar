@@ -76,8 +76,10 @@ expone `window.__fc2`, con `sim(segundos)` para adelantar la simulación con
 piloto automático sin tener que pintar cada cuadro. Las ocho capturas de
 `img/fc2-*.webp` salieron así, del juego de verdad, en calidad «ultra».
 
-**03 · Pichanga** — *Nuevo · online.* Fútbol 2D visto desde arriba, al estilo
-Haxball: discos, un balón y dos arcos, de uno contra uno a cuatro contra cuatro.
+**03 · Pichanga** — *Nuevo · online.* Fútbol 2D visto desde arriba, de uno
+contra uno a cuatro contra cuatro, con futbolistas en pixel art de 16 bits al
+estilo de los clásicos (Sensible Soccer, ISS): corren, chutan y celebran los
+goles, y cada nombre tiene siempre la misma piel, pelo y peinado.
 
 - **Con amigos:** «Crear sala privada» da un código de cinco letras y un enlace
   (`pichanga.html#sala=CÓDIGO`). Quien crea la sala es el anfitrión: elige
@@ -143,7 +145,16 @@ Chromium contra un servidor PeerJS local, y así se afinaron los bots, jugando
 partidos de tres minutos entre ellos: unos 7 goles por partido en 1v1, 3 en
 2v2 y 1,5–2 en 3v3 y 4v4; el nivel difícil le gana al normal doce de doce.
 
-La portada (`img/pichanga-portada.webp`, 26 KB) es un partido de 3 contra 3 de
+**Los futbolistas** se dibujan con rectángulos sobre una rejilla de «píxel de
+arte» (`drawFootballer`), en vista tres cuartos y siempre de pie aunque la
+cancha se gire en vertical; se ordenan por profundidad con el balón. La física
+sigue siendo la de un disco de radio 15: la figura se pinta 1,3 veces más
+grande (`FIG_SCALE`) para que se lea. Cuesta unos 50 µs por jugador; con 4
+contra 4 en un móvil simulado (CPU ×4) el cuadro entero se pinta en 1,8 ms de
+mediana. El diseño salió de un banco de pruebas que pinta todas las vistas,
+fases de carrera, chute y celebración a escala grande y a tamaño de móvil.
+
+La portada (`img/pichanga-portada.webp`, 28 KB) es un partido de 3 contra 3 de
 verdad, con bots, capturado al doble de tamaño y recortado alrededor de la
 jugada.
 
@@ -375,9 +386,9 @@ Cosas que se midieron —con Chromium, CPU frenada— y por qué están como est
   608 → 568 y 592 → 660 ms). HTML comprimido **+5,6 KB**. En 1440×900 y en el
   móvil abrir la home sigue sin bajar ninguna imagen; en 1920×1080 llegan las
   dos primeras láminas de Polemon (unos 20 KB).
-- **La ficha de Pichanga no pesa al abrir la home:** su portada (26 KB) va
+- **La ficha de Pichanga no pesa al abrir la home:** su portada (28 KB) va
   con `loading="lazy"` y, mirado en 1440×900, 1920×1080 y móvil, no se descarga
-  hasta llegar al catálogo. El juego son 128 KB (38 KB comprimido) y PeerJS
+  hasta llegar al catálogo. El juego son 153 KB (47 KB comprimido) y PeerJS
   (93 KB) sólo baja cuando alguien pulsa un botón online.
 - **El menú pasa a la hamburguesa por debajo de 1000 px** (antes, 900). Con
   ocho enlaces no cabía entre 900 y 1020 px: «Furious 2» se partía en dos

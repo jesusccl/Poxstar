@@ -1209,6 +1209,9 @@ function lookOf(name) {
 }
 const STRIDE = 26;            // unidades de mundo por ciclo de carrera
 const FIG_H = 48;             // alto aproximado de la figura, para poner encima el nombre y los globos
+// La figura se pinta algo mayor que el radio físico (como en los clásicos), para que se lea
+// bien; la física no cambia.
+const FIG_SCALE = 1.3;
 
 // Orientación, fase de carrera y chute de cada jugador, en espacio de pantalla.
 function animate(view, now, bsx, bsy) {
@@ -1246,16 +1249,408 @@ function footballerParams(p, a, now, celebrating) {
   };
 }
 
-// Futbolista provisional (se sustituye por el diseño definitivo).
-function drawFootballer(g, x, y, k, P) {
-  const ph = (P.run % 1) * TAU, sw = Math.sin(ph) * 5 * k * P.move;
-  g.save();
-  g.fillStyle = P.socks; g.fillRect(x - 6 * k + sw, y - 14 * k, 4 * k, 14 * k); g.fillRect(x + 2 * k - sw, y - 14 * k, 4 * k, 14 * k);
-  g.fillStyle = P.shorts; g.fillRect(x - 7 * k, y - 20 * k, 14 * k, 7 * k);
-  g.fillStyle = P.shirt; g.fillRect(x - 9 * k, y - 34 * k, 18 * k, 15 * k);
-  g.beginPath(); g.arc(x, y - 39 * k, 6 * k, 0, TAU); g.fillStyle = P.skin; g.fill();
-  g.restore();
-}
+// Futbolista en pixel art de 16 bits, al estilo de los clásicos de fútbol 2D:
+// drawFootballer(g, x, y, k, P) pinta de pie con los pies en (x, y), a k píxeles por unidad.
+const FUT = {};
+  /* Pichanga — futbolista RETRO 16 bits (Sensible Soccer / ISS).
+   * window.drawFootballer(g, x, y, k, P)
+   *
+   * Todo son rectángulos sobre una rejilla de "píxel de arte" de 1.5k (≈ 0.9 px en móvil,
+   * 3.3 px en pantallas grandes), con los bordes ajustados a píxel de pantalla.
+   * Dos pasadas: 1) silueta = unión de los rects agrandados 1 píxel, en un solo fill oscuro
+   *                 (el contorno de 1 píxel), 2) rellenos con 2–3 tonos por material.
+   * La pose es un esqueleto simple (lateral, altura, avance) que se proyecta según la vista,
+   * así front / back / side cuentan la misma postura.
+   */
+  (function () {
+    'use strict';
+    var sin = Math.sin, cos = Math.cos, abs = Math.abs, rnd = Math.round, PI = Math.PI, TAU = PI * 2;
+
+    // ---- medidas en píxeles de arte (1 px de arte = 1.5 unidades de mundo) ----
+    var PXW = 1.5;
+    var LT = 5, LS = 5;         // muslo, canilla
+    var LA = 4, LF = 4.5;       // brazo (manga hasta el codo), antebrazo
+    var CZ = 0.5;               // cuánto sube/baja en pantalla lo que avanza (cámara 3/4)
+    var HIP = 12, SHO = 20;     // alturas de cadera y hombro en reposo
+
+    var OUT = '#15100B', BOOT = '#1E1915', SOLE = '#BDB3A7', CREAM = '#F5F0E8',
+        EYE = '#1A110B', MOUTH = '#5E1D10', HI = 'rgba(255,255,255,0.3)';
+
+    // ---- estado de la llamada (variables de módulo: nada de objetos por llamada) ----
+    var G = null, X0 = 0, Y0 = 0, U = 1, SX = 1, MODE = 1, VIEW = 0, KS = 1, CUR = '';
+    var TA = 1, TE = 0, TD = 1, TF = 0, PIX = false;   // escala/traslación del contexto (ajuste a píxel físico)
+    var SH, SHD, SHL, SO, SOD, SOCK, SK, SKD, HA, HS, NUM, NUMC = CREAM, HAS = '';
+    var LA0 = 0, LA1 = 0, LK0 = 0, LK1 = 0;                     // piernas: 0 = derecha (cercana, chuta)
+    var AA0 = 0, AA1 = 0, AE0 = 0, AE1 = 0, AB0 = 0, AB1 = 0;   // brazos: balanceo, codo, apertura
+    var hipH = HIP, bo = 0, lean = 0, chest = 0, kickE = 0, cheer = false, lift = 0;
+    var fontK = -1, fontBig = '', fontSmall = '', PERN = 0.55;
+
+    // colores derivados (se calculan una vez por color y se guardan)
+    var LUM = {}, STUB = {};
+    function hexRGB(c) {                              // '#rgb' o '#rrggbb' → [r,g,b] o null
+      if (typeof c !== 'string' || c.charAt(0) !== '#') return null;
+      if (c.length === 4) return [parseInt(c[1] + c[1], 16), parseInt(c[2] + c[2], 16), parseInt(c[3] + c[3], 16)];
+      if (c.length >= 7) return [parseInt(c.substr(1, 2), 16), parseInt(c.substr(3, 2), 16), parseInt(c.substr(5, 2), 16)];
+      return null;
+    }
+    function isLight(c) {
+      var v = LUM[c];
+      if (v === undefined) { var q = hexRGB(c); v = LUM[c] = q ? (0.299 * q[0] + 0.587 * q[1] + 0.114 * q[2]) / 255 > 0.62 : false; }
+      return v;
+    }
+    function stubble(c) {                             // pelo rapado: el color del pelo dejando ver la piel
+      var v = STUB[c];
+      if (v === undefined) { var q = hexRGB(c); v = STUB[c] = q ? 'rgba(' + q[0] + ',' + q[1] + ',' + q[2] + ',0.6)' : c; }
+      return v;
+    }
+
+    function sr(v) { return v < 0 ? -rnd(-v) : rnd(v); }   // redondeo simétrico respecto a 0
+    function cl(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+    function sm(v) { v = cl(v); return v * v * (3 - 2 * v); }
+
+    // Rect en coordenadas de arte enteras (origen en los pies, y hacia abajo).
+    // MODE 0: silueta (al path), 1: relleno, 2: contorno interior (rect agrandado, oscuro).
+    function R(px, py, w, h, col) {
+      var a, b;
+      if (SX > 0) { a = px; b = px + w; } else { a = -px - w; b = -px; }
+      if (MODE !== 1) { a -= 1; b += 1; py -= 1; h += 2; }
+      var x1, x2, y1, y2;
+      if (PIX) {                                      // DPR fraccional: bordes en píxeles físicos
+        x1 = rnd((X0 + a * U) * TA + TE); x2 = rnd((X0 + b * U) * TA + TE);
+        y1 = rnd((Y0 + py * U) * TD + TF); y2 = rnd((Y0 + (py + h) * U) * TD + TF);
+        if (x2 <= x1) x2 = x1 + 1;
+        if (y2 <= y1) y2 = y1 + 1;
+        x1 = (x1 - TE) / TA; x2 = (x2 - TE) / TA; y1 = (y1 - TF) / TD; y2 = (y2 - TF) / TD;
+      } else {
+        x1 = rnd(X0 + a * U); x2 = rnd(X0 + b * U); y1 = rnd(Y0 + py * U); y2 = rnd(Y0 + (py + h) * U);
+        if (x2 <= x1) x2 = x1 + 1;
+        if (y2 <= y1) y2 = y1 + 1;
+      }
+      if (MODE === 0) { G.rect(x1, y1, x2 - x1, y2 - y1); return; }
+      if (MODE === 2) col = OUT;
+      if (col !== CUR) { G.fillStyle = col; CUR = col; }
+      G.fillRect(x1, y1, x2 - x1, y2 - y1);
+    }
+    // relleno sin silueta propia (detalles, o piezas cuyo contorno ya dan sus vecinas)
+    function D(px, py, w, h, col) { if (MODE === 1) R(px, py, w, h, col); }
+
+    // Segmento "pixelado" de grosor t: escalera de 1 a 3 escalones gruesos (estilo sprite)
+    function seg(x1, y1, x2, y2, t, col) {
+      var dx = x2 - x1, dy = y2 - y1, h = t * 0.5, i0, i1, n, m, a, b, f, tmp;
+      if (abs(dy) >= abs(dx)) {
+        if (dy < 0) { tmp = x1; x1 = x2; x2 = tmp; tmp = y1; y1 = y2; y2 = tmp; dx = -dx; }
+        i0 = rnd(y1); i1 = rnd(y2); n = i1 - i0;
+        if (n <= 0) { R(sr((x1 + x2) * 0.5 - h), rnd((y1 + y2) * 0.5 - h), t, t, col); return; }
+        m = abs(dx) < 0.8 ? 1 : (abs(dx) < 2.6 || n < 5) ? 2 : 3;
+        if (m > n) m = n;
+        a = i0;
+        for (f = 1; f <= m; f++) {
+          b = f === m ? i1 : i0 + rnd(n * f / m);
+          R(sr(x1 + dx * ((f - 0.5) / m) - h), a, t, b - a, col);
+          a = b;
+        }
+      } else {
+        if (dx < 0) { tmp = x1; x1 = x2; x2 = tmp; tmp = y1; y1 = y2; y2 = tmp; dy = -dy; }
+        i0 = sr(x1); i1 = sr(x2); n = i1 - i0;
+        if (n <= 0) { R(sr((x1 + x2) * 0.5 - h), rnd((y1 + y2) * 0.5 - h), t, t, col); return; }
+        m = abs(dy) < 0.8 ? 1 : (abs(dy) < 2.6 || n < 5) ? 2 : 3;
+        if (m > n) m = n;
+        a = i0;
+        for (f = 1; f <= m; f++) {
+          b = f === m ? i1 : i0 + rnd(n * f / m);
+          R(a, rnd(y1 + dy * ((f - 0.5) / m) - h), b - a, t, col);
+          a = b;
+        }
+      }
+    }
+
+    // ---------- pose ----------
+    function pose(P) {
+      var mv = +P.move || 0; mv = mv < 0 ? 0 : mv > 1 ? 1 : mv;
+      var t = +P.t || 0, kk = cl(+P.kick || 0), e, a, b;
+      var ph = TAU * ((+P.run || 0) % 1), p1 = ph + PI;
+      cheer = !!P.cheer;
+      // carrera: muslo adelante/atrás; la rodilla se dobla en la fase de vuelo
+      LA0 = 0.5 * mv * sin(ph); LK0 = mv * (0.12 + 1.15 * Math.max(0, cos(ph + 0.5)));
+      LA1 = 0.5 * mv * sin(p1); LK1 = mv * (0.12 + 1.15 * Math.max(0, cos(p1 + 0.5)));
+      // brazos en contra de la pierna del mismo lado, codo más doblado cuanto más corre
+      AA0 = -0.65 * mv * sin(ph); AA1 = -0.65 * mv * sin(p1);
+      AE0 = AE1 = 0.25 + 1.0 * mv; AB0 = AB1 = 0.06 + 0.1 * mv;
+      lean = mv > 0.55 ? 1 : 0; chest = 0; kickE = 0; lift = 0;
+      if (kk > 0) {
+        // armado atrás → golpe al frente → acompaña → vuelve
+        if (kk < 0.25) { e = sm(kk / 0.25); a = -0.7 * e; b = 1.5 * e; }
+        else if (kk < 0.5) { e = sm((kk - 0.25) / 0.25); a = -0.7 + 1.85 * e; b = 1.5 - 1.45 * e; }
+        else if (kk < 0.7) { e = sm((kk - 0.5) / 0.2); a = 1.15 - 0.15 * e; b = 0.05 + 0.2 * e; }
+        else { e = sm((kk - 0.7) / 0.3); a = 1.0 * (1 - e); b = 0.25 * (1 - e); }
+        LA0 = a; LK0 = b; LA1 = -0.12; LK1 = 0.25;
+        kickE = sin(PI * kk);
+        AA0 = -0.3 * kickE; AA1 = 0.8 * kickE; AE0 = 0.3; AE1 = 0.6; AB0 = 0.06 + 0.7 * kickE; AB1 = 0.06 + 0.35 * kickE;
+        // de espaldas, el brazo del lado que chuta va al frente (tapado) para dejar ver la pierna
+        if (VIEW === 1) { AA0 = 0.9 * kickE; AB0 = 0.1; AA1 = -0.4 * kickE; AB1 = 0.06 + 0.7 * kickE; }
+        lean = kk > 0.35 && kk < 0.8 ? -1 : 0;
+      } else if (cheer) {
+        e = abs(sin(t * 0.0075));                    // saltitos
+        lift = 2 * e;
+        LA0 = 0.1; LA1 = -0.05; LK0 = 0.3 + 0.4 * e; LK1 = 0.2 + 0.4 * e;
+        if (VIEW === 2) { AA0 = PI - 0.85; AE0 = 0.2; AA1 = PI + 0.85; AE1 = -0.2; AB0 = AB1 = 0; }
+        else { AA0 = AA1 = PI - 0.12; AE0 = AE1 = 0.08; AB0 = AB1 = 0.38; }
+        lean = 0;
+      } else if (mv < 0.05) {
+        chest = sin(t * 0.0035) > 0.25 ? 1 : 0;      // respiración: hombros y cabeza suben 1 px
+      }
+      var v0 = LT * cos(LA0) + LS * cos(LA0 - LK0), v1 = LT * cos(LA1) + LS * cos(LA1 - LK1);
+      hipH = 2 + (v0 > v1 ? v0 : v1) + lift;        // el pie más bajo apoya en el pasto
+      bo = rnd(hipH - HIP);
+    }
+
+    // ---------- piernas ----------
+    var L_hx, L_hy, L_kx, L_ky, L_ax, L_ay, L_az, L_ah, L_sa, L_sx, L_kb;
+    function boot() {
+      var bx, by, fx, fy;
+      if (VIEW === 2) {                               // de perfil: el botín sigue al pie
+        fx = cos(L_sa); fy = -sin(L_sa);
+        bx = L_ax + sin(L_sa) - fx * 0.8; by = L_ay + cos(L_sa) - fy * 0.8;
+        seg(bx, by, bx + fx * 3.8, by + fy * 3.8, 2, BOOT);
+      } else {
+        bx = sr(L_ax - 1.5); by = rnd(L_ay);
+        R(bx, by, 3, 2, BOOT);
+        if (VIEW === 1 && L_az < -1 && L_ah > 2.6) D(bx, by + 1, 3, 1, SOLE);   // suela hacia la cámara
+      }
+    }
+    function legParts(far) {
+      var bootLast = VIEW === 0 && L_az < -0.8;      // de frente, pie levantado atrás: asoma bajo la rodilla
+      if (MODE === 0 && L_kb < 0.25 && VIEW !== 2) seg(L_hx, L_hy, L_ax, L_ay, 3, SOCK);
+      else {
+        seg(L_kx, L_ky, L_ax, L_ay, VIEW === 2 ? 2 : 3, SOCK);
+        seg(L_hx, L_hy, L_kx, L_ky, 3, far ? SKD : SK);
+        if (L_kb > 0.5) R(sr(L_kx - 1.5), rnd(L_ky - 1), 3, 2, far ? SKD : SK);   // rodilla
+      }
+      if (!bootLast) boot();
+      if (MODE === 1 && PERN > 0) seg(L_sx, L_hy - 0.5, L_sx + (L_kx - L_hx) * PERN, L_hy + (L_ky - L_hy) * PERN, 4, far ? SOD : SO);
+      if (bootLast) boot();
+    }
+    function leg(i, far, inner) {
+      var s = i === 0 ? 1 : -1, a = i === 0 ? LA0 : LA1, kb = i === 0 ? LK0 : LK1, sa = a - kb;
+      var kz = LT * sin(a), kh = hipH - LT * cos(a);
+      var az = kz + LS * sin(sa), ah = kh - LS * cos(sa);
+      L_az = az; L_ah = ah; L_sa = sa; L_kb = kb;
+      if (VIEW === 2) { L_hx = 0; L_hy = -hipH; L_kx = kz; L_ky = -kh; L_ax = az; L_ay = -ah; L_sx = 0; }
+      else {
+        var m = VIEW === 0 ? -s : s, zk = CZ, latK = 2.5, latA = 2.5;
+        if (i === 0 && kickE > 0) {                  // la pierna que chuta se abre un poco para leerse
+          if (VIEW === 0) { latK += 1 * kickE; latA += 2 * kickE; if (az > 0) zk = 1.0; }
+          else { latK += 2.6 * kickE; latA += 4.6 * kickE; if (az > 0) zk = 1.45; }
+        }
+        if (VIEW === 1) zk = -zk;
+        L_hx = m * 2.5; L_hy = -hipH; L_kx = m * latK; L_ky = -kh + kz * zk; L_ax = m * latA; L_ay = -ah + az * zk; L_sx = m * 3;
+        // de frente, el pie que se levanta por detrás asoma bajo la rodilla (pierna "acortada" de sprite)
+        if (VIEW === 0 && L_ay < L_ky + 2) L_ay = L_ky + 2;
+      }
+      if (inner && MODE === 1) { MODE = 2; legParts(far); MODE = 1; }
+      legParts(far);
+    }
+
+    // ---------- brazos ----------
+    var A_sx, A_sy, A_ex, A_ey, A_hx, A_hy, A_hz;
+    function armGeom(i) {
+      var s = i === 0 ? 1 : -1;
+      var g1 = i === 0 ? AA0 : AA1, g2 = g1 + (i === 0 ? AE0 : AE1), bb = i === 0 ? AB0 : AB1;
+      var cb = cos(bb), sb = sin(bb);
+      var sH = SHO + bo + chest + (cheer ? 1 : 0);
+      // dirección = "abajo" girada hacia delante (g) y hacia fuera (bb)
+      var ez = LA * cb * sin(g1), eh = sH - LA * cb * cos(g1), el = LA * sb;
+      var hz = ez + LF * cb * sin(g2), hh = eh - LF * cb * cos(g2), hl = el + LF * sb;
+      A_hz = hz;
+      if (VIEW === 2) {
+        var o = lean + (cheer && i === 0 ? 1 : 0);
+        A_sx = o; A_sy = -sH; A_ex = o + ez; A_ey = -eh; A_hx = o + hz; A_hy = -hh;
+      } else {
+        var m = VIEW === 0 ? -s : s, zf = VIEW === 0 ? CZ : -CZ;
+        var inw = VIEW === 0 && hz > 0 ? 0.35 * hz : 0;            // la mano adelantada se cierra al centro
+        A_sx = m * 6; A_sy = -sH;
+        A_ex = m * (6 + el); A_ey = -eh + ez * zf;
+        A_hx = m * (6 + hl - inw); A_hy = -hh + hz * zf;
+      }
+    }
+    function armParts(far) {
+      seg(A_ex, A_ey, A_hx, A_hy, 2, far ? SKD : SK);                          // antebrazo
+      seg(A_sx, A_sy - 1, A_ex, A_ey, VIEW === 2 ? 2 : 3, far ? SHD : SH);       // manga hasta el codo
+    }
+    function arm(i, far, inner) {
+      armGeom(i);
+      if (inner && MODE === 1) { MODE = 2; armParts(far); MODE = 1; }
+      armParts(far);
+    }
+
+    // ---------- cabeza y pelo (cabeza de 6×6 + orejas) ----------
+    function hairFront(hy) {
+      switch (HS) {
+        case 1: // rapado: casquete pegado y translúcido, sin volumen
+          D(-2, hy, 4, 1, HAS); D(-3, hy + 1, 6, 1, HAS);
+          break;
+        case 2: // melena hasta los hombros, raya al medio
+          R(-2, hy - 1, 4, 1, HA); R(-4, hy, 8, 1, HA); R(-4, hy + 1, 2, 6, HA); R(2, hy + 1, 2, 6, HA);
+          D(-2, hy - 1, 1, 1, HI);
+          break;
+        case 3: // afro
+          R(-3, hy - 2, 6, 1, HA); R(-4, hy - 1, 8, 1, HA); R(-5, hy, 10, 2, HA); R(-5, hy + 2, 1, 2, HA); R(4, hy + 2, 1, 2, HA);
+          D(-3, hy - 1, 2, 1, HI);
+          break;
+        case 4: // cresta, lados rapados
+          R(-1, hy - 2, 2, 4, HA); D(-1, hy - 2, 1, 2, HI);
+          break;
+        default: // corto con flequillo
+          R(-2, hy - 1, 4, 1, HA); D(-3, hy, 6, 2, HA); D(1, hy + 1, 2, 1, SK);
+          D(-2, hy - 1, 2, 1, HI);
+      }
+    }
+    function hairBack(hy) {
+      switch (HS) {
+        case 1:
+          D(-2, hy, 4, 1, HAS); D(-3, hy + 1, 6, 3, HAS);
+          break;
+        case 2:
+          R(-2, hy - 1, 4, 1, HA); R(-4, hy, 8, 7, HA);
+          D(-2, hy - 1, 2, 1, HI);
+          break;
+        case 3:
+          R(-3, hy - 2, 6, 1, HA); R(-4, hy - 1, 8, 1, HA); R(-5, hy, 10, 3, HA); R(-4, hy + 3, 8, 1, HA);
+          D(-3, hy - 1, 2, 1, HI);
+          break;
+        case 4:
+          R(-1, hy - 2, 2, 7, HA); D(-1, hy - 2, 1, 3, HI);
+          break;
+        default:
+          R(-2, hy - 1, 4, 1, HA); D(-3, hy, 6, 4, HA);
+          D(-2, hy - 1, 2, 1, HI);
+      }
+    }
+    function hairSide(hy, o) {
+      switch (HS) {
+        case 1:
+          D(-2 + o, hy, 4, 1, HAS); D(-3 + o, hy + 1, 3, 3, HAS);
+          break;
+        case 2:
+          R(-2 + o, hy - 1, 4, 1, HA); R(-3 + o, hy, 6, 1, HA); R(-4 + o, hy + 1, 4, 6, HA);
+          D(-1 + o, hy - 1, 2, 1, HI);
+          break;
+        case 3:
+          R(-3 + o, hy - 2, 5, 1, HA); R(-5 + o, hy - 1, 8, 1, HA); R(-5 + o, hy, 8, 2, HA); R(-5 + o, hy + 2, 4, 2, HA);
+          D(-2 + o, hy - 1, 2, 1, HI);
+          break;
+        case 4:
+          R(-2 + o, hy - 2, 4, 2, HA); R(-3 + o, hy, 2, 4, HA);
+          D(-1 + o, hy - 2, 2, 1, HI);
+          break;
+        default:
+          R(-2 + o, hy - 1, 4, 1, HA); D(-3 + o, hy, 6, 1, HA); D(-3 + o, hy + 1, 3, 3, HA);
+          D(-1 + o, hy - 1, 2, 1, HI);
+      }
+    }
+
+    // ---------- número ----------
+    function number(cx, cy, font, col, shadowCol) {
+      G.font = font; G.textAlign = 'center'; G.textBaseline = 'middle';
+      var px = X0 + cx * U, py = Y0 + cy * U;
+      if (shadowCol) { G.fillStyle = shadowCol; G.fillText(NUM, px + U * 0.6, py + U * 0.6); }
+      G.fillStyle = col; G.fillText(NUM, px, py);
+      CUR = col;
+    }
+
+    // ---------- vistas de frente / espalda ----------
+    function bodyFB() {
+      var back = VIEW === 1, top = -21 - bo - chest, bot = -13 - bo, h = bot - top, hy = top - 6;
+      var z0 = LT * sin(LA0) + LS * sin(LA0 - LK0), z1 = LT * sin(LA1) + LS * sin(LA1 - LK1);
+      var first = (back ? z0 > z1 : z0 < z1) ? 0 : 1, behind0 = false, behind1 = false;
+      var kickOver = back && kickE > 0 && z0 > 0.5;  // de espaldas la pierna que chuta sube por el costado
+      if (back) {                                     // brazo que va al frente queda tras la espalda
+        armGeom(0); behind0 = A_hz > 0.6; armGeom(1); behind1 = A_hz > 0.6;
+        if (behind0) arm(0, false, false);
+        if (behind1) arm(1, false, false);
+      }
+      PERN = 0;
+      if (kickOver) leg(1, false, false);
+      else { leg(first, false, false); leg(1 - first, false, kickE > 0); }
+      // pantalón: bloque con entrepierna
+      R(-5, bot, 10, 4, SO); D(3, bot, 2, 4, SOD);
+      // camiseta: 3 tonos + cuello
+      R(-5, top, 10, h, SH);
+      D(-5, top, 1, h - 1, SHL); D(4, top + 1, 1, h, SHD); D(-4, bot - 1, 8, 1, SHD);
+      D(-2, top, 4, 1, back ? NUMC === CREAM ? CREAM : SHD : SK);         // cuello (de frente, en V)
+      if (MODE === 1) {
+        if (back) number(0, (top + bot) * 0.5 + 0.2, fontBig, NUMC, U >= 2.2 ? SHD : null);
+        else if (KS >= 1.2) number(2.2, top + 3.1, fontSmall, NUMC, null);
+      }
+      if (kickOver) { leg(0, false, true); }
+      PERN = 0.55;
+      // cabeza
+      R(-2, hy, 4, 6, SK); D(-3, hy + 1, 6, 4, SK); R(-4, hy + 2, 8, 2, SK);   // su contorno lo dan columna y orejas
+      if (back) { D(-3, hy + 4, 6, 1, SKD); hairBack(hy); }
+      else {
+        D(2, hy + 1, 1, 4, SKD);
+        D(-2, hy + 3, 1, 1, EYE); D(1, hy + 3, 1, 1, EYE);
+        D(-1, hy + 5, 2, 1, cheer ? MOUTH : SKD);
+        hairFront(hy);
+      }
+      if (!behind0) arm(0, false, false);
+      if (!behind1) arm(1, false, false);
+    }
+
+    // ---------- vista de perfil (dibujada mirando a +x; flip la refleja) ----------
+    function bodySide() {
+      var top = -21 - bo - chest, bot = -13 - bo, h = bot - top, hy = top - 6, o = lean;
+      var kz0 = LT * sin(LA0), kz1 = LT * sin(LA1);
+      var az0 = kz0 + LS * sin(LA0 - LK0), az1 = kz1 + LS * sin(LA1 - LK1);
+      var sameLeg = abs(LA0 - LA1) < 0.08 && abs(LK0 - LK1) < 0.08;
+      var cross = !sameLeg && (abs(kz0 - kz1) < 3.2 || abs(az0 - az1) < 4.5);
+      if (cheer || abs(AA1) > 0.25) arm(1, true, false);   // brazo lejano (más oscuro)
+      if (!sameLeg) leg(1, true, false);                    // pierna lejana
+      // pantalón + camiseta (pecho de 7 px, cintura de 6)
+      R(-3, bot, 6, 2, SO); D(1, bot, 2, 2, SOD);
+      R(-3 + o, top, 7, 4, SH); R(-3, top + 4, 6, h - 4, SH);
+      D(-3 + o, top, 1, 4, SHL); D(3 + o, top + 1, 1, 3, SHD); D(2, top + 4, 1, h - 4, SHD);
+      D(1 + o, top, 2, 1, NUMC === CREAM ? CREAM : SHD);
+      // cabeza de perfil
+      R(-2 + o, hy, 4, 6, SK); R(-3 + o, hy + 1, 6, 4, SK); R(3 + o, hy + 3, 1, 1, SK);   // nariz
+      D(-1 + o, hy + 2, 1, 2, SKD); D(1 + o, hy + 3, 1, 1, EYE); D(1 + o, hy + 5, 2, 1, cheer ? MOUTH : SKD);
+      hairSide(hy, o);
+      leg(0, false, cross);                                  // pierna cercana
+      arm(0, false, false);                                  // brazo cercano
+    }
+
+    function body() { if (VIEW === 2) bodySide(); else bodyFB(); }
+
+    FUT.draw = function (g, x, y, k, P) {
+      G = g; KS = k; U = k * PXW; X0 = x; Y0 = y; CUR = '';
+      VIEW = P.view === 'back' ? 1 : P.view === 'side' ? 2 : 0;
+      SX = VIEW === 2 && P.flip ? -1 : 1;
+      SH = P.shirt; SHD = P.shirtDark || SH; SHL = P.shirtLight || SH;
+      SO = P.shorts || CREAM; SOD = P.shortsDark || SO; SOCK = P.socks || SH;
+      SK = P.skin || '#E0AC80'; SKD = P.skinDark || SK; HA = P.hair || '#222'; HS = P.hairStyle | 0;
+      NUM = P.num == null ? '' : String(P.num);
+      NUMC = isLight(SH) ? '#211C17' : CREAM;          // número legible también en camisetas claras
+      if (HS === 1) HAS = stubble(HA);
+      if (k !== fontK) {
+        fontK = k;
+        fontBig = '800 ' + (6.2 * U).toFixed(1) + 'px Archivo, system-ui, sans-serif';
+        fontSmall = '800 ' + (3.4 * U).toFixed(1) + 'px Archivo, system-ui, sans-serif';
+      }
+      pose(P);
+      PIX = false;
+      if (g.getTransform) {
+        var m = g.getTransform();
+        if (m.b === 0 && m.c === 0 && m.a > 0 && m.d > 0 && (m.a !== 1 || m.d !== 1 || m.e % 1 !== 0 || m.f % 1 !== 0)) {
+          PIX = true; TA = m.a; TD = m.d; TE = m.e; TF = m.f;
+        }
+      }
+      g.save();
+      MODE = 0; g.beginPath(); body(); g.fillStyle = OUT; g.fill();
+      MODE = 1; body();
+      g.restore();
+    };
+  })();
+const drawFootballer = FUT.draw;
 
 function spawnConfetti(x, team) {
   if (REDUCED) return;
@@ -1358,10 +1753,11 @@ function render(view) {
   }
 
   // sombras
+  const fk = k * FIG_SCALE;
   ctx.fillStyle = 'rgba(0,0,0,.28)';
   for (const p of view.players) {
     const a = FX.anim.get(p.id);
-    ctx.beginPath(); ctx.ellipse(a.sx + 2 * k, a.sy + k, 13 * k, 5.5 * k, 0, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(a.sx + 2 * fk, a.sy + fk, 13 * fk, 5.5 * fk, 0, 0, TAU); ctx.fill();
   }
   ctx.beginPath(); ctx.ellipse(bsx + 2 * k, bsy + 1.5 * k, B_R * k, B_R * .42 * k, 0, 0, TAU); ctx.fill();
 
@@ -1370,12 +1766,12 @@ function render(view) {
     if (!p.armed && p.charge <= 7) continue;
     const a = FX.anim.get(p.id);
     if (p.armed) {
-      ctx.beginPath(); ctx.ellipse(a.sx, a.sy, 17 * k, 7.5 * k, 0, 0, TAU);
+      ctx.beginPath(); ctx.ellipse(a.sx, a.sy, 17 * fk, 7.5 * fk, 0, 0, TAU);
       ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = Math.max(1.5, 2.2 * k); ctx.stroke();
     }
     if (p.charge > 7) {
       const c = clamp((p.charge - 7) / (PHY.chargeT - 7), 0, 1);
-      ctx.beginPath(); ctx.ellipse(a.sx, a.sy, 21 * k, 9.5 * k, 0, -Math.PI / 2, -Math.PI / 2 + c * TAU);
+      ctx.beginPath(); ctx.ellipse(a.sx, a.sy, 21 * fk, 9.5 * fk, 0, -Math.PI / 2, -Math.PI / 2 + c * TAU);
       ctx.strokeStyle = c >= 1 ? '#FFC21A' : 'rgba(255,194,26,.8)'; ctx.lineWidth = Math.max(2, 3 * k); ctx.stroke();
     }
   }
@@ -1388,7 +1784,7 @@ function render(view) {
   for (const it of items) {
     if (!it.p) { drawBall(bsx, bsy - lift, B_R * k, rox, roy); continue; }
     const a = FX.anim.get(it.p.id);
-    drawFootballer(ctx, a.sx, a.sy, k, footballerParams(it.p, a, now, cheerTeam === it.p.team));
+    drawFootballer(ctx, a.sx, a.sy, fk, footballerParams(it.p, a, now, cheerTeam === it.p.team));
   }
 
   // anillos de chute alrededor del balón
@@ -1424,8 +1820,8 @@ function drawLabels(view) {
   for (const p of view.players) {
     const [sx, sy] = toScreen(p.x, p.y);
     const showName = p.me || s >= .55;
-    const below = sy + 7 * s + Math.max(7, 8 * Math.min(1.7, s)) + 1;
-    const head = sy - FIG_H * s;
+    const below = sy + 7 * s * FIG_SCALE + Math.max(7, 8 * Math.min(1.7, s)) + 1;
+    const head = sy - FIG_H * s * FIG_SCALE;
     if (showName && p.name) {
       ctx.font = `${p.me ? 700 : 500} ${Math.max(10, Math.round(11 * Math.min(1.7, s)))}px "Space Grotesk", system-ui, sans-serif`;
       ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineJoin = 'round';
