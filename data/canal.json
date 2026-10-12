@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-10-12T01:37:02.073Z",
+  "actualizado": "2026-10-12T15:22:33.503Z",
   "canal": {
     "nombre": "AugustoLive",
     "handle": "@AugustoCLive",
@@ -13,56 +13,56 @@
     {
       "id": "-bYOBtD2el0",
       "titulo": "Abriendo sobres de 30 aniversario",
-      "vistas": "2 vistas",
+      "vistas": "24 vistas",
       "duracion": "3:05",
-      "fecha": "2026-10-11",
+      "fecha": "2026-10-12",
       "precision": "dia",
       "exacta": true
     },
     {
       "id": "rZ46dQpoviU",
       "titulo": "Verity Capitulo 1 Temporada 1",
-      "vistas": "31 vistas",
+      "vistas": "50 vistas",
       "duracion": "37:46",
       "fecha": "2026-10-11",
       "precision": "dia",
-      "exacta": false
+      "exacta": true
     },
     {
       "id": "C_Ok5bIxlkM",
       "titulo": "Abriendo un sobre legendario",
       "vistas": "21 vistas",
       "duracion": "0:49",
-      "fecha": "2026-08",
-      "precision": "mes",
-      "exacta": false
+      "fecha": "2026-07-23",
+      "precision": "dia",
+      "exacta": true
     },
     {
       "id": "votvKGpp24s",
       "titulo": "Abriendo un Kinder Sorpresa.",
       "vistas": "46 vistas",
       "duracion": "3:23",
-      "fecha": "2026-04",
-      "precision": "mes",
-      "exacta": false
+      "fecha": "2026-03-29",
+      "precision": "dia",
+      "exacta": true
     },
     {
       "id": "Jtcph0O3-vk",
       "titulo": "Que es mejor Hytale o Minecraft",
       "vistas": "63 vistas",
       "duracion": "1:00:09",
-      "fecha": "2026-03",
-      "precision": "mes",
-      "exacta": false
+      "fecha": "2026-03-08",
+      "precision": "dia",
+      "exacta": true
     },
     {
       "id": "YeuTvl-oBd0",
       "titulo": "Abriendo Sobres PokemonTCG",
       "vistas": "50 vistas",
       "duracion": "3:11",
-      "fecha": "2026-01",
-      "precision": "mes",
-      "exacta": false
+      "fecha": "2025-12-21",
+      "precision": "dia",
+      "exacta": true
     }
   ]
 }
