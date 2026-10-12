@@ -330,13 +330,17 @@ button{font:inherit;color:inherit}
 /* — cabecera — */
 .cabecera{position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line)}
 .cab-fila{display:flex;align-items:center;gap:20px;height:64px}
-.marca{display:inline-flex;align-items:center;gap:9px;font-size:21px;font-weight:800;letter-spacing:-.035em;
+.marca{display:inline-flex;align-items:center;gap:10px;font-size:21px;font-weight:800;letter-spacing:-.035em;
   text-decoration:none;flex:none}
-.marca svg{width:26px;height:26px}
-.marca .estrella{fill:var(--accent);transition:transform .5s var(--ease)}
+/* la ficha negra con la estrella, como en la portada de antes */
+.sello{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:#111114;
+  box-shadow:inset 0 0 0 1px rgb(255 255 255 / .1);transform:rotate(-6deg);transition:transform .4s var(--ease)}
+.sello .estrella{width:56%;height:56%;fill:#fff;transition:transform .6s var(--ease)}
+.marca:hover .sello{transform:rotate(0)}
 .marca:hover .estrella{transform:rotate(72deg)}
+.marca .calabaza{width:32px;height:32px}
 .calabaza{display:none}
-.halloween .marca .estrella{display:none}
+.halloween .marca .sello{display:none}
 .halloween .calabaza{display:block}
 .calabaza .tallo{fill:#4D7C0F}.calabaza .lado{fill:#D1500A}.calabaza .centro{fill:#F06D10}
 .calabaza .surco{fill:none;stroke:#A33A06;stroke-width:2}.calabaza .cara{fill:#FFD23F}.calabaza .diente{fill:#F06D10}
@@ -371,58 +375,98 @@ button{font:inherit;color:inherit}
   .cab-acciones .btn-yt span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 }
 
-/* — portada — */
-.hero{position:relative;padding:clamp(40px,7vw,96px) 0 clamp(16px,3vw,40px);overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.7;
-  background:radial-gradient(var(--line-2) 1px,transparent 1.5px) 0 0/22px 22px;
-  -webkit-mask-image:radial-gradient(ellipse 55% 60% at 75% 42%,#000,transparent);mask-image:radial-gradient(ellipse 55% 60% at 75% 42%,#000,transparent)}
-.hero-grid{position:relative}
-.hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(36px,5vw,72px);align-items:center}
-.pastilla{display:inline-flex;align-items:center;gap:9px;padding:6px 14px 6px 11px;border:1px solid var(--line);
-  border-radius:999px;background:var(--surface);color:var(--ink-2);font-size:14px;font-weight:600}
-.pastilla i{width:8px;height:8px;border-radius:50%;background:var(--accent)}
-.pastilla .hw-texto,.halloween .pastilla .normal{display:none}
-.halloween .pastilla .hw-texto{display:inline}
-.hero h1{margin:22px 0 20px;font-size:clamp(42px,6.2vw,78px);line-height:.98;letter-spacing:-.04em}
-.hero h1 span{color:var(--accent)}
-.hero-sub{max-width:33em;color:var(--ink-2);font-size:clamp(17px,1.5vw,19px)}
-.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-.cifras{display:flex;flex-wrap:wrap;gap:12px 36px;margin-top:40px}
-.cifras div{display:flex;flex-direction:column-reverse}
-.cifras dd{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
-.cifras dt{color:var(--ink-2);font-size:13.5px}
-.estreno{display:block;overflow:hidden;border:1px solid var(--line);border-radius:28px;background:var(--surface);
-  box-shadow:var(--sombra);text-decoration:none;transition:transform .35s var(--ease),border-color .2s}
-.estreno:hover{transform:translateY(-4px);border-color:var(--line-2)}
-.estreno-img{aspect-ratio:16/9;overflow:hidden;background:#2E7D32}
-.estreno-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
-.estreno:hover .estreno-img img{transform:scale(1.03)}
-.estreno-pie{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 18px;padding:20px 22px 22px}
-.estreno-pie .insignia{justify-self:start}
-.estreno-titulo{grid-column:1;font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
-.estreno-pie p{grid-column:1;color:var(--ink-2);font-size:15px}
-.estreno-pie .btn{grid-column:2;grid-row:1/4}
-@media (max-width:900px){.hero-grid{grid-template-columns:1fr}}
-@media (max-width:460px){
-  .estreno-pie{grid-template-columns:1fr}
-  .estreno-pie .btn{grid-column:1;grid-row:auto;margin-top:10px;justify-self:start}
+/* — portada: la franja naranja, la ficha con la estrella, «poxstar» en
+     grande, los rótulos en mono, los datos y la cinta de la página de antes,
+     con menos peso. Es naranja en los dos temas; su texto, siempre negro. — */
+.hero{--naranja:#FF4A1C;position:relative;overflow:hidden;color:#111114;
+  background:radial-gradient(ellipse 58% 48% at 50% 36%,rgb(255 255 255 / .2),transparent 72%),var(--naranja)}
+.halloween .hero{--naranja:#FF7518}
+.hero ::selection{background:#111114;color:#fff}
+.hero :focus-visible{outline-color:#111114}
+.hero-dentro{position:relative;display:flex;flex-direction:column;align-items:center;padding-top:26px;text-align:center}
+.hero-meta{display:flex;justify-content:space-between;gap:6px 24px;width:100%;
+  font:500 11.5px/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.hero-logo{display:flex;flex-direction:column;align-items:center;margin-top:clamp(36px,5vw,60px)}
+.sello-grande{width:clamp(72px,7vw,96px);height:clamp(72px,7vw,96px);border-radius:24%;
+  box-shadow:inset 0 0 0 1px rgb(255 255 255 / .1),0 20px 36px -18px rgb(0 0 0 / .55)}
+.sello-grande:hover{transform:rotate(0) scale(1.04)}
+.sello-grande:hover .estrella{transform:rotate(144deg)}
+.sello-grande .estrella{width:48%;height:48%}
+.hero-logo .calabaza{width:clamp(80px,8vw,108px);height:clamp(80px,8vw,108px)}
+.halloween .hero-logo .sello{display:none}
+.wordmark{margin-top:clamp(8px,1.4vw,18px);font-size:clamp(76px,16vw,224px);font-weight:900;line-height:.86;
+  letter-spacing:-.055em;white-space:nowrap}
+.wordmark span{display:inline-block;animation:letra .7s var(--ease) backwards;animation-delay:calc(var(--i) * 45ms + 60ms)}
+@keyframes letra{from{opacity:0;transform:translateY(.22em)}}
+.hero-firma{margin-top:clamp(18px,2vw,26px);font:500 12.5px/1.5 var(--mono);letter-spacing:.24em;text-transform:uppercase}
+.hero-firma a{text-decoration-thickness:1.5px;text-underline-offset:5px}
+.hw-saludo{display:none}
+.halloween .hw-saludo{display:inline-block;margin-top:14px;padding:6px 14px;border-radius:999px;background:#111114;
+  color:#FFB25B;font:600 11.5px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.hero-sub{max-width:37em;margin-top:clamp(26px,3vw,38px);font-size:clamp(17px,1.6vw,20px);line-height:1.55}
+.hero-sub mark{padding:.05em .25em;border-radius:5px;background:rgb(255 255 255 / .4);color:inherit;font-weight:600;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+.hero-cta{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:26px}
+.btn-negro{background:#111114;color:#fff}
+.btn-negro:hover{background:#fff;color:#111114}
+.btn-linea{border-color:rgb(17 17 20 / .45);color:#111114}
+.btn-linea:hover{border-color:#111114;background:rgb(255 255 255 / .2)}
+/* el gran estreno, con el césped a rayas de la ficha de antes */
+.estreno{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:18px;width:min(100%,800px);
+  margin-top:clamp(30px,4vw,46px);padding:10px 24px 10px 10px;border-radius:20px;color:#fff;text-align:left;text-decoration:none;
+  background:repeating-linear-gradient(90deg,#2F7E35 0 52px,#2A7430 52px 104px);
+  box-shadow:0 0 0 1px rgb(0 0 0 / .14),0 18px 34px -22px rgb(0 0 0 / .7);transition:transform .3s var(--ease)}
+.estreno:hover{transform:translateY(-3px)}
+.estreno img{width:150px;aspect-ratio:16/9;object-fit:cover;border-radius:12px;background:#1F5E24}
+.estreno-cab{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.estreno-marca{padding:4px 10px;border-radius:999px;background:linear-gradient(90deg,#FFE066,#FF9F1C);color:#111114;
+  font:700 10.5px/1.3 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.estreno b{font-size:27px;font-weight:900;font-style:italic;line-height:1;letter-spacing:-.02em;text-transform:uppercase;
+  text-shadow:2px 2px 0 #D7261E}
+.estreno small{font:600 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase}
+.estreno-desc{display:block;margin-top:7px;color:rgb(255 255 255 / .9);font-size:14.5px;line-height:1.45}
+.estreno-flecha{font-size:22px;transition:transform .2s var(--ease)}
+.estreno:hover .estreno-flecha{transform:translateX(4px)}
+/* datos y cinta */
+.hero-rail{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:clamp(44px,6vw,76px);
+  border-top:1px solid rgb(17 17 20 / .28)}
+.hero-rail div{display:flex;flex-direction:column;align-items:center;gap:14px;padding:clamp(20px,2.6vw,32px) 8px;text-align:center}
+.hero-rail div + div{border-left:1px solid rgb(17 17 20 / .28)}
+.hero-rail dt{font:500 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase}
+.hero-rail dd{font-size:clamp(24px,2.7vw,36px);font-weight:800;line-height:1;letter-spacing:-.03em}
+.cinta{overflow:hidden;padding:14px 0 16px;border-top:1px solid rgb(17 17 20 / .28);
+  font-size:clamp(26px,3.3vw,44px);font-weight:800;line-height:1.1;letter-spacing:-.035em;white-space:nowrap}
+.cinta-pista{display:flex;width:max-content;animation:cinta 50s linear infinite}
+.cinta:hover .cinta-pista{animation-play-state:paused}
+.cinta span{display:flex;align-items:center}
+.cinta i{width:.22em;height:.22em;margin:0 .85em;border-radius:50%;background:currentColor}
+.cinta .hw-t{display:none}
+.halloween .cinta .hw-t{display:block}
+@keyframes cinta{to{transform:translateX(-50%)}}
+@media (max-width:760px){
+  .hero-meta{flex-direction:column;align-items:flex-start;text-align:left}
+  .estreno{grid-template-columns:minmax(0,1fr) auto;padding:14px 18px}
+  .estreno img{display:none}
+  .hero-rail{grid-template-columns:1fr 1fr}
+  .hero-rail div:nth-child(3){border-left:0}
+  .hero-rail div:nth-child(n+3){border-top:1px solid rgb(17 17 20 / .28)}
 }
 /* adornos de Halloween: luna y murciélagos quietos */
 .hw{display:none}
 .halloween .hw{display:block;position:absolute;inset:0;pointer-events:none}
-.halloween .hero{background:linear-gradient(180deg,rgb(124 58 237 / .07),transparent 70%)}
-.hw-luna{position:absolute;top:34px;left:calc(50% - 40px);width:64px;height:64px;border-radius:50%;
-  background:radial-gradient(circle at 36% 34%,#FFF8DC,#F6D67E 58%,#E8B64A);
-  box-shadow:0 0 0 12px rgb(246 214 126 / .14),0 0 0 26px rgb(246 214 126 / .07)}
-.hw svg{position:absolute;width:40px;fill:var(--murcielago,#22202B)}
-:root[data-theme=dark] .hw{--murcielago:#8B84A3}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .hw{--murcielago:#8B84A3}}
-.hw .m1{fill:#22202B}
-.hw .m1{top:64px;left:calc(50% - 4px);width:34px;transform:rotate(-8deg)}
-.hw .m2{top:46px;left:calc(50% + 66px);width:26px;transform:rotate(10deg)}
-.hw .m3{top:112px;left:calc(50% - 92px);width:30px;transform:rotate(6deg)}
-@media (max-width:900px){.hw-luna{left:auto;right:var(--gutter);top:24px;width:48px;height:48px}
-  .hw .m1{left:auto;right:calc(var(--gutter) + 4px);top:44px;width:28px}.hw .m2{left:auto;right:calc(var(--gutter) + 62px);top:30px}.hw .m3{display:none}}
+.hw-luna{position:absolute;top:82px;right:max(calc(var(--gutter) + 20px),calc(50% - 520px));width:76px;height:76px;border-radius:50%;
+  background:radial-gradient(circle at 36% 34%,#FFF9E3,#F9DE8F 58%,#EFC25A);
+  box-shadow:0 0 0 14px rgb(255 240 200 / .18),0 0 0 30px rgb(255 240 200 / .09)}
+.hw svg{position:absolute;width:40px;fill:#111114}
+.hw .m1{top:118px;right:max(calc(var(--gutter) + 8px),calc(50% - 532px));width:38px;transform:rotate(-8deg)}
+.hw .m2{top:70px;right:max(calc(var(--gutter) + 120px),calc(50% - 408px));width:26px;transform:rotate(10deg)}
+.hw .m3{top:96px;left:max(calc(var(--gutter) + 40px),calc(50% - 470px));width:30px;transform:rotate(6deg)}
+@media (max-width:760px){
+  .hw-luna{top:22px;right:var(--gutter);width:46px;height:46px}
+  .hw .m1{top:44px;right:calc(var(--gutter) - 2px);width:26px}
+  .hw .m2{top:18px;right:calc(var(--gutter) + 62px);width:22px}
+  .hw .m3{display:none}
+}
 
 /* — secciones — */
 .seccion{padding:clamp(64px,9vw,112px) 0}
@@ -587,7 +631,7 @@ html:not(.js) [data-ficha]{display:none}
 <header class="cabecera">
   <div class="wrap cab-fila">
     <a class="marca" href="#top" aria-label="PoxStar, inicio">
-      <svg class="estrella" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg>
+      <span class="sello" aria-hidden="true"><svg class="estrella" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg></span>
       <svg class="calabaza" viewBox="0 0 100 100" aria-hidden="true"><path class="tallo" d="M47 22c-1-8 2-14 9-16l3 4c-5 2-6 6-5 12Z"/><ellipse class="lado" cx="31" cy="58" rx="25" ry="31"/><ellipse class="lado" cx="69" cy="58" rx="25" ry="31"/><ellipse class="centro" cx="50" cy="58" rx="22" ry="34"/><path class="surco" d="M50 26c-7 10-7 54 0 64M50 26c7 10 7 54 0 64M28 30c-10 10-12 44 0 58M72 30c10 10 12 44 0 58"/><path class="cara" d="M28 50l9-12 9 12ZM54 50l9-12 9 12ZM46 60l4-6 4 6ZM23 62Q50 92 77 62Q50 75 23 62Z"/><path class="diente" d="M37 67h6v6h-6ZM57 67h6v6h-6Z"/></svg>
       <span aria-hidden="true">poxstar</span>
     </a>
@@ -630,41 +674,55 @@ html:not(.js) [data-ficha]{display:none}
     <svg class="m2" viewBox="0 0 64 32"><path d="M32 7l-1.6 2.6L29 8l.5 3.2c-1 2-.6 5.6 2.5 8.8 3.1-3.2 3.5-6.8 2.5-8.8L35 8l-1.4 1.6ZM29.2 12.2C22 5.5 12 4.5 2 8.2c4 .9 6 3 6 6 3-2 6-1.2 7.2 1.8 3-2 6-1 7 2 2-2 5-2 7 0ZM34.8 12.2C42 5.5 52 4.5 62 8.2c-4 .9-6 3-6 6-3-2-6-1.2-7.2 1.8-3-2-6-1-7 2-2-2-5-2-7 0Z"/></svg>
     <svg class="m3" viewBox="0 0 64 32"><path d="M32 7l-1.6 2.6L29 8l.5 3.2c-1 2-.6 5.6 2.5 8.8 3.1-3.2 3.5-6.8 2.5-8.8L35 8l-1.4 1.6ZM29.2 12.2C22 5.5 12 4.5 2 8.2c4 .9 6 3 6 6 3-2 6-1.2 7.2 1.8 3-2 6-1 7 2 2-2 5-2 7 0ZM34.8 12.2C42 5.5 52 4.5 62 8.2c-4 .9-6 3-6 6-3-2-6-1.2-7.2 1.8-3-2-6-1-7 2-2-2-5-2-7 0Z"/></svg>
   </div>
-  <div class="wrap hero-grid">
-    <div>
-      <p class="pastilla"><i aria-hidden="true"></i><span class="normal">Estudio indie de AugustoCLive</span><span class="hw-texto">Edición Halloween · ¿truco o trato?</span></p>
-      <h1>Juegos pequeños con <span>ideas grandes.</span></h1>
-      <p class="hero-sub">
-        Diez juegos gratis que se abren en el navegador, sin descargas ni
-        cuentas. Los hace AugustoCLive, de la primera línea de código al
-        último píxel, y en su canal de YouTube cuenta todo lo demás.
-      </p>
-      <div class="hero-cta">
-        <a class="btn btn-primario" href="#juegos">Ver los juegos <span class="flecha" aria-hidden="true">→</span></a>
-        <a class="btn btn-borde" href="#canal">
-          <svg viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--yt)"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>
-          Ver el canal
-        </a>
-      </div>
-      <dl class="cifras">
-        <div><dt>juegos</dt><dd>10</dd></div>
-        <div><dt>descargas</dt><dd>0</dd></div>
-        <div><dt>precio</dt><dd>Gratis</dd></div>
-      </dl>
+  <div class="wrap hero-dentro">
+    <div class="hero-meta">
+      <span>Estudio independiente</span>
+      <span>// Estudio de AugustoCLive</span>
+      <span>10 juegos · jugables</span>
+    </div>
+
+    <div class="hero-logo">
+      <span class="sello sello-grande" aria-hidden="true"><svg class="estrella" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg></span>
+      <svg class="calabaza" viewBox="0 0 100 100" aria-hidden="true"><path class="tallo" d="M47 22c-1-8 2-14 9-16l3 4c-5 2-6 6-5 12Z"/><ellipse class="lado" cx="31" cy="58" rx="25" ry="31"/><ellipse class="lado" cx="69" cy="58" rx="25" ry="31"/><ellipse class="centro" cx="50" cy="58" rx="22" ry="34"/><path class="surco" d="M50 26c-7 10-7 54 0 64M50 26c7 10 7 54 0 64M28 30c-10 10-12 44 0 58M72 30c10 10 12 44 0 58"/><path class="cara" d="M28 50l9-12 9 12ZM54 50l9-12 9 12ZM46 60l4-6 4 6ZM23 62Q50 92 77 62Q50 75 23 62Z"/><path class="diente" d="M37 67h6v6h-6ZM57 67h6v6h-6Z"/></svg>
+      <h1 class="wordmark" aria-label="PoxStar"><span style="--i:0" aria-hidden="true">p</span><span style="--i:1" aria-hidden="true">o</span><span style="--i:2" aria-hidden="true">x</span><span style="--i:3" aria-hidden="true">s</span><span style="--i:4" aria-hidden="true">t</span><span style="--i:5" aria-hidden="true">a</span><span style="--i:6" aria-hidden="true">r</span></h1>
+      <p class="hero-firma">// Since 2026 · por <a href="#canal">AugustoCLive</a></p>
+      <p class="hw-saludo">Edición Halloween · ¿truco o trato?</p>
+    </div>
+
+    <p class="hero-sub">
+      Construimos <mark>juegos pequeños con ideas grandes</mark>. Mecánicas raras,
+      mundos honestos, soundtracks que se quedan. Diez juegos gratis en el
+      navegador, sin descargas, sin loot boxes, sin prisa.
+    </p>
+    <div class="hero-cta">
+      <a class="btn btn-negro" href="#juegos">Ver los juegos <span class="flecha" aria-hidden="true">→</span></a>
+      <a class="btn btn-linea" href="#canal">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>
+        Ver el canal
+      </a>
     </div>
 
     <a class="estreno" id="pichanga" href="pichanga.html">
-      <div class="estreno-img">
-        <img src="img/pichanga-portada.webp" width="1440" height="810" fetchpriority="high" decoding="async"
-             alt="Partido de Pichanga: futbolistas en pixel art sobre una cancha verde, con el marcador arriba y vallas publicitarias alrededor.">
-      </div>
-      <div class="estreno-pie">
-        <span class="insignia">Gran estreno</span>
-        <span class="estreno-titulo">Pichanga</span>
-        <p>Fútbol 2D online con tus amigos: abres una sala, pasas el código y a la cancha. De 1 contra 1 a 4 contra 4.</p>
-        <span class="btn btn-primario">Jugar <span class="flecha" aria-hidden="true">→</span></span>
-      </div>
+      <img src="img/pichanga-mini.webp" width="400" height="225" decoding="async"
+           alt="Partido de Pichanga: futbolistas en pixel art sobre una cancha verde.">
+      <span>
+        <span class="estreno-cab"><span class="estreno-marca">Gran estreno</span><b>Pichanga</b><small>fútbol online</small></span>
+        <span class="estreno-desc">Fútbol 2D con tus amigos por código o contra gente al azar · de 1 contra 1 a 4 contra 4</span>
+      </span>
+      <span class="estreno-flecha" aria-hidden="true">→</span>
     </a>
+  </div>
+
+  <div class="wrap">
+    <dl class="hero-rail">
+      <div><dt>Juegos</dt><dd>10</dd></div>
+      <div><dt>Precio</dt><dd>Gratis</dd></div>
+      <div><dt>Descargas</dt><dd>Cero</dd></div>
+      <div><dt>Plataforma</dt><dd>Navegador</dd></div>
+    </dl>
+  </div>
+  <div class="cinta" aria-hidden="true">
+    <div class="cinta-pista"><span><b class="hw-t">feliz halloween</b><i class="hw-t"></i>pichanga · gran estreno<i></i>polemon<i></i>furious cars 2<i></i>república de lemuy<i></i>putup<i></i>jugar diferente<i></i>un estudio de augustoclive<i></i>since 2026<i></i></span><span><b class="hw-t">feliz halloween</b><i class="hw-t"></i>pichanga · gran estreno<i></i>polemon<i></i>furious cars 2<i></i>república de lemuy<i></i>putup<i></i>jugar diferente<i></i>un estudio de augustoclive<i></i>since 2026<i></i></span></div>
   </div>
 </section>
 
@@ -884,7 +942,7 @@ html:not(.js) [data-ficha]{display:none}
   <div class="wrap pie-fila">
     <div>
       <a class="marca" href="#top" aria-label="PoxStar, volver arriba">
-        <svg class="estrella" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg>
+        <span class="sello" aria-hidden="true"><svg class="estrella" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg></span>
         <span aria-hidden="true">poxstar</span>
       </a>
       <p>Juegos pequeños con ideas grandes, hechos por AugustoCLive.</p>

@@ -8,10 +8,17 @@ con los juegos jugables directamente en el navegador.
 
 Rediseñada en octubre de 2026 para ser más ligera: fondo claro (u oscuro, con
 el botón de la barra o según el sistema), una sola tipografía —Archivo,
-variable— y nada que se mueva solo. De arriba abajo:
+variable— y casi nada que se mueva solo. De arriba abajo:
 
-- **Portada** (`#top`): el lema, los botones a los juegos y al canal, y la
-  tarjeta del gran estreno, Pichanga (`#pichanga`).
+- **Portada** (`#top`): la de siempre, con menos peso. Franja naranja
+  `#FF4A1C` (en los dos temas, con el texto siempre negro), los rótulos en
+  mono —«Estudio independiente», «// Estudio de AugustoCLive», «10 juegos ·
+  jugables»—, la ficha negra con la estrella, «poxstar» en grande (las letras
+  suben una vez al cargar), «// Since 2026 · por AugustoCLive», el lema
+  «Construimos juegos pequeños con ideas grandes», los botones a los juegos y
+  al canal, el gran estreno (Pichanga, `#pichanga`) con el césped a rayas, la
+  fila de datos y la cinta con los juegos. La ficha con la estrella también
+  es el logo de la barra y del pie.
 - **Juegos** (`#juegos`): Polemon, Furious Cars 2, República de Lemuy y Putup
   en tarjetas grandes (`#polemon`, `#furious`, `#lemuy`, `#putup`), cada una
   con «Jugar» y «Ver capturas», que abre una ficha (`<dialog>`) con la galería,
@@ -342,10 +349,11 @@ la portada, no su orden de salida.
 ## 🎃 Halloween
 
 Del **1 de octubre al 2 de noviembre** la portada se pone de temporada, en
-versión ligera: el naranja pasa a calabaza, la estrella del logo se vuelve una
-calabaza con vela, la pastilla de arriba dice «Edición Halloween · ¿truco o
-trato?» y salen una luna y tres murciélagos, quietos. Igual en tema claro y
-oscuro.
+versión ligera: la franja naranja pasa a calabaza, la ficha con la estrella
+(la grande y la del logo) se vuelve una calabaza con vela, bajo «poxstar» sale
+el letrero «Edición Halloween · ¿truco o trato?», la cinta empieza con «feliz
+halloween» y arriba hay una luna y tres murciélagos, quietos. Igual en tema
+claro y oscuro.
 
 - Un script en el `<head>` pone la clase `halloween` en `<html>` antes del
   primer pintado. Para probarlo fuera de fecha: `?halloween=1`; para verlo sin
@@ -420,8 +428,9 @@ Son WebP sin pérdida (516 KB las nueve) y sólo se bajan al abrir su ficha.
   los datos del sitio en las opciones del navegador.
 - **Editar textos**: todo vive directamente en `index.html`, menos el bloque
   del canal, que `tools/canal.mjs` reescribe entero.
-- **Animaciones**: no hay ninguna continua; las transiciones se apagan con
-  `prefers-reduced-motion: reduce`.
+- **Animaciones**: la única continua es la cinta de la portada (se para al
+  pasar el ratón); con `prefers-reduced-motion: reduce` se apagan la cinta, la
+  entrada de las letras y las transiciones.
 
 ## ⚡ Rendimiento
 
@@ -431,20 +440,27 @@ aleatorio (medianas; las dos con la capa de Halloween puesta):
 
 | | Antes | Ahora |
 |---|---|---|
-| HTML (sin comprimir) | 224 KB | 82 KB |
-| Primer pintado (FCP = LCP) | 756 ms | 384 ms |
-| Bloqueo del hilo (tareas largas) | 1035 ms | 181 ms |
-| Elementos en el DOM | 1383 | 661 |
-| Bajado al abrir | 386 KB | 277 KB |
-| Bajado tras recorrer la página | 1113 KB | 570 KB |
+| HTML (sin comprimir) | 224 KB | 87 KB |
+| Primer pintado (FCP = LCP) | 760 ms | 528 ms |
+| Bloqueo del hilo (tareas largas) | 1178 ms | 338 ms |
+| Elementos en el DOM | 1383 | 712 |
+| Bajado al abrir | 386 KB | 246 KB |
+| Bajado tras recorrer la página | 1113 KB | 538 KB |
 | Recorrido: fotograma p95 | 83 ms | 17 ms |
-| Recorrido: fotogramas de más de 34 ms | 52 % | 0 % |
+| Recorrido: fotogramas de más de 34 ms | 59 % | 1 % |
+
+Con la portada blanca de la primera versión del rediseño el primer pintado
+bajaba a ~384 ms; la franja naranja con «poxstar» a 224 px le suma entre 100
+y 150 ms con la CPU frenada ×4. La cinta
+y la entrada de las letras no cuentan: quitándolas, las cifras se quedan
+dentro del ruido (seis cargas de cada variante).
 
 Por qué:
 
-- **Nada se mueve solo.** Ni `requestAnimationFrame` permanentes ni escuchas de
-  `scroll` o `mousemove`: sólo transiciones al pasar el ratón y la entrada de
-  las fichas.
+- **Casi nada se mueve solo.** Ni `requestAnimationFrame` permanentes ni
+  escuchas de `scroll` o `mousemove`. Lo único continuo es la cinta, que sólo
+  mueve `transform` (la hace la GPU, sin tocar el hilo principal); lo demás son
+  transiciones al pasar el ratón y la entrada de las letras y de las fichas.
 - **Una fuente**, Archivo variable (35 KB el subconjunto latino), con la hoja
   en `media="print"` para no bloquear el primer pintado. Antes eran cuatro.
 - **Imágenes pequeñas y perezosas.** Las tarjetas usan versiones de 960 px
