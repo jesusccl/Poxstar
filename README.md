@@ -4,6 +4,62 @@ Página oficial de **PoxStar**, estudio indie de videojuegos de AugustoCLive.
 Sitio estático servido desde GitHub Pages en [poxstar.com](https://poxstar.com),
 con los juegos jugables directamente en el navegador.
 
+## 🏠 La portada
+
+Rediseñada en octubre de 2026 para ser más ligera: fondo claro (u oscuro, con
+el botón de la barra o según el sistema), una sola tipografía —Archivo,
+variable— y nada que se mueva solo. De arriba abajo:
+
+- **Portada** (`#top`): el lema, los botones a los juegos y al canal, y la
+  tarjeta del gran estreno, Pichanga (`#pichanga`).
+- **Juegos** (`#juegos`): Polemon, Furious Cars 2, República de Lemuy y Putup
+  en tarjetas grandes (`#polemon`, `#furious`, `#lemuy`, `#putup`), cada una
+  con «Jugar» y «Ver capturas», que abre una ficha (`<dialog>`) con la galería,
+  el texto largo y los datos. Debajo, los cinco arcades con su portada
+  (Furious Cars 1 es `#jugar`).
+- **Canal** (`#canal`): el canal de YouTube de AugustoCLive —avatar,
+  suscriptores, botón de suscribirse, el último vídeo y la lista de los seis
+  últimos—. Ver [Canal de YouTube](#-canal-de-youtube).
+- **Estudio** (`#estudio`) y **comunidad** (`#comunidad`): quién hace PoxStar,
+  Discord, YouTube y el correo.
+
+Con la versión anterior se fueron las franjas a pantalla completa de cada juego
+con sus carruseles, la cinta, el cursor propio, el grano, el panel de tweaks
+(`tweaks.js`), el juego embebido y el formulario del boletín, que no mandaba
+nada a ningún sitio. Las anclas de siempre siguen llevando a su juego.
+
+Las portadas de los arcades (`img/arcade-*.webp`, 800×500) son capturas de los
+juegos en marcha; las de las tarjetas grandes (`img/card-*.webp`, 960×540) son
+versiones reducidas de una captura de cada uno. Las fichas de capturas se
+generaron una vez a partir de las imágenes de `img/` y ahora son HTML normal
+dentro de `index.html`, entre `<!-- fichas:inicio -->` y `<!-- fichas:fin -->`.
+
+## 📺 Canal de YouTube
+
+El bloque del canal no se pide a YouTube desde el navegador de quien visita: lo
+escribe `tools/canal.mjs` dentro de `index.html`, entre `<!-- canal:inicio -->`
+y `<!-- canal:fin -->`, y guarda lo mismo en `data/canal.json`. Así la portada
+enseña los vídeos sin JavaScript y sin cargar nada de YouTube hasta que alguien
+pulsa reproducir; entonces la miniatura se cambia por el reproductor de
+`youtube-nocookie.com`. Pulsar un vídeo de la lista lo pone en el reproductor
+(con Ctrl o ⌘ se abre en YouTube, como un enlace normal).
+
+```bash
+node tools/canal.mjs        # Node 18 o más; sin dependencias ni clave de API
+```
+
+Lee la página pública del canal (nombre, avatar, suscriptores y vídeos) y su
+pestaña «Vídeos» (los seis últimos, con visitas y duración). La fecha exacta
+sale del feed RSS del canal o, si no responde, de la página de cada vídeo; si
+YouTube corta el paso (HTTP 429), usa el «hace 3 días» de la lista —con
+precisión de mes si dice «hace 2 meses»— y la afina en una pasada siguiente.
+Si no sale ningún vídeo (YouTube cambió su página), no toca nada y termina con
+error; si nada cambió, no escribe nada.
+
+`.github/workflows/canal.yml` lo ejecuta cada seis horas, y a mano desde
+Actions → «Canal de YouTube» → «Run workflow», y hace commit en `main` sólo si
+algo cambió. Para cambiar de canal, `HANDLE` al principio del script.
+
 ## 🎮 Juegos
 
 **01 · Pichanga** — *Gran estreno · online.* Fútbol 2D al estilo de los FIFA de
@@ -125,9 +181,7 @@ píxel a píxel (`toDataURL`), usando los guiones de pantallas de su
 `tests/screens.mjs` y algunos propios: el gimnasio de Celestia y el encuentro con
 Miutú se lanzan como en el juego, con su mapa, su líder y su equipo reales. Están
 a ×2 sin suavizado y en WebP sin pérdida (102 KB las diez); en la página se
-pintan con `image-rendering: pixelated`. El logotipo de la sección lo dibuja la
-propia función `drawLogo()` del juego sobre transparente, y pesa tan poco
-(338 bytes) que va incrustado en el HTML.
+ven en la ficha «Ver capturas» de Polemon.
 
 **Un fallo del juego, sin tocar aquí:** al crear a los líderes de gimnasio,
 `T()` en `js/world/trainers.js` compone `title: 'Líder ' + nombre` pero luego
@@ -176,8 +230,8 @@ criaturas de la mitología chilota, cinco clases, clanes, territorios y banderas
 
 No vive en este repo: corre en el servidor propio del estudio y se publica con
 [Tailscale](https://tailscale.com) en <https://dell.taila1b256.ts.net/>. Desde el
-sitio se enlaza directo (franja del hero, ficha 03 del catálogo, sección
-`#lemuy`, pie de página y el launcher). **Si el servidor está apagado, el enlace
+sitio se enlaza directo (su tarjeta del catálogo, `#lemuy`, su ficha de
+capturas, el pie de página y el launcher). **Si el servidor está apagado, el enlace
 no abre** — es lo único del sitio que depende de una máquina encendida.
 
 **05 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
@@ -282,59 +336,38 @@ secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 - 9 colores de coche a elegir (se guardan entre sesiones)
 
 Los cinco arcades del repo guardan récord en `localStorage` y respetan
-`prefers-reduced-motion`. El número de cada ficha es su posición en el catálogo,
-no su orden de salida.
+`prefers-reduced-motion`. El número de cada juego es su orden en el catálogo de
+la portada, no su orden de salida.
 
 ## 🎃 Halloween
 
-Del **1 de octubre al 2 de noviembre** la portada se viste de noche sola: el
-hero pasa a un cielo nocturno con luna, telarañas, una araña colgando,
-murciélagos y un cementerio al pie; el logotipo se convierte en una calabaza
-con vela, «poxstar» se pinta de calabaza con goterones, la cinta lleva
-calabazas en vez de puntos y el resto de la página toma tonos pergamino y
-ciruela (o morado casi negro en el tema oscuro).
+Del **1 de octubre al 2 de noviembre** la portada se pone de temporada, en
+versión ligera: el naranja pasa a calabaza, la estrella del logo se vuelve una
+calabaza con vela, la pastilla de arriba dice «Edición Halloween · ¿truco o
+trato?» y salen una luna y tres murciélagos, quietos. Igual en tema claro y
+oscuro.
 
-Es una capa aparte, fácil de quitar o de alargar:
+- Un script en el `<head>` pone la clase `halloween` en `<html>` antes del
+  primer pintado. Para probarlo fuera de fecha: `?halloween=1`; para verlo sin
+  él: `?halloween=0`. Las fechas están en esa condición.
+- El estilo va bajo `.halloween` en el CSS y los adornos en `<div class="hw">`,
+  en `display:none` fuera de temporada.
 
-- Un script en el `<head>` pone la clase `halloween` en `<html>` si la fecha
-  cae en la temporada, antes del primer pintado (sin fogonazo naranja).
-  Para probarlo fuera de fecha: `?halloween=1`; para verlo sin él: `?halloween=0`.
-- Todo el estilo va en el bloque «Halloween» del CSS, bajo `html.halloween`.
-  Los adornos del hero están en `<div class="hw">` y, fuera de temporada,
-  en `display:none`: comprobado píxel a píxel, la portada queda idéntica.
-- Para cambiar las fechas, la condición está en ese script del `<head>`.
-
-Lo que se aprendió midiendo (CPU ×4, contexto nuevo cada vez):
-
-- **Nada de `filter` en el rótulo.** El resplandor con `drop-shadow` se
-  recalculaba en cada fotograma y, con el hero a la vista, el desplazamiento
-  bajaba de 41 a 26 fps; ahora es un degradado de fondo detrás.
-- **Sin `var()` dentro de `@keyframes`**: con variables, Chrome no puede llevar
-  la animación a la GPU. Los murciélagos se reparten con el retraso.
-- **El halo de la luna es un degradado**, no una sombra desenfocada de 180 px.
-- **Los adornos sólo existen con el hero en pantalla** (`.hw-fuera` lo
-  marca un IntersectionObserver) y **entran después del primer pintado**
-  (`.hw-listo`, con un fundido).
-
-Resultado: recorrido de la página 28,9 → 27,5 fps (10 vueltas de cada),
-hilo principal en reposo igual, y el primer pintado unos 100 ms más tarde
-con la CPU frenada ×4 (unos 25 ms en un equipo normal).
-
-Ojo al medir: la página lleva `scroll-behavior: smooth`. Un `scrollTo` por
-fotograma inicia cada vez un desplazamiento suave que apenas avanza, así que
-hay que poner `scroll-behavior: auto` antes, o lo que se mide es el hero.
-Las cifras de recorrido de Furious Cars 2 y Polemon de más abajo se tomaron
-sin eso: valen como comparación antes/después, pero miden sobre todo el hero.
+La capa de antes (cielo nocturno, telarañas, araña, cementerio, murciélagos
+volando) se fue con el rediseño. Lo que se aprendió midiéndola sigue valiendo:
+nada de `filter: drop-shadow` en lo que se repinta, sin `var()` dentro de
+`@keyframes` (Chrome no puede llevar la animación a la GPU) y halos con
+degradados, no con sombras desenfocadas enormes.
 
 ## 📁 Estructura
 
 ```
 .
-├── index.html          # Página principal
+├── index.html          # Página principal (el bloque del canal lo escribe tools/canal.mjs)
 ├── polemon.html        # Juego 02 — empaquetado desde jesusccl/Concurso (ver arriba)
 ├── furious-cars-2.html # Juego 03 — copia de jesusccl/miprogramagpt (ver arriba)
 ├── pichanga.html       # Juego 01 — fútbol online, un solo archivo hecho aquí
-├── furious-cars.html   # Juego 10 (también embebido en index)
+├── furious-cars.html   # Juego 10
 ├── carrera-loca.html   # Juego 06
 ├── breach-2044.html    # Juego 07
 ├── neon-runner.html    # Juego 08
@@ -343,8 +376,10 @@ sin eso: valen como comparación antes/después, pero miden sobre todo el hero.
 ├── build-putup.cjs     # Genera putup.html desde outputs/putup/
 ├── outputs/            # Material de Putup tal y como sale de su compilación
 ├── launcher.html       # Launcher web (no enlazado desde la home)
-├── img/                # Capturas de Polemon, Furious Cars 2, Lemuy y Putup, y la portada de Pichanga
-├── tweaks.js           # Panel de tweaks de diseño (opt-in, vanilla JS)
+├── img/                # Capturas de los juegos, tarjetas (card-*) y portadas de los arcades (arcade-*)
+├── tools/canal.mjs     # Trae los últimos vídeos de YouTube a la portada
+├── data/canal.json     # Lo que trajo la última vez
+├── .github/workflows/canal.yml  # Lo ejecuta cada seis horas
 ├── og-image.png        # Imagen para redes sociales (1200×630)
 ├── robots.txt          # Indexación
 ├── sitemap.xml         # Mapa del sitio
@@ -364,100 +399,72 @@ Todo es HTML/CSS/JS plano. No requiere build, ni npm, ni nada.
 
 ## 🔧 Personalizar
 
-### Panel de tweaks
-
-El panel de color / tema / tipografía / animaciones **ya no se carga en producción**.
-Antes se construía con React 18 (build de *desarrollo*) + Babel Standalone desde
-un CDN, lo que descargaba ~1,5 MB y compilaba JSX en el navegador de cada visitante.
-Ahora es `tweaks.js`, vanilla JS, y sólo se carga si lo pides:
-
-```
-https://poxstar.com/?tweaks=1
-```
-
-Sus ajustes se guardan en `localStorage` (clave `pox-tweaks`).
-
 ### Tema oscuro
 
-Ya no depende del panel: hay un botón en la barra superior. Respeta
-`prefers-color-scheme` en la primera visita y luego recuerda la elección
-en `localStorage` (clave `pox-theme`).
+Botón en la barra superior. En la primera visita sigue `prefers-color-scheme`
+y luego recuerda la elección en `localStorage` (clave `pox-theme`). Los colores
+son variables en `:root` (`--bg`, `--surface`, `--ink`, `--accent`…), con su
+juego oscuro debajo.
 
-### Carrusel de Lemuy
+### Capturas de Lemuy
 
-Las nueve imágenes de `img/` **están renderizadas con el motor del propio
+Las nueve imágenes de `img/lemuy-*` **están renderizadas con el motor del propio
 juego** (su `pixeles.js` y su `mapa2d.js`, alimentados por `/api/terreno` y
 `/api/datos`), no dibujadas a mano: el mapa es el mapa de verdad y los sprites
 son los sprites de verdad. Si el juego cambia, hay que volver a generarlas.
-
-El carrusel avanza solo cada 5,8 s y se para al pasar el ratón, al entrar el
-foco, al salir de pantalla, con el botón de pausa y con `prefers-reduced-motion`.
-Las imágenes son WebP sin pérdida (516 KB las nueve); sólo la primera se carga de
-inmediato, el resto son `loading="lazy"`.
+Son WebP sin pérdida (516 KB las nueve) y sólo se bajan al abrir su ficha.
 
 ### Otros
 
-- **Récord del juego**: `localStorage` del navegador. Para resetear, borra los
-  datos del sitio en las opciones del browser.
-- **Editar copy**: todo el texto vive directamente en `index.html`.
-- **Animaciones**: se desactivan solas si el sistema tiene
+- **Récord de los juegos**: `localStorage` del navegador. Para resetear, borra
+  los datos del sitio en las opciones del navegador.
+- **Editar textos**: todo vive directamente en `index.html`, menos el bloque
+  del canal, que `tools/canal.mjs` reescribe entero.
+- **Animaciones**: no hay ninguna continua; las transiciones se apagan con
   `prefers-reduced-motion: reduce`.
 
 ## ⚡ Rendimiento
 
-Cosas que se midieron —con Chromium, CPU frenada— y por qué están como están:
+La portada nueva contra la anterior, en Chromium con la CPU frenada ×4, a
+1440×900, con contexto nuevo en cada carga y cinco cargas de cada en orden
+aleatorio (medianas; las dos con la capa de Halloween puesta):
 
-- **Las imágenes del carrusel se cargan a mano, no con `loading="lazy"`.** Las
-  nueve láminas se apilan en la misma caja absoluta, así que para el navegador
-  todas están «en pantalla» y el lazy nativo no difería ninguna: se bajaban las
-  nueve (495 KB) al abrir la home. Ahora van en `data-src` y el carrusel carga
-  la que toca y la siguiente. Total de la página: **788 KB → 366 KB**, y el
-  primer pintado **1000 ms → ~420 ms**.
-- **Un solo `requestAnimationFrame` para todo.** Había cuatro bucles
-  permanentes (cinta, estrella, cursor y carrusel) despertando la pestaña 60
-  veces por segundo sin parar. Ahora hay un reloj compartido: cada pieza se da
-  de alta cuando le toca y de baja cuando termina, y sin nadie apuntado el
-  reloj se para (medido: de 480 llamadas cada 2 s a 0 en reposo).
-- **El movimiento va por tiempo, no por frame.** Los bucles avanzaban una
-  cantidad fija por frame, así que en una pantalla de 120 Hz iban al doble de
-  velocidad. Ahora usan `dt`.
-- **El imán de los botones y el ladeo de las fichas** medían el elemento con
-  `getBoundingClientRect()` en cada `mousemove` —lo que obliga a recalcular la
-  maqueta a media página— y escribían el estilo varias veces por frame. Ahora
-  el rectángulo se cachea y se escribe una vez por frame.
-- **La hoja de Google Fonts va con `media="print"`** para que no bloquee el
-  primer pintado; como ya iba con `display=swap`, no cambia nada visualmente.
-- **La franja de Polemon** tampoco trae fuentes nuevas: el logotipo es una
-  imagen de 338 bytes incrustada, y las estrellas, una sola caja de 2 px con
-  sus sombras. Medido igual que la de Furious Cars 2: recorrido de la página
-  **57,6 → 57,3 fps** de mediana (10 vueltas de cada, p95 17 ms en las dos) y
-  primer pintado sin diferencia medible (dos tandas que se contradicen:
-  608 → 568 y 592 → 660 ms). HTML comprimido **+5,6 KB**. En 1440×900 y en el
-  móvil abrir la home sigue sin bajar ninguna imagen; en 1920×1080 llegan las
-  dos primeras láminas de Polemon (unos 20 KB).
-- **La ficha de Pichanga no pesa al abrir la home:** su portada (44 KB) va
-  con `loading="lazy"` y, mirado en 1440×900, 1920×1080 y móvil, no se descarga
-  hasta llegar al catálogo. El juego son 162 KB (50 KB comprimido) y PeerJS
-  (93 KB) sólo baja cuando alguien pulsa un botón online.
-- **El menú pasa a la hamburguesa por debajo de 1000 px** (antes, 900). Con
-  ocho enlaces no cabía entre 900 y 1020 px: «Furious 2» se partía en dos
-  líneas y el botón «Jugar ahora» se salía de la pantalla.
-- **La franja de Furious Cars 2** no carga ninguna fuente nueva (el rótulo es
-  Archivo en cursiva, la que ya se usaba, no la Russo One del juego) y su único
-  adorno animado es el brillo de la etiqueta, que sólo mueve `transform`.
-  Medido antes y después, 16 cargas de cada en orden aleatorio con la CPU
-  frenada ×4: primer pintado **672 → 668 ms** (igual), recorrido de la página
-  **42 → 43 fps** (igual), HTML comprimido **+4,8 KB**. Al abrir la home sigue
-  sin bajarse ninguna captura: sus nueve WebP (611 KB en total) llegan de dos
-  en dos según se pasan.
+| | Antes | Ahora |
+|---|---|---|
+| HTML (sin comprimir) | 224 KB | 82 KB |
+| Primer pintado (FCP = LCP) | 756 ms | 384 ms |
+| Bloqueo del hilo (tareas largas) | 1035 ms | 181 ms |
+| Elementos en el DOM | 1383 | 661 |
+| Bajado al abrir | 386 KB | 277 KB |
+| Bajado tras recorrer la página | 1113 KB | 570 KB |
+| Recorrido: fotograma p95 | 83 ms | 17 ms |
+| Recorrido: fotogramas de más de 34 ms | 52 % | 0 % |
 
-Y algo que se probó y **se descartó porque salió peor**, no por pereza:
+Por qué:
 
-- `content-visibility:auto` en las secciones de abajo: primer pintado 428 → 548
-  ms y la altura de la página se descuadraba (8579 → 9899 px) sin ganar un solo
-  fps.
-Si vuelves a medir, hazlo con contexto nuevo cada vez y varias vueltas en orden
-aleatorio: una sola pasada da lecturas que se contradicen entre sí.
+- **Nada se mueve solo.** Ni `requestAnimationFrame` permanentes ni escuchas de
+  `scroll` o `mousemove`: sólo transiciones al pasar el ratón y la entrada de
+  las fichas.
+- **Una fuente**, Archivo variable (35 KB el subconjunto latino), con la hoja
+  en `media="print"` para no bloquear el primer pintado. Antes eran cuatro.
+- **Imágenes pequeñas y perezosas.** Las tarjetas usan versiones de 960 px
+  (22–40 KB); las capturas de las fichas están dentro de `<dialog>` cerrados,
+  así que no se bajan hasta abrir una, y luego según se pasan.
+- **YouTube no carga nada** hasta pulsar reproducir: el canal es HTML estático
+  y sus miniaturas van en `loading="lazy"`.
+
+Ojo al medir el desplazamiento: la página lleva `scroll-behavior: smooth`. Un
+`scrollTo` por fotograma inicia cada vez un desplazamiento suave que apenas
+avanza, así que hay que poner `scroll-behavior: auto` antes, o sólo se mide la
+parte de arriba. Y si pruebas con Playwright sirviendo las fuentes tú mismo,
+pásale a Google Fonts el User-Agent del navegador: con uno desconocido devuelve
+TTF enteros (cuatro de 109 KB) en lugar del WOFF2 de 35 KB.
+
+Algo que se probó en la versión anterior y **se descartó porque salió peor**:
+`content-visibility:auto` en las secciones de abajo (primer pintado 428 → 548 ms
+y la altura de la página descuadrada, sin ganar un solo fps). Si vuelves a
+medir, hazlo con contexto nuevo cada vez y varias vueltas en orden aleatorio:
+una sola pasada da lecturas que se contradicen entre sí.
 
 ### Peso de `outputs/`
 
@@ -469,7 +476,8 @@ conservar lo jugable, con `putup.html` en la raíz basta.
 
 ## 🌐 Probar local
 
-Los iframes y `localStorage` fallan en `file://`. Levanta un servidor:
+En `file://` fallan `localStorage` y el reproductor de YouTube. Levanta un
+servidor:
 
 ```bash
 python -m http.server 8000

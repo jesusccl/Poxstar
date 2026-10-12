@@ -1,0 +1,51 @@
+name: Canal de YouTube
+
+# Cada seis horas trae los últimos vídeos de @AugustoCLive (tools/canal.mjs) y,
+# si algo cambió, rehace el bloque del canal en index.html y data/canal.json y
+# hace commit en main; GitHub Pages publica solo. También se lanza a mano desde
+# la pestaña Actions («Run workflow»).
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: canal
+  cancel-in-progress: false
+
+jobs:
+  canal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Si YouTube cambia su página o corta el paso, el script no toca nada y
+      # falla; el paso queda en rojo en Actions, pero sin mandar un aviso por
+      # correo cada seis horas.
+      - name: Traer los vídeos
+        id: canal
+        continue-on-error: true
+        run: node tools/canal.mjs
+
+      - name: Commit si cambió algo
+        if: steps.canal.outcome == 'success'
+        run: |
+          if git diff --quiet -- index.html data/canal.json && [ -z "$(git status --porcelain -- data)" ]; then
+            echo "Sin cambios."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html data/canal.json
+          git commit -m "Canal: últimos vídeos de YouTube"
+          git pull --rebase origin main
+          git push origin HEAD:main
