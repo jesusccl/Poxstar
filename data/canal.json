@@ -1,19 +1,28 @@
 {
-  "actualizado": "2026-10-13T22:44:12.153Z",
+  "actualizado": "2026-10-14T04:52:02.746Z",
   "canal": {
     "nombre": "AugustoLive",
     "handle": "@AugustoCLive",
     "url": "https://www.youtube.com/@AugustoCLive",
     "id": "UCoibPuAVlOAYJKTLk-z1r7w",
     "avatar": "https://yt3.googleusercontent.com/cFrdofkiCR9akxu2mCKG5lzOkjDSUuip7eNWpZEjY9YUuip4nDJrCGph8mUEGQy6CFXgvmwsnw=s160-c-k-c0x00ffffff-no-rj",
-    "suscriptores": "39 suscriptores",
-    "videos": "12 vídeos"
+    "suscriptores": "40 suscriptores",
+    "videos": "13 vídeos"
   },
   "videos": [
     {
+      "id": "u6yMxAF6tNA",
+      "titulo": "Verity Capitulo 2 Temporada 1",
+      "vistas": "7 vistas",
+      "duracion": "34:58",
+      "fecha": "2026-10-13",
+      "precision": "dia",
+      "exacta": true
+    },
+    {
       "id": "-bYOBtD2el0",
       "titulo": "Abriendo sobres de 30 aniversario",
-      "vistas": "31 vistas",
+      "vistas": "34 vistas",
       "duracion": "3:05",
       "fecha": "2026-10-12",
       "precision": "dia",
@@ -22,7 +31,7 @@
     {
       "id": "rZ46dQpoviU",
       "titulo": "Verity Capitulo 1 Temporada 1",
-      "vistas": "87 vistas",
+      "vistas": "95 vistas",
       "duracion": "37:46",
       "fecha": "2026-10-11",
       "precision": "dia",
@@ -52,15 +61,6 @@
       "vistas": "63 vistas",
       "duracion": "1:00:09",
       "fecha": "2026-03-08",
-      "precision": "dia",
-      "exacta": true
-    },
-    {
-      "id": "YeuTvl-oBd0",
-      "titulo": "Abriendo Sobres PokemonTCG",
-      "vistas": "51 vistas",
-      "duracion": "3:11",
-      "fecha": "2025-12-21",
       "precision": "dia",
       "exacta": true
     }
