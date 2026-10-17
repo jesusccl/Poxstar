@@ -1,19 +1,28 @@
 {
-  "actualizado": "2026-10-16T21:06:51.585Z",
+  "actualizado": "2026-10-17T04:24:17.002Z",
   "canal": {
-    "nombre": "AugustoLive",
+    "nombre": "AugustoCLive",
     "handle": "@AugustoCLive",
     "url": "https://www.youtube.com/@AugustoCLive",
     "id": "UCoibPuAVlOAYJKTLk-z1r7w",
     "avatar": "https://yt3.googleusercontent.com/cFrdofkiCR9akxu2mCKG5lzOkjDSUuip7eNWpZEjY9YUuip4nDJrCGph8mUEGQy6CFXgvmwsnw=s160-c-k-c0x00ffffff-no-rj",
-    "suscriptores": "46 suscriptores",
-    "videos": "13 vídeos"
+    "suscriptores": "48 suscriptores",
+    "videos": "14 vídeos"
   },
   "videos": [
     {
+      "id": "lci631f5-lk",
+      "titulo": "Verity Capitulo 3 Temporada 1, del terror.",
+      "vistas": "22 vistas",
+      "duracion": "10:24",
+      "fecha": "2026-10-16",
+      "precision": "dia",
+      "exacta": true
+    },
+    {
       "id": "u6yMxAF6tNA",
       "titulo": "Verity Capitulo 2 Temporada 1",
-      "vistas": "477 vistas",
+      "vistas": "589 vistas",
       "duracion": "34:58",
       "fecha": "2026-10-14",
       "precision": "dia",
@@ -52,15 +61,6 @@
       "vistas": "47 vistas",
       "duracion": "3:23",
       "fecha": "2026-03-29",
-      "precision": "dia",
-      "exacta": true
-    },
-    {
-      "id": "Jtcph0O3-vk",
-      "titulo": "Que es mejor Hytale o Minecraft",
-      "vistas": "64 vistas",
-      "duracion": "1:00:09",
-      "fecha": "2026-03-08",
       "precision": "dia",
       "exacta": true
     }
