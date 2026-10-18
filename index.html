@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
 <title>PoxStar — Estudio de juegos de AugustoCLive</title>
-<meta name="description" content="PoxStar es el estudio indie de videojuegos de AugustoCLive. Diez juegos gratis en el navegador: Pichanga, fútbol 2D online para jugar con amigos; Polemon, un RPG de criaturas al estilo de los clásicos de Game Boy; Furious Cars 2, carreras en 3D con modo libre; República de Lemuy, un MMO de conquista en Chiloé; Putup, simulador de creador; y cinco arcades. Sin descargas, sin loot boxes. Y el canal de YouTube de AugustoCLive.">
+<meta name="description" content="PoxStar es el estudio indie de videojuegos de AugustoCLive. Once juegos gratis en el navegador: Pichanga, fútbol 2D online para jugar con amigos; Battle Universe, estrategia espacial en tiempo real; Polemon, un RPG de criaturas al estilo de los clásicos de Game Boy; Furious Cars 2, carreras en 3D con modo libre; República de Lemuy, un MMO de conquista en Chiloé; Putup, simulador de creador; y cinco arcades. Sin descargas, sin loot boxes. Y el canal de YouTube de AugustoCLive.">
 <link rel="canonical" href="https://poxstar.com/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="author" content="AugustoCLive">
@@ -19,14 +19,14 @@
 <meta property="og:locale" content="es_ES">
 <meta property="og:url" content="https://poxstar.com/">
 <meta property="og:title" content="PoxStar — Estudio de juegos de AugustoCLive">
-<meta property="og:description" content="Juegos pequeños con ideas grandes. Diez juegos en el navegador, gratis y sin descargas — con Pichanga como gran estreno.">
+<meta property="og:description" content="Juegos pequeños con ideas grandes. Once juegos en el navegador, gratis y sin descargas — con Pichanga como gran estreno y Battle Universe como novedad.">
 <meta property="og:image" content="https://poxstar.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="PoxStar — estudio de juegos de AugustoCLive">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PoxStar — Estudio de juegos de AugustoCLive">
-<meta name="twitter:description" content="Juegos pequeños con ideas grandes. Diez juegos en el navegador, gratis y sin descargas — con Pichanga como gran estreno.">
+<meta name="twitter:description" content="Juegos pequeños con ideas grandes. Once juegos en el navegador, gratis y sin descargas — con Pichanga como gran estreno y Battle Universe como novedad.">
 <meta name="twitter:image" content="https://poxstar.com/og-image.png">
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF4A1C' d='M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.9 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z'/%3E%3C/svg%3E">
@@ -94,6 +94,22 @@
       "genre": ["Deportes", "Fútbol", "Multijugador", "Arcade"],
       "gamePlatform": "Navegador web",
       "playMode": ["MultiPlayer", "SinglePlayer"],
+      "applicationCategory": "Game",
+      "operatingSystem": "Web",
+      "inLanguage": "es",
+      "author": { "@id": "https://poxstar.com/#studio" },
+      "publisher": { "@id": "https://poxstar.com/#studio" },
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+    },
+    {
+      "@type": "VideoGame",
+      "name": "Battle Universe",
+      "url": "https://poxstar.com/battle-universe.html",
+      "image": "https://poxstar.com/img/bu-portada.webp",
+      "description": "Estrategia espacial en tiempo real: cada planeta fabrica naves y las flotas conquistan planetas al llegar con más naves que el defensor. Campaña de doce sectores y batallas rápidas contra hasta cuatro imperios, con forjas, fortalezas, gigantes gaseosos, nebulosas y agujeros negros.",
+      "genre": ["Estrategia", "Tiempo real", "Espacio"],
+      "gamePlatform": "Navegador web",
+      "playMode": "SinglePlayer",
       "applicationCategory": "Game",
       "operatingSystem": "Web",
       "inLanguage": "es",
@@ -494,6 +510,15 @@ button{font:inherit;color:inherit}
 .nota{font-size:13.5px}
 .nota a{color:var(--ink)}
 html:not(.js) [data-ficha]{display:none}
+/* la novedad ocupa las dos columnas: imagen a la izquierda, texto a la derecha */
+.juego-ancho{grid-column:1/-1}
+@media (min-width:761px){
+  .juego-ancho{flex-direction:row}
+  .juego-ancho .juego-img{flex:0 0 56%}
+  .juego-ancho .juego-cuerpo{justify-content:center;padding:32px 34px}
+  .juego-ancho h3{font-size:34px}
+  .juego-ancho .juego-acciones{margin-top:8px}
+}
 @media (max-width:760px){.destacados{grid-template-columns:1fr}.juego h3{font-size:24px}}
 
 /* arcades */
@@ -678,7 +703,7 @@ html:not(.js) [data-ficha]{display:none}
     <div class="hero-meta">
       <span>Estudio independiente</span>
       <span>// Estudio de AugustoCLive</span>
-      <span>10 juegos · jugables</span>
+      <span>11 juegos · jugables</span>
     </div>
 
     <div class="hero-logo">
@@ -691,7 +716,7 @@ html:not(.js) [data-ficha]{display:none}
 
     <p class="hero-sub">
       Construimos <mark>juegos pequeños con ideas grandes</mark>. Mecánicas raras,
-      mundos honestos, soundtracks que se quedan. Diez juegos gratis en el
+      mundos honestos, soundtracks que se quedan. Once juegos gratis en el
       navegador, sin descargas, sin loot boxes, sin prisa.
     </p>
     <div class="hero-cta">
@@ -715,14 +740,14 @@ html:not(.js) [data-ficha]{display:none}
 
   <div class="wrap">
     <dl class="hero-rail">
-      <div><dt>Juegos</dt><dd>10</dd></div>
+      <div><dt>Juegos</dt><dd>11</dd></div>
       <div><dt>Precio</dt><dd>Gratis</dd></div>
       <div><dt>Descargas</dt><dd>Cero</dd></div>
       <div><dt>Plataforma</dt><dd>Navegador</dd></div>
     </dl>
   </div>
   <div class="cinta" aria-hidden="true">
-    <div class="cinta-pista"><span><b class="hw-t">feliz halloween</b><i class="hw-t"></i>pichanga · gran estreno<i></i>polemon<i></i>furious cars 2<i></i>república de lemuy<i></i>putup<i></i>jugar diferente<i></i>un estudio de augustoclive<i></i>since 2026<i></i></span><span><b class="hw-t">feliz halloween</b><i class="hw-t"></i>pichanga · gran estreno<i></i>polemon<i></i>furious cars 2<i></i>república de lemuy<i></i>putup<i></i>jugar diferente<i></i>un estudio de augustoclive<i></i>since 2026<i></i></span></div>
+    <div class="cinta-pista"><span><b class="hw-t">feliz halloween</b><i class="hw-t"></i>pichanga · gran estreno<i></i>battle universe · nuevo<i></i>polemon<i></i>furious cars 2<i></i>república de lemuy<i></i>putup<i></i>jugar diferente<i></i>un estudio de augustoclive<i></i>since 2026<i></i></span><span><b class="hw-t">feliz halloween</b><i class="hw-t"></i>pichanga · gran estreno<i></i>battle universe · nuevo<i></i>polemon<i></i>furious cars 2<i></i>república de lemuy<i></i>putup<i></i>jugar diferente<i></i>un estudio de augustoclive<i></i>since 2026<i></i></span></div>
   </div>
 </section>
 
@@ -736,6 +761,21 @@ html:not(.js) [data-ficha]{display:none}
     </div>
 
     <div class="destacados">
+      <article class="juego juego-ancho" id="battle-universe">
+        <a class="juego-img" href="battle-universe.html" tabindex="-1" aria-hidden="true">
+          <img src="img/card-bu.webp" width="960" height="540" alt="" loading="lazy" decoding="async">
+        </a>
+        <div class="juego-cuerpo">
+          <div class="juego-cab"><h3><a href="battle-universe.html">Battle Universe</a></h3><span class="insignia">Nuevo</span></div>
+          <p>Estrategia espacial en tiempo real: cada planeta tuyo fabrica naves y tú decides adónde mandarlas. Conquista la galaxia contra hasta cuatro imperios, con una campaña de doce sectores, nebulosas, fortalezas y agujeros negros que se tragan flotas enteras.</p>
+          <ul class="etiquetas"><li>Estrategia</li><li>Espacio</li><li>Tiempo real</li></ul>
+          <div class="juego-acciones">
+            <a class="btn btn-primario btn-chico" href="battle-universe.html">Jugar <span class="flecha" aria-hidden="true">→</span></a>
+            <button class="btn btn-borde btn-chico" type="button" data-ficha="ficha-bu">Ver capturas</button>
+          </div>
+        </div>
+      </article>
+
       <article class="juego" id="polemon">
         <a class="juego-img" href="polemon.html" tabindex="-1" aria-hidden="true">
           <img src="img/polemon-portada.webp" width="1280" height="720" alt="" loading="lazy" decoding="async">
@@ -911,7 +951,7 @@ html:not(.js) [data-ficha]{display:none}
       </p>
       <dl class="estudio-datos">
         <div><dt>fundado</dt><dd>2026</dd></div>
-        <div><dt>juegos</dt><dd>10</dd></div>
+        <div><dt>juegos</dt><dd>11</dd></div>
         <div><dt>loot boxes</dt><dd>0</dd></div>
       </dl>
     </div>
@@ -951,6 +991,7 @@ html:not(.js) [data-ficha]{display:none}
       <h2 id="pie-juegos">Juegos</h2>
       <ul>
         <li><a href="pichanga.html">Pichanga</a></li>
+        <li><a href="battle-universe.html">Battle Universe</a></li>
         <li><a href="polemon.html">Polemon</a></li>
         <li><a href="furious-cars-2.html">Furious Cars 2</a></li>
         <li><a href="https://dell.taila1b256.ts.net/" target="_blank" rel="noopener">República de Lemuy ↗</a></li>
@@ -978,6 +1019,66 @@ html:not(.js) [data-ficha]{display:none}
 
 <!-- ═══ Fichas con capturas (se abren con «Ver capturas») ══════ -->
 <!-- fichas:inicio -->
+<dialog class="ficha" id="ficha-bu" aria-labelledby="ficha-bu-t">
+  <div class="ficha-cab">
+    <h2 id="ficha-bu-t">Battle Universe</h2>
+    <form method="dialog"><button class="icono" aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></form>
+  </div>
+  <div class="ficha-cuerpo">
+    <div class="galeria" tabindex="0" role="region" aria-label="Capturas de Battle Universe">
+      <figure>
+        <img src="img/bu-titulo.webp" width="1440" height="810" alt="Menú de Battle Universe: el logotipo con un planeta naranja y su anillo, y detrás una batalla entre cuatro imperios de colores sobre un fondo estrellado." loading="lazy" decoding="async">
+        <figcaption><b>Battle Universe.</b> Conquista la galaxia, planeta a planeta. Detrás del menú, cuatro imperios se pelean solos.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/bu-origen.webp" width="1440" height="810" alt="Primer sector: tu planeta naranja a la izquierda con el globo «Haz clic en tu planeta naranja para elegirlo», planetas grises neutrales en el centro y el planeta cian del rival a la derecha." loading="lazy" decoding="async">
+        <figcaption><b>Sistema Origen.</b> El primer sector te enseña a jugar: eliges tu planeta, tocas uno gris y salen las naves.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/bu-batalla.webp" width="1440" height="810" alt="Batalla rápida con cinco imperios: planetas naranjas, cian, magenta, verdes y dorados, flotas cruzando el mapa y líneas discontinuas desde dos planetas elegidos hacia un objetivo." loading="lazy" decoding="async">
+        <figcaption><b>Cinco imperios.</b> En la batalla rápida eliges rivales, tamaño de la galaxia, dificultad y rarezas.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/bu-abismo.webp" width="1440" height="810" alt="Sector El Abismo: un agujero negro en el centro y una línea discontinua roja que lo cruza desde un planeta naranja hacia un planeta cian." loading="lazy" decoding="async">
+        <figcaption><b>El Abismo.</b> Si la flota va a cruzar el agujero negro, la línea se pone roja: se la tragaría entera.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/bu-nebulosa.webp" width="1440" height="810" alt="Sector Nebulosa de Orión: dos nebulosas violetas entre los planetas naranjas y cian, con flotas atravesándolas." loading="lazy" decoding="async">
+        <figcaption><b>Nebulosa de Orión.</b> Dentro de las nebulosas las flotas van a menos de la mitad de velocidad.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/bu-gigantes.webp" width="1440" height="810" alt="Sector Gigantes de Titán: cuatro gigantes gaseosos con anillos y 57 naves de guarnición cada uno, rodeados de planetas de cuatro imperios." loading="lazy" decoding="async">
+        <figcaption><b>Gigantes de Titán.</b> Los gigantes gaseosos guardan guarniciones enormes, pero fabrican sin parar cuando son tuyos.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/bu-corazon.webp" width="1440" height="810" alt="Último sector, Corazón del Universo: un anillo de agujeros negros alrededor de uno central, fortalezas hexagonales y cinco imperios en los bordes." loading="lazy" decoding="async">
+        <figcaption><b>Corazón del Universo.</b> El último sector: cuatro imperios sin piedad alrededor de un anillo de agujeros negros.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/bu-campana.webp" width="1440" height="810" alt="Pantalla de campaña con doce sectores: los seis primeros con sus estrellas, el séptimo abierto y el resto bloqueados." loading="lazy" decoding="async">
+        <figcaption><b>Doce sectores.</b> Cada sector da hasta tres estrellas según lo rápido que ganes.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/bu-victoria.webp" width="1440" height="810" alt="Pantalla de victoria con tres estrellas, el tiempo, los planetas conquistados, las naves enviadas y las naves enemigas destruidas." loading="lazy" decoding="async">
+        <figcaption><b>¡Victoria!</b> Al terminar, tu tiempo, los planetas conquistados y las naves que destruiste.</figcaption>
+      </figure>
+    </div>
+    <div class="galeria-nav">
+      <span class="num" aria-hidden="true">1 / 9</span>
+      <button class="icono ant" type="button" aria-label="Captura anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="icono sig" type="button" aria-label="Captura siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <p class="ficha-lead">Cada planeta tuyo fabrica naves sin parar, y los grandes más deprisa. Eliges uno o varios, tocas el planeta al que quieres llegar y la flota sale volando: si llega con más naves de las que lo defienden, es tuyo. Hasta cuatro imperios con inteligencia propia hacen lo mismo a la vez, y también se pelean entre ellos. La campaña son doce sectores, de un rival despistado a cuatro imperios sin piedad, con forjas que fabrican el doble, fortalezas con escudo, gigantes gaseosos, nebulosas que frenan las flotas y agujeros negros que se las tragan.</p>
+    <dl class="ficha-datos">
+      <div><dt>Género</dt><dd>Estrategia espacial en tiempo real</dd></div>
+      <div><dt>Campaña</dt><dd>12 sectores y 36 estrellas</dd></div>
+      <div><dt>Rivales</dt><dd>Hasta 4 imperios con IA propia</dd></div>
+      <div><dt>Controles</dt><dd>Ratón, teclado o pantalla táctil</dd></div>
+    </dl>
+    <a class="btn btn-primario" href="battle-universe.html">Jugar a Battle Universe <span class="flecha" aria-hidden="true">→</span></a>
+  </div>
+</dialog>
+
 <dialog class="ficha" id="ficha-polemon" aria-labelledby="ficha-polemon-t">
   <div class="ficha-cab">
     <h2 id="ficha-polemon-t">Polemon</h2>

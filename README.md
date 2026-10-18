@@ -12,14 +12,15 @@ variable— y casi nada que se mueva solo. De arriba abajo:
 
 - **Portada** (`#top`): la de siempre, con menos peso. Franja naranja
   `#FF4A1C` (en los dos temas, con el texto siempre negro), los rótulos en
-  mono —«Estudio independiente», «// Estudio de AugustoCLive», «10 juegos ·
+  mono —«Estudio independiente», «// Estudio de AugustoCLive», «11 juegos ·
   jugables»—, la ficha negra con la estrella, «poxstar» en grande (las letras
   suben una vez al cargar), «// Since 2026 · por AugustoCLive», el lema
   «Construimos juegos pequeños con ideas grandes», los botones a los juegos y
   al canal, el gran estreno (Pichanga, `#pichanga`) con el césped a rayas, la
   fila de datos y la cinta con los juegos. La ficha con la estrella también
   es el logo de la barra y del pie.
-- **Juegos** (`#juegos`): Polemon, Furious Cars 2, República de Lemuy y Putup
+- **Juegos** (`#juegos`): la novedad, Battle Universe, a lo ancho
+  (`#battle-universe`), y Polemon, Furious Cars 2, República de Lemuy y Putup
   en tarjetas grandes (`#polemon`, `#furious`, `#lemuy`, `#putup`), cada una
   con «Jugar» y «Ver capturas», que abre una ficha (`<dialog>`) con la galería,
   el texto largo y los datos. Debajo, los cinco arcades con su portada
@@ -159,7 +160,41 @@ fases de carrera, chute y celebración a escala grande y a tamaño de móvil.
 La portada (`img/pichanga-portada.webp`) es un partido de 3 contra 3 de
 verdad, con bots, capturado tal cual se ve en pantalla.
 
-**02 · Polemon: Edición Aventura** — *Nuevo.* Un RPG de criaturas al estilo
+**02 · Battle Universe** — *Nuevo.* Estrategia espacial en tiempo real. Cada
+planeta tuyo fabrica naves (los grandes, más deprisa) y las mandas a conquistar:
+si la flota llega con más naves de las que lo defienden, el planeta cambia de
+dueño. Hasta cuatro imperios con IA propia hacen lo mismo y también se pelean
+entre ellos. Campaña de **12 sectores**, con hasta tres estrellas cada uno según
+el tiempo, y **batalla rápida** eligiendo rivales (1–4), tamaño de la galaxia,
+dificultad (fácil, normal, difícil o brutal) y rarezas:
+
+- **Forja**: fabrica casi el doble. **Fortaleza**: cada defensor vale 1,6.
+  **Gigante gaseoso**: enorme y con mucha guarnición. **Nebulosa**: las flotas
+  van al 45 %. **Agujero negro**: se traga las flotas que lo cruzan; la línea de
+  envío se pone roja antes de mandarlas.
+- **Tocar / clic** en tus planetas los elige; tocar otro planeta manda allí el
+  porcentaje elegido de cada uno (25, 50, 75 o 100 %). También se puede
+  arrastrar del planeta al objetivo, y dos toques seguidos eligen todos.
+- Teclado: **1–4** porcentaje · **A** todos · **P / Esc** pausa · **M** sonido ·
+  clic derecho envía la selección (también a tus propios planetas).
+
+`battle-universe.html` es **un solo archivo** hecho aquí (83 KB), sin
+dependencias: lienzo 2D y Web Audio, con efectos y música sintetizados. Sólo pide
+las fuentes a Google Fonts, y sin ellas usa las del sistema. Las galaxias se
+generan **simétricas**: los neutrales se colocan en una porción del mapa y se
+copian girando alrededor del centro, así cada imperio ve lo mismo a su alrededor.
+Los sectores de la campaña usan siempre la misma semilla. El progreso y las
+opciones se guardan en `localStorage` (`bu_progreso_v1`, `bu_rapida_v1` y
+`bu_ajustes_v1`).
+
+Con `#debug` en la URL expone `window.__bu`: `sector(i)`, `rapida(opciones)`,
+`piloto(true)` para que tu imperio lo lleve la IA y `sim(segundos)` para
+adelantar la partida sin pintar. Así se afinó la dificultad, jugando cada sector
+varias veces con el jugador en piloto automático: los nueve primeros los gana más
+o menos tres veces de cada cuatro y los tres últimos bastante menos. Así salieron
+también las capturas de `img/bu-*.webp`.
+
+**03 · Polemon: Edición Aventura** — *Nuevo.* Un RPG de criaturas al estilo
 de los clásicos de Game Boy. Eliges inicial (Charmandro, Bulbasor o Squirtel) en
 el laboratorio del Profesor Roble y recorres la región de Kantia —mapa de
 160×156 casillas, 9 ciudades, 15 rutas y 8 mazmorras— capturando entre **121
@@ -196,7 +231,7 @@ hace `Object.assign(..., o)` con el `title: 'Líder'` que se le pasa, que lo
 pisa. Por eso el combate anuncia «¡Líder quiere luchar!» sin el nombre. Se
 arregla en el repo del juego; la copia de aquí sigue al original.
 
-**03 · Furious Cars 2** — La secuela de Furious Cars, ahora en 3D
+**04 · Furious Cars 2** — La secuela de Furious Cars, ahora en 3D
 (three.js). Ocho pilotos en pista —tú y siete rivales con IA—, **seis coches**
 (Viper GT, Phantom R, Blaze S, Toro V12, Bravo 69 y Cóndor RS) y **dos
 circuitos**: Sierra Dorada y el volcán Osorno. Carrera de 1, 3 o 5 vueltas, o
@@ -227,7 +262,7 @@ expone `window.__fc2`, con `sim(segundos)` para adelantar la simulación con
 piloto automático sin tener que pintar cada cuadro. Las ocho capturas de
 `img/fc2-*.webp` salieron así, del juego de verdad, en calidad «ultra».
 
-**04 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
+**05 · República de Lemuy** — MMO de acción y conquista sobre la isla de Lemuy,
 en Chiloé. Diez villas (de Puqueldón, nivel 1, a Detif, nivel 22), veinticuatro
 criaturas de la mitología chilota, cinco clases, clanes, territorios y banderas.
 
@@ -241,7 +276,7 @@ sitio se enlaza directo (su tarjeta del catálogo, `#lemuy`, su ficha de
 capturas, el pie de página y el launcher). **Si el servidor está apagado, el enlace
 no abre** — es lo único del sitio que depende de una máquina encendida.
 
-**05 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
+**06 · Putup** — Simulador de creador. Vives en una casa 3D (estudio, salón,
 cocina, recibidor, baño y jardín), con la casa del vecino al otro lado de la
 parcela, y grabas partidas en el ordenador, las editas
 —momentos, título, miniatura— y las publicas para que crezca el canal. El dinero
@@ -316,9 +351,9 @@ que venía en la subida: se diferencian sólo en el motor (92 líneas), una lín
 de `house.js` y seis de `garden.js`; el resto de módulos son idénticos. Lo que
 se publica sale de las fuentes.
 
-**06 · Carrera Loca** — Endless arcade de carreras con estética neón.
+**07 · Carrera Loca** — Endless arcade de carreras con estética neón.
 
-**07 · BREACH // 2044** — Puzzle de intrusión cyberpunk. Recorres una matriz de
+**08 · BREACH // 2044** — Puzzle de intrusión cyberpunk. Recorres una matriz de
 código alternando fila y columna para llenar el búfer; un démon se sube si su
 secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 
@@ -326,16 +361,16 @@ secuencia aparece seguida dentro de él. Niveles con matriz y búfer crecientes.
 - Los démones se generan a partir de un recorrido válido real, así que **siempre
   hay solución** dentro del búfer.
 
-**08 · NEON RUNNER** — Runner de gravedad invertible sobre ciudad neón.
+**09 · NEON RUNNER** — Runner de gravedad invertible sobre ciudad neón.
 
 - **Espacio** / clic / toque — invertir gravedad
 
-**09 · DAEMON** — Shooter de arena por oleadas con gráficos vectoriales.
+**10 · DAEMON** — Shooter de arena por oleadas con gráficos vectoriales.
 
 - **WASD** / flechas — moverse · **ratón** — apuntar · **clic** — disparar
 - En móvil: arrastrar para moverse, dispara y apunta solo
 
-**10 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
+**11 · Furious Cars 1** — Endless racer top-down. Tres vidas, tráfico infinito.
 
 - ← → / A D — moverse lateral
 - ↑ ↓ / W S — adelantar/frenar (más arriba = más rápido)
@@ -372,15 +407,16 @@ degradados, no con sombras desenfocadas enormes.
 ```
 .
 ├── index.html          # Página principal (el bloque del canal lo escribe tools/canal.mjs)
-├── polemon.html        # Juego 02 — empaquetado desde jesusccl/Concurso (ver arriba)
-├── furious-cars-2.html # Juego 03 — copia de jesusccl/miprogramagpt (ver arriba)
+├── polemon.html        # Juego 03 — empaquetado desde jesusccl/Concurso (ver arriba)
+├── furious-cars-2.html # Juego 04 — copia de jesusccl/miprogramagpt (ver arriba)
 ├── pichanga.html       # Juego 01 — fútbol online, un solo archivo hecho aquí
-├── furious-cars.html   # Juego 10
-├── carrera-loca.html   # Juego 06
-├── breach-2044.html    # Juego 07
-├── neon-runner.html    # Juego 08
-├── daemon.html         # Juego 09
-├── putup.html          # Juego 05 — un solo archivo, generado por build-putup.cjs
+├── battle-universe.html # Juego 02 — estrategia espacial, un solo archivo hecho aquí
+├── furious-cars.html   # Juego 11
+├── carrera-loca.html   # Juego 07
+├── breach-2044.html    # Juego 08
+├── neon-runner.html    # Juego 09
+├── daemon.html         # Juego 10
+├── putup.html          # Juego 06 — un solo archivo, generado por build-putup.cjs
 ├── build-putup.cjs     # Genera putup.html desde outputs/putup/
 ├── outputs/            # Material de Putup tal y como sale de su compilación
 ├── launcher.html       # Launcher web (no enlazado desde la home)

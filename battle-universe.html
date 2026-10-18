@@ -1,0 +1,1600 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Battle Universe — PoxStar</title>
+<meta name="description" content="Battle Universe: conquista la galaxia planeta a planeta. Estrategia espacial en tiempo real en el navegador, con una campaña de 12 sectores y batallas rápidas contra hasta cuatro imperios. Gratis, de PoxStar.">
+<link rel="canonical" href="https://poxstar.com/battle-universe.html">
+<meta name="theme-color" content="#060714">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PoxStar">
+<meta property="og:title" content="Battle Universe — PoxStar">
+<meta property="og:description" content="Conquista la galaxia planeta a planeta. Estrategia espacial en tiempo real, gratis en el navegador.">
+<meta property="og:image" content="https://poxstar.com/img/bu-portada.webp">
+<meta property="og:url" content="https://poxstar.com/battle-universe.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='%23FF6B2C'/%3E%3Cellipse cx='16' cy='16' rx='15' ry='5' fill='none' stroke='%2333D6FF' stroke-width='2.4' transform='rotate(-20 16 16)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400..800&family=Orbitron:wght@600;800;900&display=swap" media="print" onload="this.media='all';this.onload=null">
+<style>
+:root{
+  --fondo:#060714; --panel:rgba(10,12,30,.9); --panel-2:rgba(255,255,255,.05); --borde:rgba(150,165,255,.18);
+  --texto:#E9ECFF; --texto-2:#9BA4C9; --naranja:#FF6B2C; --rosa:#FF4FB0; --cian:#33D6FF;
+  --fuente:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --titulo:'Orbitron','Archivo',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--fondo);color:var(--texto);font:400 16px/1.5 var(--fuente);
+  -webkit-font-smoothing:antialiased}
+body{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+canvas{position:fixed;inset:0;display:block;width:100%;height:100%}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--cian);outline-offset:3px}
+h1,h2,h3,p{margin:0}
+
+/* — pantallas (menús) — */
+.pantalla{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;overflow:auto;
+  padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
+.pantalla[hidden]{display:none}
+.panel{width:min(520px,100%);margin:auto;padding:28px;border:1px solid var(--borde);border-radius:24px;background:var(--panel);
+  box-shadow:0 30px 80px -30px rgba(0,0,0,.8);animation:entra .35s cubic-bezier(.2,.7,.2,1)}
+.panel-ancho{width:min(880px,100%)}
+@keyframes entra{from{opacity:0;transform:translateY(12px) scale(.985)}}
+.cab{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.cab h2{flex:1;font:800 22px/1.2 var(--titulo);letter-spacing:.06em;text-transform:uppercase}
+.volver{display:grid;place-items:center;width:40px;height:40px;flex:none;border:1px solid var(--borde);border-radius:12px;background:var(--panel-2);font-size:18px}
+.volver:hover{border-color:var(--cian)}
+.sup{color:var(--cian);font:700 12px/1.3 var(--titulo);letter-spacing:.18em;text-transform:uppercase}
+
+.logo{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.logo svg{width:84px;height:84px}
+.logo h1{display:flex;flex-direction:column;font:900 clamp(34px,9vw,52px)/.95 var(--titulo);letter-spacing:.08em;
+  background:linear-gradient(100deg,#FFB36B 0%,#FF6B2C 30%,#FF4FB0 62%,#33D6FF 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo h1 span + span{font-size:.62em;letter-spacing:.3em;margin-top:.25em}
+.lema{margin-top:12px;color:var(--texto-2);text-align:center}
+.menu-botones{display:grid;gap:10px;margin-top:26px}
+.boton{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:54px;padding:12px 20px;
+  border:1px solid var(--borde);border-radius:16px;background:var(--panel-2);font-weight:700;font-size:17px;text-align:left;
+  transition:border-color .2s,transform .15s,background-color .2s}
+.boton:hover{border-color:rgba(150,165,255,.5);background:rgba(255,255,255,.08)}
+.boton:active{transform:scale(.985)}
+.boton small{color:var(--texto-2);font-weight:500;font-size:13.5px;text-align:right}
+@media (max-width:440px){.boton{flex-direction:column;align-items:flex-start;justify-content:center;gap:2px}.boton small{text-align:left}}
+.boton.principal{border:0;background:linear-gradient(95deg,#FF6B2C,#FF4FB0);color:#fff;box-shadow:0 12px 30px -14px rgba(255,79,176,.8)}
+.boton.principal small{color:rgba(255,255,255,.85)}
+.boton.principal:hover{filter:brightness(1.08)}
+.boton[disabled]{opacity:.4;cursor:default}
+.menu-pie{display:flex;justify-content:space-between;align-items:center;margin-top:22px;color:var(--texto-2);font-size:14px}
+.menu-pie a{text-decoration:none}
+.menu-pie a:hover{color:var(--texto)}
+.enlace{padding:6px 0;border:0;background:none;color:var(--texto-2);font-size:14px}
+.enlace:hover{color:var(--texto)}
+
+/* campaña */
+.total{color:#FFD447;font-weight:700}
+.sectores{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.sector{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;height:100%;min-height:104px;padding:14px;
+  border:1px solid var(--borde);border-radius:16px;background:var(--panel-2);text-align:left;transition:border-color .2s,transform .15s}
+.sector:hover:not([disabled]){border-color:var(--cian);transform:translateY(-2px)}
+.sector .num{color:var(--cian);font:800 13px/1 var(--titulo);letter-spacing:.12em}
+.sector b{font-size:15.5px;line-height:1.25}
+.sector .est{margin-top:auto;color:#FFD447;letter-spacing:.12em}
+.sector[disabled]{opacity:.38;cursor:default}
+.sector[disabled] .est{color:var(--texto-2);letter-spacing:0;font-size:13px}
+@media (max-width:720px){.sectores{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#s-nombre{margin-top:6px;font:800 26px/1.15 var(--titulo);letter-spacing:.03em}
+#s-texto{margin-top:12px;color:var(--texto-2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.chips li{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:var(--panel-2);
+  border:1px solid var(--borde);font-size:13.5px;font-weight:600}
+.chips i{width:10px;height:10px;border-radius:50%}
+.mejor{margin-top:16px;color:#FFD447;font-size:14px;min-height:21px}
+#s-jugar,#r-jugar{margin-top:20px;justify-content:center}
+
+/* batalla rápida */
+.opcion{margin-top:16px}
+.opcion > span{display:block;margin-bottom:8px;color:var(--texto-2);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 1 auto;min-height:42px;padding:8px 12px;border:1px solid var(--borde);border-radius:12px;background:var(--panel-2);font-weight:700;font-size:14.5px}
+.seg button[aria-pressed="true"]{border-color:transparent;background:linear-gradient(95deg,#FF6B2C,#FF4FB0);color:#fff}
+
+/* ayuda */
+.reglas{display:grid;gap:12px;margin:0;padding:0;list-style:none;color:var(--texto-2);font-size:15px}
+.reglas b{color:var(--texto)}
+.reglas li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+.reglas .ic{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:var(--panel-2);border:1px solid var(--borde);font-size:14px}
+.teclas{margin-top:18px;padding-top:16px;border-top:1px solid var(--borde);color:var(--texto-2);font-size:13.5px}
+kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--borde);border-bottom-width:2px;border-radius:6px;font:600 12px/1.6 var(--fuente);text-align:center;color:var(--texto)}
+
+/* fin */
+#f-titulo{margin-top:6px;font:900 34px/1.1 var(--titulo);letter-spacing:.06em;text-transform:uppercase}
+#f-titulo.gana{background:linear-gradient(95deg,#FFD447,#FF6B2C,#FF4FB0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.estrellas{margin-top:10px;font-size:34px;letter-spacing:.12em;color:#FFD447}
+.estrellas .no{color:rgba(255,255,255,.18)}
+.datos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0 0}
+.datos div{padding:12px 14px;border-radius:14px;background:var(--panel-2);border:1px solid var(--borde)}
+.datos dt{color:var(--texto-2);font-size:12.5px}
+.datos dd{margin:0;font:800 20px/1.3 var(--titulo)}
+.fila{display:grid;gap:10px;margin-top:20px}
+.fila .boton{justify-content:center}
+
+/* — HUD — */
+#hud{position:fixed;inset:0;z-index:5;pointer-events:none}
+#hud[hidden]{display:none}
+.hud-arriba{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;
+  padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left))}
+.hud-boton{pointer-events:auto;display:grid;place-items:center;min-width:42px;height:42px;padding:0 10px;border:1px solid var(--borde);
+  border-radius:12px;background:rgba(10,12,30,.72);font-weight:800;font-size:14px}
+.hud-boton:hover{border-color:var(--cian)}
+.hud-boton svg{width:18px;height:18px;fill:currentColor}
+.hud-nivel{flex:1;min-width:0;text-align:center}
+.hud-nivel b{display:block;overflow:hidden;font:800 13px/1.3 var(--titulo);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;text-overflow:ellipsis}
+.hud-nivel span{color:var(--texto-2);font:600 13px/1.3 var(--fuente);font-variant-numeric:tabular-nums}
+.hud-abajo{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:0 12px max(12px,env(safe-area-inset-bottom))}
+#fuerzas{display:flex;width:min(560px,100%);height:6px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.08)}
+#fuerzas span{height:100%;transition:width .4s}
+.envio{pointer-events:auto;display:flex;gap:6px;padding:5px;border:1px solid var(--borde);border-radius:16px;background:rgba(10,12,30,.78)}
+.envio button{min-width:56px;height:40px;padding:0 10px;border:0;border-radius:11px;background:transparent;font-weight:800;font-size:14.5px;color:var(--texto-2)}
+.envio button[aria-pressed="true"]{background:linear-gradient(95deg,#FF6B2C,#FF4FB0);color:#fff}
+.envio .todos{color:var(--texto);border-right:1px solid var(--borde);border-radius:11px 4px 4px 11px}
+@media (max-width:420px){.envio button{min-width:48px;padding:0 6px;font-size:13.5px}}
+#aviso{position:fixed;left:50%;top:70px;z-index:6;transform:translateX(-50%);padding:8px 16px;border-radius:999px;
+  background:rgba(10,12,30,.9);border:1px solid var(--borde);font-size:14px;font-weight:600;pointer-events:none;
+  opacity:0;transition:opacity .25s;white-space:nowrap}
+#aviso.ver{opacity:1}
+@media (prefers-reduced-motion:reduce){.panel{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="lienzo" aria-label="Mapa de la galaxia"></canvas>
+
+<!-- HUD de la partida -->
+<div id="hud" hidden>
+  <div class="hud-arriba">
+    <button class="hud-boton" id="b-pausa" aria-label="Pausa"><svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+    <div class="hud-nivel"><b id="hud-nombre">Batalla</b><span id="hud-tiempo">0:00</span></div>
+    <button class="hud-boton" id="b-vel" aria-label="Velocidad">×1</button>
+    <button class="hud-boton" id="b-sonido" aria-label="Sonido"><svg viewBox="0 0 24 24"><path id="i-sonido" d="M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+  </div>
+  <div class="hud-abajo">
+    <div id="fuerzas" aria-hidden="true"></div>
+    <div class="envio" role="group" aria-label="Naves a enviar">
+      <button class="todos" id="b-todos">Todos</button>
+      <button data-pct="0.25" aria-pressed="false">25%</button>
+      <button data-pct="0.5" aria-pressed="true">50%</button>
+      <button data-pct="0.75" aria-pressed="false">75%</button>
+      <button data-pct="1" aria-pressed="false">100%</button>
+    </div>
+  </div>
+</div>
+<div id="aviso" role="status" aria-live="polite"></div>
+
+<!-- Menú -->
+<section class="pantalla" id="p-menu">
+  <div class="panel">
+    <div class="logo">
+      <svg viewBox="0 0 84 84" aria-hidden="true">
+        <defs><radialGradient id="lg" cx="38%" cy="34%" r="70%"><stop offset="0" stop-color="#FFC48A"/><stop offset=".55" stop-color="#FF6B2C"/><stop offset="1" stop-color="#7a1f08"/></radialGradient></defs>
+        <ellipse cx="42" cy="42" rx="39" ry="11" fill="none" stroke="#33D6FF" stroke-width="3" transform="rotate(-18 42 42)" opacity=".55"/>
+        <circle cx="42" cy="42" r="22" fill="url(#lg)"/>
+        <path d="M4.9 54.05A39 11 -18 0 0 79.1 29.95" fill="none" stroke="#33D6FF" stroke-width="3"/>
+        <circle cx="70" cy="18" r="4" fill="#FF4FB0"/><circle cx="14" cy="66" r="3" fill="#FFD447"/>
+      </svg>
+      <h1 aria-label="Battle Universe"><span>BATTLE</span><span>UNIVERSE</span></h1>
+    </div>
+    <p class="lema">Conquista la galaxia, planeta a planeta.</p>
+    <div class="menu-botones">
+      <button class="boton principal" data-ir="campana">Campaña <small id="m-progreso">Sector 1 de 12</small></button>
+      <button class="boton" data-ir="rapida">Batalla rápida <small>Tú contra hasta cuatro imperios</small></button>
+      <button class="boton" data-ir="ayuda">Cómo se juega</button>
+    </div>
+    <div class="menu-pie">
+      <a href="index.html#juegos">← PoxStar</a>
+      <button class="enlace" id="m-sonido">Sonido: sí</button>
+    </div>
+  </div>
+</section>
+
+<!-- Campaña -->
+<section class="pantalla" id="p-campana" hidden>
+  <div class="panel panel-ancho">
+    <div class="cab"><button class="volver" data-ir="menu" aria-label="Volver">←</button><h2>Campaña</h2><span class="total" id="c-total">★ 0/36</span></div>
+    <ol class="sectores" id="c-lista"></ol>
+  </div>
+</section>
+
+<!-- Ficha de sector -->
+<section class="pantalla" id="p-sector" hidden>
+  <div class="panel">
+    <div class="cab"><button class="volver" data-ir="campana" aria-label="Volver">←</button><p class="sup" id="s-num">Sector 01</p></div>
+    <h2 id="s-nombre"></h2>
+    <p id="s-texto"></p>
+    <ul class="chips" id="s-chips"></ul>
+    <p class="mejor" id="s-mejor"></p>
+    <button class="boton principal" id="s-jugar">¡A la batalla!</button>
+  </div>
+</section>
+
+<!-- Batalla rápida -->
+<section class="pantalla" id="p-rapida" hidden>
+  <div class="panel">
+    <div class="cab"><button class="volver" data-ir="menu" aria-label="Volver">←</button><h2>Batalla rápida</h2></div>
+    <div class="opcion"><span>Imperios rivales</span>
+      <div class="seg" data-op="enemigos"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div></div>
+    <div class="opcion"><span>Galaxia</span>
+      <div class="seg" data-op="tam"><button data-v="s">Pequeña</button><button data-v="m">Mediana</button><button data-v="l">Grande</button></div></div>
+    <div class="opcion"><span>Dificultad</span>
+      <div class="seg" data-op="dif"><button data-v="0">Fácil</button><button data-v="1">Normal</button><button data-v="2">Difícil</button><button data-v="3">Brutal</button></div></div>
+    <div class="opcion"><span>Rarezas</span>
+      <div class="seg" data-op="rarezas" data-multi><button data-v="forjas">Forjas</button><button data-v="fortalezas">Fortalezas</button><button data-v="gigantes">Gigantes</button><button data-v="nebulosas">Nebulosas</button><button data-v="agujeros">Agujero negro</button></div></div>
+    <button class="boton principal" id="r-jugar">Empezar</button>
+  </div>
+</section>
+
+<!-- Ayuda -->
+<section class="pantalla" id="p-ayuda" hidden>
+  <div class="panel">
+    <div class="cab"><button class="volver" data-ir="menu" aria-label="Volver">←</button><h2>Cómo se juega</h2></div>
+    <ul class="reglas">
+      <li><span class="ic">🪐</span><span>Cada planeta tuyo <b>fabrica naves</b> sin parar; los grandes, más deprisa. Los grises son neutrales: no fabrican hasta que alguien los conquista.</span></li>
+      <li><span class="ic">👆</span><span><b>Toca uno de tus planetas</b> (o varios) y luego <b>toca el planeta</b> al que quieres mandar las naves. También puedes <b>arrastrar</b> desde tu planeta hasta el objetivo. Dos toques seguidos eligen todos tus planetas.</span></li>
+      <li><span class="ic">%</span><span>Abajo eliges qué parte sale de cada planeta: <b>25, 50, 75 o 100 %</b>. «Todos» elige todos tus planetas a la vez.</span></li>
+      <li><span class="ic">⚔️</span><span>Si tus naves llegan con <b>más que las que defienden</b>, el planeta es tuyo. Gana quien se quede solo en la galaxia.</span></li>
+      <li><span class="ic">✨</span><span><b>Forja</b>: fabrica el doble. <b>Fortaleza</b>: cada defensor vale por 1,5. <b>Gigante gaseoso</b>: enorme y bien defendido. <b>Nebulosa</b>: las flotas van a mitad de velocidad. <b>Agujero negro</b>: se traga las flotas que lo cruzan; la línea se pone roja.</span></li>
+    </ul>
+    <p class="teclas">Con teclado y ratón: <kbd>1</kbd>–<kbd>4</kbd> porcentaje · <kbd>A</kbd> todos · <kbd>P</kbd> o <kbd>Esc</kbd> pausa · <kbd>M</kbd> sonido · clic derecho envía tu selección (también a tus propios planetas).</p>
+  </div>
+</section>
+
+<!-- Pausa -->
+<section class="pantalla" id="p-pausa" hidden>
+  <div class="panel">
+    <div class="cab"><h2>Pausa</h2></div>
+    <div class="menu-botones" style="margin-top:0">
+      <button class="boton principal" id="pa-seguir">Continuar</button>
+      <button class="boton" id="pa-reintentar">Empezar de nuevo</button>
+      <button class="boton" id="pa-ayuda">Cómo se juega</button>
+      <button class="boton" id="pa-salir">Salir al menú</button>
+    </div>
+  </div>
+</section>
+
+<!-- Fin de partida -->
+<section class="pantalla" id="p-fin" hidden>
+  <div class="panel">
+    <p class="sup" id="f-sup">Batalla rápida</p>
+    <h2 id="f-titulo">¡Victoria!</h2>
+    <p class="estrellas" id="f-estrellas" aria-label=""></p>
+    <dl class="datos">
+      <div><dt>Tiempo</dt><dd id="f-tiempo">0:00</dd></div>
+      <div><dt>Planetas conquistados</dt><dd id="f-conq">0</dd></div>
+      <div><dt>Naves enviadas</dt><dd id="f-env">0</dd></div>
+      <div><dt>Naves enemigas destruidas</dt><dd id="f-dest">0</dd></div>
+    </dl>
+    <div class="fila">
+      <button class="boton principal" id="f-sig">Siguiente sector</button>
+      <button class="boton" id="f-otra">Otra vez</button>
+      <button class="boton" id="f-menu">Menú</button>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+'use strict';
+
+/* ════════════════════════════════════════════════════════════════════
+   BATTLE UNIVERSE — PoxStar
+   Estrategia espacial en tiempo real: cada planeta fabrica naves y las
+   flotas conquistan planetas al llegar con más naves que el defensor.
+   Todo en un archivo, sin dependencias: lienzo 2D + Web Audio.
+   ════════════════════════════════════════════════════════════════════ */
+
+const lienzo = document.getElementById('lienzo');
+const ctx = lienzo.getContext('2d');
+const fondo = document.createElement('canvas');
+let DPR = 1, AN = 0, AL = 0;
+const cam = { esc: 1, x: 0, y: 0 };
+
+/* ── utilidades ─────────────────────────────────────────────────── */
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+function rng(semilla) {                       // mulberry32
+  let a = semilla >>> 0;
+  return function () {
+    a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function cruzaCirculo(x1, y1, x2, y2, cx, cy, r) {
+  const dx = x2 - x1, dy = y2 - y1, l2 = dx * dx + dy * dy;
+  const t = l2 ? clamp(((cx - x1) * dx + (cy - y1) * dy) / l2, 0, 1) : 0;
+  const px = x1 + dx * t - cx, py = y1 + dy * t - cy;
+  return px * px + py * py < r * r;
+}
+function rgba(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`;
+}
+const mmss = s => { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+function cargar(clave, def) {
+  try { const v = JSON.parse(localStorage.getItem(clave)); return v && typeof v === 'object' ? Object.assign(def, v) : def; }
+  catch (e) { return def; }
+}
+function guardar(clave, v) { try { localStorage.setItem(clave, JSON.stringify(v)); } catch (e) {} }
+
+/* ── reglas ─────────────────────────────────────────────────────── */
+const FACCIONES = [
+  { nombre: 'Neutral',          color: '#8B93AD' },
+  { nombre: 'Tú',               color: '#FF6B2C' },
+  { nombre: 'Imperio Cian',     color: '#33D6FF' },
+  { nombre: 'Enjambre Magenta', color: '#FF4FB0' },
+  { nombre: 'Legión Esmeralda', color: '#5BE37A' },
+  { nombre: 'Dinastía Dorada',  color: '#FFD447' },
+];
+const DIFICULTADES = [
+  // agresion: cuánto les apetece atacarte a ti en vez de a otros; apertura: las ganas de atacar
+  // planetas con dueño durante los primeros 30 s (al principio todos se expanden)
+  { nombre: 'Fácil',   pensar: 2.4,  margen: 1.4,  agresion: 0.6,  apertura: 0.2,  coordina: false, error: 0.35, envios: 1 },
+  { nombre: 'Normal',  pensar: 1.5,  margen: 1.22, agresion: 0.85, apertura: 0.3,  coordina: true,  error: 0.15, envios: 2 },
+  { nombre: 'Difícil', pensar: 0.95, margen: 1.12, agresion: 0.95, apertura: 0.45, coordina: true,  error: 0.05, envios: 3 },
+  { nombre: 'Brutal',  pensar: 0.6,  margen: 1.06, agresion: 1,    apertura: 0.6,  coordina: true,  error: 0,    envios: 5 },
+];
+const VEL_FLOTA = 72;             // unidades del mapa por segundo
+const NEBULOSA_FRENO = 0.45;
+const HORIZONTE = 0.82;           // fracción del radio del agujero que ya no tiene vuelta
+
+const SECTORES = [
+  { nombre: 'Sistema Origen', texto: 'Tu primera colonia. Un solo rival, lento y confiado: aprende a expandirte por los planetas grises antes de atacar.', enemigos: 1, dif: 0, tam: 's', neutrales: 4, par: 150, tutorial: true },
+  { nombre: 'Cinturón de Kepler', texto: 'Las forjas estelares fabrican naves el doble de rápido. Hazte con ellas antes que nadie.', enemigos: 1, dif: 0, tam: 'm', neutrales: 6, forjas: 1, par: 180 },
+  { nombre: 'Nebulosa de Orión', texto: 'Dentro de la nebulosa las flotas avanzan a menos de la mitad de velocidad. Elige bien el camino.', enemigos: 1, dif: 1, tam: 'm', neutrales: 6, nebulosas: 1, par: 210 },
+  { nombre: 'Frontera Cian', texto: 'Dos imperios se disputan la frontera. Déjalos pelear entre ellos y golpea al más débil.', enemigos: 2, dif: 0, tam: 'm', neutrales: 5, par: 240 },
+  { nombre: 'Fortalezas de Vega', texto: 'Las fortalezas resisten con escudo: cada defensor vale por uno y medio. Llega con ventaja.', enemigos: 1, dif: 1, tam: 'm', neutrales: 6, fortalezas: 2, par: 240 },
+  { nombre: 'El Abismo', texto: 'Un agujero negro en el centro se traga cualquier flota que lo cruce. Rodéalo saltando de planeta en planeta.', enemigos: 1, dif: 1, tam: 'm', neutrales: 7, agujeros: 1, par: 240 },
+  { nombre: 'Triángulo de Sirio', texto: 'Tres imperios en un triángulo perfecto. El que se expanda primero manda.', enemigos: 2, dif: 1, tam: 'm', neutrales: 5, forjas: 1, par: 300 },
+  { nombre: 'Mar de Andrómeda', texto: 'Nebulosas y un agujero negro en una galaxia enorme. Paciencia y rutas largas.', enemigos: 2, dif: 1, tam: 'l', neutrales: 6, nebulosas: 1, agujeros: 1, par: 330 },
+  { nombre: 'Gigantes de Titán', texto: 'Los gigantes gaseosos guardan flotas enormes. Quien los tome, tomará el sector.', enemigos: 3, dif: 1, tam: 'l', neutrales: 5, gigantes: 1, par: 360 },
+  { nombre: 'El Enjambre', texto: 'Tres rivales despiertos que empiezan con más naves que tú. No te quedes quieto ni un segundo.', enemigos: 3, dif: 2, tam: 'l', neutrales: 5, forjas: 1, inicioEnemigo: 36, par: 390 },
+  { nombre: 'Cuatro Coronas', texto: 'Cuatro imperios y todas las rarezas del universo en un mismo mapa.', enemigos: 4, dif: 2, tam: 'l', neutrales: 4, forjas: 1, fortalezas: 1, nebulosas: 1, agujeros: 1, inicioJugador: 40, par: 420 },
+  { nombre: 'Corazón del Universo', texto: 'El último sector. Cuatro imperios sin piedad alrededor de un anillo de agujeros negros. Gana y el universo es tuyo.', enemigos: 4, dif: 3, tam: 'l', neutrales: 4, fortalezas: 1, gigantes: 1, agujeros: 2, inicioJugador: 45, par: 480 },
+];
+
+/* ── estado guardado ───────────────────────────────────────────── */
+const progreso = cargar('bu_progreso_v1', { desbloqueado: 1, estrellas: [] });
+const rapida = cargar('bu_rapida_v1', { enemigos: 2, tam: 'm', dif: 1, rarezas: ['forjas', 'nebulosas'] });
+const ajustes = cargar('bu_ajustes_v1', { sonido: true });
+
+/* ══════════════════════════════════════════════════════════════════
+   Sonido (Web Audio, todo sintetizado)
+   ══════════════════════════════════════════════════════════════════ */
+const Sonido = {
+  ctx: null, master: null, ruidoBuf: null, musica: null, ultChoque: 0,
+  init() {
+    if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    try { this.ctx = new AC(); } catch (e) { return; }
+    this.master = this.ctx.createGain();
+    this.master.gain.value = ajustes.sonido ? 0.5 : 0;
+    this.master.connect(this.ctx.destination);
+    const n = this.ctx.sampleRate;
+    this.ruidoBuf = this.ctx.createBuffer(1, n, n);
+    const d = this.ruidoBuf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+  },
+  activo() { return this.ctx && ajustes.sonido; },
+  poner(on) {
+    ajustes.sonido = on; guardar('bu_ajustes_v1', ajustes);
+    if (this.master) this.master.gain.setTargetAtTime(on ? 0.5 : 0, this.ctx.currentTime, 0.05);
+  },
+  tono(f, dur, o = {}) {
+    if (!this.activo()) return;
+    const t = this.ctx.currentTime + (o.retraso || 0);
+    const osc = this.ctx.createOscillator(), g = this.ctx.createGain();
+    osc.type = o.tipo || 'sine';
+    osc.frequency.setValueAtTime(f, t);
+    if (o.hasta) osc.frequency.exponentialRampToValueAtTime(o.hasta, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(o.vol || 0.1, t + (o.ataque || 0.006));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(this.master);
+    osc.start(t); osc.stop(t + dur + 0.05);
+  },
+  ruido(dur, o = {}) {
+    if (!this.activo()) return;
+    const t = this.ctx.currentTime + (o.retraso || 0);
+    const src = this.ctx.createBufferSource(), f = this.ctx.createBiquadFilter(), g = this.ctx.createGain();
+    src.buffer = this.ruidoBuf;
+    f.type = 'lowpass'; f.frequency.setValueAtTime(o.frec || 900, t);
+    if (o.hasta) f.frequency.exponentialRampToValueAtTime(o.hasta, t + dur);
+    g.gain.setValueAtTime(o.vol || 0.15, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(this.master);
+    src.start(t, Math.random() * 0.5); src.stop(t + dur + 0.05);
+  },
+  click()     { this.tono(900, 0.05, { tipo: 'square', vol: 0.025 }); },
+  lanzar()    { this.tono(560, 0.18, { tipo: 'triangle', vol: 0.06, hasta: 240 }); this.ruido(0.14, { vol: 0.03, frec: 3000, hasta: 600 }); },
+  choque()    {
+    const ahora = performance.now();
+    if (ahora - this.ultChoque < 90) return;
+    this.ultChoque = ahora;
+    this.ruido(0.28, { vol: 0.09, frec: 1400, hasta: 200 });
+  },
+  conquista() { [523, 659, 784].forEach((f, i) => this.tono(f, 0.24, { tipo: 'triangle', vol: 0.08, retraso: i * 0.07 })); },
+  perdida()   { [392, 311, 247].forEach((f, i) => this.tono(f, 0.26, { tipo: 'sawtooth', vol: 0.035, retraso: i * 0.08 })); },
+  tragar()    { this.tono(220, 0.7, { tipo: 'sine', vol: 0.12, hasta: 35 }); },
+  victoria()  { [523, 659, 784, 1047, 1319].forEach((f, i) => this.tono(f, 0.55, { tipo: 'triangle', vol: 0.09, retraso: i * 0.11 })); },
+  derrota()   { [440, 349, 294, 220].forEach((f, i) => this.tono(f, 0.7, { tipo: 'sawtooth', vol: 0.04, retraso: i * 0.16 })); },
+
+  /* música de fondo: un colchón grave y notas sueltas con eco */
+  musicaOn() {
+    if (!this.ctx || this.musica) return;
+    const c = this.ctx, t = c.currentTime;
+    const sal = c.createGain(); sal.gain.setValueAtTime(0.0001, t); sal.gain.exponentialRampToValueAtTime(1, t + 2); sal.connect(this.master);
+    const filtro = c.createBiquadFilter(); filtro.type = 'lowpass'; filtro.frequency.value = 340; filtro.Q.value = 2;
+    const pad = c.createGain(); pad.gain.value = 0.028; filtro.connect(pad); pad.connect(sal);
+    const oscs = [55, 82.41, 110.3].map((f, i) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = i * 6; o.connect(filtro); o.start(); return o; });
+    const lfo = c.createOscillator(), lfoG = c.createGain(); lfo.frequency.value = 0.06; lfoG.gain.value = 140; lfo.connect(lfoG); lfoG.connect(filtro.frequency); lfo.start();
+    const eco = c.createDelay(1); eco.delayTime.value = 0.42; const fb = c.createGain(); fb.gain.value = 0.38;
+    eco.connect(fb); fb.connect(eco); eco.connect(sal);
+    const notas = [220, 261.63, 293.66, 329.63, 392, 440, 523.25];
+    const m = { sal, oscs, lfo, eco, timer: 0, viva: true };
+    const tocar = () => {
+      if (!m.viva) return;
+      if (ajustes.sonido && c.state === 'running') {
+        const t0 = c.currentTime, f = notas[Math.random() * notas.length | 0];
+        const o = c.createOscillator(), g = c.createGain();
+        o.type = 'triangle'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.022, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.4);
+        o.connect(g); g.connect(sal); g.connect(eco); o.start(t0); o.stop(t0 + 1.5);
+      }
+      m.timer = setTimeout(tocar, 600 + Math.random() * 900);
+    };
+    tocar();
+    this.musica = m;
+  },
+  musicaOff() {
+    const m = this.musica; if (!m) return;
+    m.viva = false; clearTimeout(m.timer);
+    const t = this.ctx.currentTime;
+    m.sal.gain.setTargetAtTime(0.0001, t, 0.4);
+    setTimeout(() => { m.oscs.forEach(o => o.stop()); m.lfo.stop(); m.sal.disconnect(); }, 2000);
+    this.musica = null;
+  },
+};
+
+/* ══════════════════════════════════════════════════════════════════
+   Mapa: galaxias simétricas para que nadie empiece con ventaja
+   ══════════════════════════════════════════════════════════════════ */
+let idPlaneta = 0;
+function nuevoPlaneta(x, y, r, dueno, naves, tipo, hogar) {
+  const f = tipo === 'forja' ? 1.9 : tipo === 'fortaleza' ? 0.7 : tipo === 'gigante' ? 0.75 : 1;
+  return {
+    id: idPlaneta++, x, y, r, dueno, naves, tipo, hogar: !!hogar,
+    prod: 0.03 * r * f,
+    cap: Math.round(r * 3.2 * (tipo === 'fortaleza' ? 1.4 : 1)),
+    defensa: tipo === 'fortaleza' ? 1.6 : 1,
+    sel: false, pulso: 0, golpe: 0, giro: Math.random() * TAU,
+    aspecto: (idPlaneta * 7 + (Math.random() * 3 | 0)) % 5,
+    sprite: null, spriteK: 0,
+  };
+}
+
+function generarMapa(c, semilla) {
+  const r = rng(semilla);
+  const k = c.enemigos + 1;
+  const corto = { s: 720, m: 860, l: 1000 }[c.tam] * (c.compacto ? 0.84 : 1);
+  const asp = clamp(c.aspecto, 1.15, 1.9);
+  const w = c.horizontal ? corto * asp : corto, h = c.horizontal ? corto : corto * asp;
+  const cx = w / 2, cy = h / 2, M = 54;
+  const rx = w / 2 - M - 34, ry = h / 2 - M - 34;
+  const paso = TAU / k;
+  const th0 = k === 4 ? 3 * Math.PI / 4 : (c.horizontal ? Math.PI : Math.PI / 2);
+  const pos = (rho, th) => ({ x: cx + Math.cos(th) * rho * rx, y: cy + Math.sin(th) * rho * ry });
+  const planetas = [], agujeros = [], nebulosas = [];
+  const dentro = p => p.x > M && p.x < w - M && p.y > M && p.y < h - M;
+  const libre = (p, rad) => planetas.every(q => Math.hypot(q.x - p.x, q.y - p.y) > q.r + rad + 36)
+    && agujeros.every(a => Math.hypot(a.x - p.x, a.y - p.y) > a.r + rad + 48);
+
+  if (c.agujeros >= 1) agujeros.push({ x: cx, y: cy, r: 58, giro: 0 });
+  if (c.agujeros >= 2) for (let i = 0; i < k; i++) agujeros.push(Object.assign(pos(0.5, th0 + paso * (i + 0.5)), { r: 36, giro: r() * TAU }));
+
+  for (let i = 0; i < k; i++) {
+    const p = pos(0.86, th0 + paso * i);
+    planetas.push(nuevoPlaneta(p.x, p.y, 34, i + 1, i === 0 ? c.inicioJugador : c.inicioEnemigo, 'normal', true));
+  }
+  const hogares = planetas.slice();
+  if (!c.agujeros) planetas.push(nuevoPlaneta(cx, cy, 42, 0, Math.round(34 * c.guarnicion), k >= 4 ? 'forja' : 'normal'));
+
+  // Los neutrales se colocan en una porción del mapa y se copian girando:
+  // cada imperio ve lo mismo a su alrededor.
+  const tipos = [];
+  for (let i = 0; i < (c.forjas || 0); i++) tipos.push('forja');
+  for (let i = 0; i < (c.fortalezas || 0); i++) tipos.push('fortaleza');
+  for (let i = 0; i < (c.gigantes || 0); i++) tipos.push('gigante');
+  const colocar = (tipo, rhoMin, rhoMax, thMin, thMax, guarnicion) => {
+    for (let intento = 0; intento < 600; intento++) {
+      const rad = tipo === 'gigante' ? 48 + r() * 6 : 15 + Math.pow(r(), 1.4) * 22;
+      const rho = rhoMin + r() * (rhoMax - rhoMin), th = thMin + r() * (thMax - thMin);
+      const copias = [];
+      let ok = true;
+      for (let i = 0; i < k && ok; i++) {
+        const p = pos(rho, th + paso * i);
+        if (!dentro(p) || !libre(p, rad)) ok = false; else copias.push(p);
+      }
+      for (let i = 0; i < copias.length && ok; i++)
+        for (let j = i + 1; j < copias.length; j++)
+          if (Math.hypot(copias[i].x - copias[j].x, copias[i].y - copias[j].y) < rad * 2 + 36) { ok = false; break; }
+      if (!ok) continue;
+      const dmin = Math.min(...hogares.map(q => Math.hypot(q.x - copias[0].x, q.y - copias[0].y)));
+      let g = guarnicion != null ? guarnicion : (rad * 0.42 + r() * rad * 0.38) * (dmin < 260 ? 0.55 : 1) * c.guarnicion;
+      if (tipo === 'fortaleza') g *= 1.25; else if (tipo === 'gigante') g *= 1.6; else if (tipo === 'forja') g *= 1.2;
+      g = Math.max(2, Math.round(g));
+      for (const p of copias) planetas.push(nuevoPlaneta(p.x, p.y, rad, 0, g, tipo));
+      return true;
+    }
+    return false;
+  };
+  for (let n = 0; n < c.neutrales; n++) colocar(tipos[n] || 'normal', 0.22, 1.17, th0, th0 + paso);
+  for (let n = c.neutrales; n < tipos.length; n++) colocar(tipos[n], 0.3, 1, th0, th0 + paso);
+  // que cada imperio tenga al menos dos vecinos fáciles para empezar
+  const cerca = () => planetas.filter(p => p.dueno === 0 && Math.hypot(p.x - hogares[0].x, p.y - hogares[0].y) < 330).length;
+  for (let n = 0; n < 6 && cerca() < 2; n++) colocar('normal', 0.5, 0.75, th0 - paso * 0.3, th0 + paso * 0.3, 3 + (r() * 4 | 0));
+
+  for (let n = 0; n < (c.nebulosas || 0); n++) {
+    for (let intento = 0; intento < 300; intento++) {
+      const rho = 0.3 + r() * 0.45, th = th0 + paso * (0.25 + r() * 0.5), rad = 100 + r() * 40;
+      const copias = [];
+      for (let i = 0; i < k; i++) copias.push(pos(rho, th + paso * i));
+      if (copias.every(q => hogares.every(hg => Math.hypot(hg.x - q.x, hg.y - q.y) > rad + 50))) {
+        copias.forEach(q => nebulosas.push({ x: q.x, y: q.y, r: rad, semilla: r() * 1e9 | 0, sprite: null, spriteK: 0 }));
+        break;
+      }
+    }
+  }
+  return { w, h, planetas, agujeros, nebulosas };
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Partida
+   ══════════════════════════════════════════════════════════════════ */
+let P = null;            // la partida que se ve (de verdad o la de demostración del menú)
+let escena = 'menu';     // 'menu' | 'juego'
+let pct = 0.5;
+
+function areaJuego(modo) {
+  const arriba = modo === 'juego' ? 64 : 24, abajo = modo === 'juego' ? 104 : 24;
+  return { x: 12, y: arriba, w: Math.max(100, AN - 24), h: Math.max(100, AL - arriba - abajo) };
+}
+function crearPartida(cfg, modo) {
+  const a = areaJuego(modo);
+  const c = Object.assign({
+    enemigos: 1, dif: 1, tam: 'm', neutrales: 5, forjas: 0, fortalezas: 0, gigantes: 0, nebulosas: 0, agujeros: 0,
+    inicioJugador: 30, inicioEnemigo: 30, guarnicion: 1,
+  }, cfg);
+  c.horizontal = a.w >= a.h;
+  c.aspecto = Math.max(a.w, a.h) / Math.min(a.w, a.h);
+  c.compacto = Math.min(AN, AL) < 560;
+  const semilla = cfg.semilla != null ? cfg.semilla : (Math.random() * 1e9 | 0);
+  const mapa = generarMapa(c, semilla);
+  const k = c.enemigos + 1, ias = [];
+  for (let i = modo === 'demo' ? 1 : 2; i <= k; i++) ias.push(crearIA(i, c.dif));
+  const partida = {
+    modo, cfg: c, semilla, mapa, planetas: mapa.planetas, flotas: [], particulas: [], ondas: [], ias,
+    tiempo: 0, vel: modo === 'demo' ? 1.5 : 1, pausa: false, fin: null, chequeo: 0,
+    stats: { enviadas: 0, conquistados: 0, destruidas: 0 },
+    tutorial: cfg.tutorial ? 0 : -1, tutoT: 0, sector: cfg.sector != null ? cfg.sector : -1,
+  };
+  return partida;
+}
+
+function crearFlota(Pa, origen, destino, n) {
+  const ang = Math.atan2(destino.y - origen.y, destino.x - origen.x);
+  const m = clamp(Math.ceil(n / 2), 1, 26), esp = 3 + Math.sqrt(m) * 3.2;
+  const enj = [];
+  for (let i = 0; i < m; i++) {
+    const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * esp;
+    enj.push({ dx: Math.cos(a) * d, dy: Math.sin(a) * d, ph: Math.random() * TAU });
+  }
+  Pa.flotas.push({
+    dueno: origen.dueno, n, dest: destino,
+    x: origen.x + Math.cos(ang) * origen.r, y: origen.y + Math.sin(ang) * origen.r,
+    ang, enj, muerta: false,
+  });
+}
+function enviarN(Pa, origen, destino, n) {
+  n = Math.min(Math.floor(n), Math.floor(origen.naves));
+  if (n < 1 || origen === destino) return 0;
+  origen.naves -= n;
+  crearFlota(Pa, origen, destino, n);
+  if (origen.dueno === 1) Pa.stats.enviadas += n;
+  return n;
+}
+function enviarDesde(fuentes, destino) {
+  let alguna = false;
+  for (const o of fuentes) {
+    if (o.dueno !== 1 || o === destino) continue;
+    if (enviarN(P, o, destino, Math.floor(o.naves * pct))) alguna = true;
+  }
+  if (alguna) {
+    Sonido.lanzar();
+    if (P.tutorial === 1) { P.tutorial = 2; P.tutoT = 0; }
+  } else avisar('No quedan naves en esos planetas');
+}
+
+function enNebulosa(Pa, x, y) {
+  for (const n of Pa.mapa.nebulosas) if ((x - n.x) ** 2 + (y - n.y) ** 2 < n.r * n.r) return true;
+  return false;
+}
+function caminoLibre(Pa, a, b) {
+  for (const h of Pa.mapa.agujeros) if (cruzaCirculo(a.x, a.y, b.x, b.y, h.x, h.y, h.r * HORIZONTE + 10)) return false;
+  return true;
+}
+function tiempoViaje(Pa, a, b) {
+  const d = dist(a, b);
+  if (!Pa.mapa.nebulosas.length) return d / VEL_FLOTA;
+  let t = 0;
+  for (let i = 0; i < 10; i++) {
+    const f = (i + 0.5) / 10;
+    t += (d / 10) / (VEL_FLOTA * (enNebulosa(Pa, a.x + (b.x - a.x) * f, a.y + (b.y - a.y) * f) ? NEBULOSA_FRENO : 1));
+  }
+  return t;
+}
+
+function moverFlota(Pa, f, dt) {
+  const dx = f.dest.x - f.x, dy = f.dest.y - f.y, d = Math.hypot(dx, dy);
+  if (d <= f.dest.r + 1) { llegar(Pa, f); return; }
+  const v = VEL_FLOTA * (enNebulosa(Pa, f.x, f.y) ? NEBULOSA_FRENO : 1);
+  const paso = Math.min(v * dt, d);
+  f.x += dx / d * paso; f.y += dy / d * paso;
+  f.ang = Math.atan2(dy, dx);
+  for (const h of Pa.mapa.agujeros) {
+    if ((f.x - h.x) ** 2 + (f.y - h.y) ** 2 < (h.r * HORIZONTE) ** 2) {
+      f.muerta = true;
+      chispas(Pa, f.x, f.y, '#B57BFF', Math.min(30, 6 + f.n), 60);
+      if (Pa === P && P.modo === 'juego' && f.dueno === 1) { Sonido.tragar(); avisar(`El agujero negro se tragó ${f.n} naves`); }
+      return;
+    }
+  }
+}
+
+function llegar(Pa, f) {
+  const p = f.dest;
+  f.muerta = true;
+  if (p.dueno === f.dueno) { p.naves += f.n; p.golpe = 0.4; return; }
+  const def = p.naves * p.defensa;
+  const ang = Math.atan2(f.y - p.y, f.x - p.x);
+  const bx = p.x + Math.cos(ang) * p.r, by = p.y + Math.sin(ang) * p.r;
+  const choque = Math.min(f.n, def);
+  chispas(Pa, bx, by, FACCIONES[f.dueno].color, Math.min(34, 5 + choque * 0.7), 90);
+  if (choque > 0) chispas(Pa, bx, by, FACCIONES[p.dueno].color, Math.min(20, 3 + choque * 0.4), 70);
+  const juego = Pa === P && Pa.modo === 'juego';
+  if (f.dueno === 1 && p.dueno !== 0) Pa.stats.destruidas += Math.floor(Math.min(f.n / p.defensa, p.naves));
+  if (f.n > def) {
+    const antes = p.dueno;
+    p.dueno = f.dueno; p.naves = f.n - def; p.pulso = 1; p.sel = false;
+    Pa.ondas.push({ x: p.x, y: p.y, r: p.r, max: p.r + 70, c: FACCIONES[f.dueno].color, v: 1 });
+    chispas(Pa, p.x, p.y, FACCIONES[f.dueno].color, 26, 120);
+    if (juego) {
+      if (f.dueno === 1) { Pa.stats.conquistados++; Sonido.conquista(); }
+      else if (antes === 1) { Sonido.perdida(); }
+      else if (choque > 2) Sonido.choque();
+    }
+  } else {
+    p.naves = Math.max(0, p.naves - f.n / p.defensa);
+    p.golpe = 0.5;
+    if (juego && (f.dueno === 1 || p.dueno === 1)) Sonido.choque();
+  }
+}
+
+function chispas(Pa, x, y, color, n, vel) {
+  if (Pa.particulas.length > 900) return;
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, v = vel * (0.2 + Math.random());
+    const vida = 0.4 + Math.random() * 0.6;
+    Pa.particulas.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, v: vida, max: vida, c: color, t: 1 + Math.random() * 1.8 });
+  }
+}
+
+function vivos(Pa) {
+  const s = new Set();
+  for (const p of Pa.planetas) if (p.dueno) s.add(p.dueno);
+  for (const f of Pa.flotas) s.add(f.dueno);
+  return s;
+}
+function fuerzas(Pa) {
+  const t = [0, 0, 0, 0, 0, 0];
+  for (const p of Pa.planetas) if (p.dueno) t[p.dueno] += p.naves;
+  for (const f of Pa.flotas) t[f.dueno] += f.n;
+  return t;
+}
+
+function actualizar(Pa, dt) {
+  Pa.tiempo += dt;
+  for (const p of Pa.planetas) {
+    if (p.dueno && p.naves < p.cap) p.naves = Math.min(p.cap, p.naves + p.prod * dt);
+    if (p.pulso > 0) p.pulso = Math.max(0, p.pulso - dt * 1.1);
+    if (p.golpe > 0) p.golpe = Math.max(0, p.golpe - dt * 2.2);
+    p.giro += dt * 0.25;
+  }
+  for (const f of Pa.flotas) if (!f.muerta) moverFlota(Pa, f, dt);
+  if (Pa.flotas.some(f => f.muerta)) Pa.flotas = Pa.flotas.filter(f => !f.muerta);
+  if (!Pa.fin || Pa.modo === 'juego') for (const ia of Pa.ias) {
+    ia.t -= dt;
+    if (ia.t <= 0) { ia.t = ia.dif.pensar * (0.8 + Math.random() * 0.4); pensarIA(Pa, ia); }
+  }
+  for (const q of Pa.particulas) { q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.94; q.vy *= 0.94; q.v -= dt; }
+  if (Pa.particulas.length) Pa.particulas = Pa.particulas.filter(q => q.v > 0);
+  for (const o of Pa.ondas) { o.v -= dt * 1.4; o.r += (o.max - o.r) * Math.min(1, dt * 4); }
+  if (Pa.ondas.length) Pa.ondas = Pa.ondas.filter(o => o.v > 0);
+  for (const h of Pa.mapa.agujeros) h.giro += dt * 0.7;
+  Pa.chequeo -= dt;
+  if (Pa.chequeo <= 0) { Pa.chequeo = 0.4; comprobarFin(Pa); }
+  if (Pa.tutorial >= 0) Pa.tutoT += dt;
+}
+
+function comprobarFin(Pa) {
+  if (Pa.fin) return;
+  const v = vivos(Pa);
+  if (Pa.modo === 'demo') { if (v.size <= 1 || Pa.tiempo > 170) Pa.fin = 'demo'; return; }
+  if (!v.has(1)) terminar(Pa, 'derrota');
+  else if (v.size === 1) terminar(Pa, 'victoria');
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Inteligencia de los imperios
+   ══════════════════════════════════════════════════════════════════ */
+function crearIA(dueno, dif) {
+  const D = DIFICULTADES[dif];
+  return { dueno, dif: D, t: 0.6 + Math.random() * D.pensar };
+}
+function pensarIA(Pa, ia) {
+  const D = ia.dif, yo = ia.dueno;
+  const mios = Pa.planetas.filter(p => p.dueno === yo);
+  if (!mios.length) return;
+  const entra = new Map();
+  for (const f of Pa.flotas) {
+    let e = entra.get(f.dest.id);
+    if (!e) entra.set(f.dest.id, e = { mias: 0, otras: 0 });
+    if (f.dueno === yo) e.mias += f.n; else e.otras += f.n;
+  }
+  const disp = new Map(mios.map(p => [p.id, p.naves]));
+
+  // 1. Defensa: si viene más de lo que aguanta un planeta, piden ayuda a los vecinos.
+  for (const p of mios) {
+    const e = entra.get(p.id);
+    if (!e || !e.otras) continue;
+    const aguanta = (p.naves + e.mias) * p.defensa;
+    if (aguanta > e.otras + 3) { disp.set(p.id, Math.max(0, p.naves - e.otras / p.defensa - 3)); continue; }
+    disp.set(p.id, 0);
+    let falta = (e.otras + 4 - aguanta) / p.defensa;
+    const vecinos = mios.filter(q => q !== p && disp.get(q.id) > 5 && caminoLibre(Pa, q, p)).sort((a, b) => dist(a, p) - dist(b, p));
+    for (const q of vecinos) {
+      if (falta <= 0) break;
+      const n = Math.min(Math.floor(disp.get(q.id) * 0.8), Math.ceil(falta));
+      if (n >= 2) { enviarN(Pa, q, p, n); disp.set(q.id, disp.get(q.id) - n); falta -= n; }
+    }
+  }
+
+  // 2. Ataque y expansión: el objetivo que más vale por lo que cuesta.
+  // el que va claramente por delante se lleva un poco más de atención de todos
+  const fz = fuerzas(Pa), orden = fz.slice(1).sort((a, b) => b - a);
+  const lider = orden[0] > orden[1] * 1.25 ? fz.indexOf(orden[0]) : -1;
+  const apertura = Pa.tiempo < 30;
+  const objetivos = Pa.planetas.filter(p => p.dueno !== yo);
+  const fuentes = mios.filter(p => disp.get(p.id) >= 6).sort((a, b) => disp.get(b.id) - disp.get(a.id));
+  let envios = 0;
+  for (const o of fuentes) {
+    if (envios >= D.envios) break;
+    let mejor = null, mejorP = 0, necesita = 0;
+    for (const t of objetivos) {
+      if (!caminoLibre(Pa, o, t)) continue;
+      const viaje = tiempoViaje(Pa, o, t);
+      const e = entra.get(t.id) || { mias: 0, otras: 0 };
+      let def = t.naves;
+      if (t.dueno) def = Math.min(t.cap, t.naves + t.prod * viaje);
+      def = def * t.defensa - e.mias;
+      const n = Math.ceil(def * D.margen + 2);
+      if (n <= 0) continue;
+      let valor = t.prod * 30 + (t.dueno ? 10 : 0) + (t.tipo === 'forja' ? 14 : 0) + (t.hogar ? 6 : 0);
+      if (t.dueno === 1 && yo !== 1) valor *= D.agresion;
+      if (t.dueno && t.dueno === lider && lider !== yo) valor *= 1.15;
+      if (apertura && t.dueno) valor *= D.apertura;
+      let puntos = valor / (n + dist(o, t) * 0.06 + (t.dueno ? 4 : 0));
+      if (D.error && Math.random() < D.error) puntos *= Math.random();
+      if (puntos > mejorP) { mejor = t; mejorP = puntos; necesita = n; }
+    }
+    if (!mejor) continue;
+    const d0 = disp.get(o.id);
+    if (d0 * 0.92 >= necesita) {
+      enviarN(Pa, o, mejor, necesita); disp.set(o.id, d0 - necesita); envios++;
+    } else if (D.coordina) {
+      const grupo = [[o, Math.floor(d0 * 0.9)]];
+      let total = grupo[0][1];
+      for (const q of fuentes) {
+        if (q === o || total >= necesita) continue;
+        if (!caminoLibre(Pa, q, mejor) || dist(q, mejor) > dist(o, mejor) * 1.6) continue;
+        const n = Math.floor(disp.get(q.id) * 0.85);
+        if (n >= 4) { grupo.push([q, n]); total += n; }
+      }
+      if (total >= necesita) {
+        let resto = necesita;
+        for (const [q, n] of grupo) {
+          const m = Math.min(n, resto);
+          if (m > 0) { enviarN(Pa, q, mejor, m); disp.set(q.id, disp.get(q.id) - m); resto -= m; }
+        }
+        envios++;
+      }
+    }
+  }
+
+  // 3. Lo que se acumula en la retaguardia pasa al frente.
+  if (D.coordina) {
+    const enemigos = Pa.planetas.filter(p => p.dueno && p.dueno !== yo);
+    if (!enemigos.length) return;
+    const frente = mios.slice().sort((a, b) => cercania(a, enemigos) - cercania(b, enemigos))[0];
+    for (const p of mios) {
+      if (p === frente || p.naves < p.cap * 0.9 || disp.get(p.id) < 10) continue;
+      if (caminoLibre(Pa, p, frente)) enviarN(Pa, p, frente, Math.floor(p.naves * 0.5));
+    }
+  }
+}
+function cercania(p, lista) { let m = Infinity; for (const q of lista) m = Math.min(m, dist(p, q)); return m; }
+
+/* ══════════════════════════════════════════════════════════════════
+   Dibujo
+   ══════════════════════════════════════════════════════════════════ */
+const PALETAS = [
+  ['#e6b07a', '#93602f', '#3b2412'],   // rocoso
+  ['#c9ecff', '#62a3dc', '#1b3866'],   // hielo
+  ['#ff9a6a', '#b53a1e', '#3a0d06'],   // lava
+  ['#8ff0d2', '#2a9488', '#0b3340'],   // océano
+  ['#f5e3ad', '#c59c51', '#5a3f17'],   // desierto
+];
+const GIGANTES = [['#f1d7a8', '#c08a52', '#4d2c14'], ['#d6b6ff', '#7d55c9', '#25124a']];
+let twinkles = [];
+
+function redimensionar() {
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  AN = window.innerWidth; AL = window.innerHeight;
+  lienzo.width = Math.round(AN * DPR); lienzo.height = Math.round(AL * DPR);
+  pintarFondo();
+  ajustarCamara();
+}
+function ajustarCamara() {
+  if (!P) return;
+  const a = areaJuego(P.modo);
+  cam.esc = Math.min(a.w / P.mapa.w, a.h / P.mapa.h);
+  cam.x = a.x + (a.w - P.mapa.w * cam.esc) / 2;
+  cam.y = a.y + (a.h - P.mapa.h * cam.esc) / 2;
+}
+function pintarFondo() {
+  fondo.width = Math.round(AN * DPR); fondo.height = Math.round(AL * DPR);
+  const g = fondo.getContext('2d');
+  g.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const lg = g.createLinearGradient(0, 0, 0, AL);
+  lg.addColorStop(0, '#080a1d'); lg.addColorStop(1, '#04040c');
+  g.fillStyle = lg; g.fillRect(0, 0, AN, AL);
+  const r = rng(20261018);
+  const tonos = ['255,79,176', '51,214,255', '255,107,44', '120,90,255', '51,214,255', '255,79,176'];
+  for (let i = 0; i < 6; i++) {
+    const x = r() * AN, y = r() * AL, rad = (0.25 + r() * 0.45) * Math.max(AN, AL);
+    const gr = g.createRadialGradient(x, y, 0, x, y, rad);
+    gr.addColorStop(0, `rgba(${tonos[i]},0.09)`); gr.addColorStop(0.5, `rgba(${tonos[i]},0.035)`); gr.addColorStop(1, `rgba(${tonos[i]},0)`);
+    g.fillStyle = gr; g.fillRect(0, 0, AN, AL);
+  }
+  const n = Math.round(AN * AL / 1700);
+  for (let i = 0; i < n; i++) {
+    const x = r() * AN, y = r() * AL, s = r() < 0.93 ? 0.4 + r() * 0.8 : 1 + r() * 1.3;
+    g.fillStyle = `rgba(${200 + r() * 55 | 0},${210 + r() * 45 | 0},255,${0.25 + r() * 0.6})`;
+    g.fillRect(x, y, s, s);
+  }
+  twinkles = [];
+  for (let i = 0; i < 40; i++) twinkles.push({ x: r() * AN, y: r() * AL, s: 1 + r() * 1.4, ph: r() * TAU, v: 0.6 + r() * 1.6 });
+}
+
+function spritePlaneta(p, k) {
+  const ext = p.tipo === 'gigante' ? 1.85 : 1.12;
+  const S = Math.ceil(p.r * 2 * ext * k) + 4;
+  const c = document.createElement('canvas');
+  c.width = c.height = S;
+  const g = c.getContext('2d');
+  g.translate(S / 2, S / 2); g.scale(k, k);
+  const R = p.r, rr = rng(p.id * 977 + 13);
+  const gas = p.tipo === 'gigante';
+  const pal = gas ? GIGANTES[p.id % 2] : PALETAS[p.aspecto];
+  if (gas) anillo(g, R, true);
+  const gr = g.createRadialGradient(-R * 0.35, -R * 0.4, R * 0.08, 0, 0, R);
+  gr.addColorStop(0, pal[0]); gr.addColorStop(0.55, pal[1]); gr.addColorStop(1, pal[2]);
+  g.fillStyle = gr; g.beginPath(); g.arc(0, 0, R, 0, TAU); g.fill();
+  g.save(); g.beginPath(); g.arc(0, 0, R, 0, TAU); g.clip();
+  if (gas || p.aspecto === 3) {
+    for (let i = -7; i <= 7; i++) {
+      g.fillStyle = i % 2 ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.1)';
+      g.beginPath();
+      const y = i * R / 7;
+      g.ellipse(0, y, R * 1.2, R / 16 + rr() * R / 14, (rr() - 0.5) * 0.08, 0, TAU);
+      g.fill();
+    }
+  } else {
+    for (let i = 0; i < 8; i++) {
+      const cr = R * (0.07 + rr() * 0.17), a = rr() * TAU, d = rr() * R * 0.85;
+      g.fillStyle = 'rgba(0,0,0,.16)';
+      g.beginPath(); g.arc(Math.cos(a) * d, Math.sin(a) * d, cr, 0, TAU); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.06)';
+      g.beginPath(); g.arc(Math.cos(a) * d - cr * 0.2, Math.sin(a) * d - cr * 0.2, cr * 0.6, 0, TAU); g.fill();
+    }
+  }
+  const sombra = g.createLinearGradient(-R * 0.6, -R * 0.6, R, R);
+  sombra.addColorStop(0, 'rgba(0,0,12,0)'); sombra.addColorStop(0.55, 'rgba(0,0,12,.15)'); sombra.addColorStop(1, 'rgba(0,0,12,.7)');
+  g.fillStyle = sombra; g.fillRect(-R, -R, R * 2, R * 2);
+  g.restore();
+  g.strokeStyle = 'rgba(255,255,255,.22)'; g.lineWidth = 1.3;
+  g.beginPath(); g.arc(0, 0, R - 0.7, Math.PI * 1.05, Math.PI * 1.62); g.stroke();
+  if (gas) anillo(g, R, false);
+  return c;
+}
+function anillo(g, R, atras) {
+  g.save(); g.rotate(-0.32); g.scale(1, 0.3);
+  g.lineWidth = R * 0.2; g.strokeStyle = 'rgba(235,215,175,.5)';
+  g.beginPath(); atras ? g.arc(0, 0, R * 1.55, Math.PI, TAU) : g.arc(0, 0, R * 1.55, 0, Math.PI); g.stroke();
+  g.lineWidth = R * 0.06; g.strokeStyle = 'rgba(255,240,210,.55)';
+  g.beginPath(); atras ? g.arc(0, 0, R * 1.78, Math.PI, TAU) : g.arc(0, 0, R * 1.78, 0, Math.PI); g.stroke();
+  g.restore();
+}
+function spriteNebulosa(n, k) {
+  const S = Math.ceil(n.r * 2.3 * k);
+  const c = document.createElement('canvas');
+  c.width = c.height = S;
+  const g = c.getContext('2d');
+  g.translate(S / 2, S / 2); g.scale(k, k);
+  const rr = rng(n.semilla);
+  const tonos = ['110,190,255', '170,110,255', '255,110,200'];
+  for (let i = 0; i < 10; i++) {
+    const a = rr() * TAU, d = rr() * n.r * 0.5, rad = n.r * (0.45 + rr() * 0.42);
+    const x = Math.cos(a) * d, y = Math.sin(a) * d;
+    const gr = g.createRadialGradient(x, y, 0, x, y, rad);
+    gr.addColorStop(0, `rgba(${tonos[i % 3]},0.17)`); gr.addColorStop(1, `rgba(${tonos[i % 3]},0)`);
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, rad, 0, TAU); g.fill();
+  }
+  return c;
+}
+
+const entrada = { abajo: false, sx: 0, sy: 0, origen: null, arrastre: false, mx: -1, my: -1, hover: null, ultimo: { t: 0, p: null }, raton: false };
+const aMundo = (sx, sy) => ({ x: (sx - cam.x) / cam.esc, y: (sy - cam.y) / cam.esc });
+const aPantalla = (x, y) => ({ x: cam.x + x * cam.esc, y: cam.y + y * cam.esc });
+function planetaEn(x, y) {
+  let mejor = null, md = Infinity;
+  const tol = 16 / cam.esc;
+  for (const p of P.planetas) {
+    const d = Math.hypot(p.x - x, p.y - y);
+    if (d < p.r + tol && d - p.r < md) { mejor = p; md = d - p.r; }
+  }
+  return mejor;
+}
+const seleccion = () => P.planetas.filter(p => p.sel && p.dueno === 1);
+
+function dibujar(t) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(fondo, 0, 0);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  for (const s of twinkles) {
+    ctx.globalAlpha = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(t * s.v + s.ph));
+    ctx.fillStyle = '#e8f0ff';
+    ctx.fillRect(s.x, s.y, s.s, s.s);
+  }
+  ctx.globalAlpha = 1;
+  if (!P) return;
+  const k = cam.esc * DPR, e = cam.esc;
+  ctx.setTransform(k, 0, 0, k, cam.x * DPR, cam.y * DPR);
+  const M = P.mapa;
+
+  for (const n of M.nebulosas) {
+    if (n.spriteK !== k) { n.sprite = spriteNebulosa(n, k); n.spriteK = k; }
+    const s = n.sprite.width / k;
+    ctx.drawImage(n.sprite, n.x - s / 2, n.y - s / 2, s, s);
+    ctx.setLineDash([5 / e, 7 / e]); ctx.lineDashOffset = -t * 6 / e;
+    ctx.strokeStyle = 'rgba(190,160,255,.28)'; ctx.lineWidth = 1.2 / e;
+    ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, TAU); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  for (const h of M.agujeros) dibujarAgujero(h, t, e);
+
+  // líneas de envío (arrastre o previsualización)
+  const sel = P.modo === 'juego' ? seleccion() : [];
+  if (P.modo === 'juego' && !P.fin) {
+    let fuentes = null, fin = null, objetivo = null;
+    if (entrada.arrastre && entrada.origen) {
+      fuentes = sel.includes(entrada.origen) ? sel : sel.concat([entrada.origen]);
+      const w = aMundo(entrada.mx, entrada.my);
+      objetivo = planetaEn(w.x, w.y); fin = objetivo || w;
+    } else if (entrada.raton && sel.length && entrada.hover && !(entrada.hover.dueno === 1 && entrada.hover.sel)) {
+      fuentes = sel; objetivo = entrada.hover; fin = objetivo;
+    }
+    if (fuentes) {
+      const fuerte = entrada.arrastre;
+      let total = 0;
+      for (const o of fuentes) {
+        if (o === objetivo) continue;
+        total += Math.floor(o.naves * pct);
+        const peligro = objetivo ? !caminoLibre(P, o, objetivo) : M.agujeros.some(h => cruzaCirculo(o.x, o.y, fin.x, fin.y, h.x, h.y, h.r * HORIZONTE + 10));
+        ctx.strokeStyle = peligro ? 'rgba(255,70,70,.85)' : `rgba(255,140,80,${fuerte ? 0.85 : 0.45})`;
+        ctx.lineWidth = (fuerte ? 2.2 : 1.6) / e;
+        ctx.setLineDash([8 / e, 6 / e]); ctx.lineDashOffset = -t * 30 / e;
+        ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(fin.x, fin.y); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      if (objetivo) {
+        ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 1.6 / e;
+        ctx.beginPath(); ctx.arc(objetivo.x, objetivo.y, objetivo.r + 10 / e, 0, TAU); ctx.stroke();
+      }
+      if (total > 0) etiqueta('→ ' + total, fin.x, fin.y - (objetivo ? objetivo.r : 0) - 18 / e, e, '#FFB38A');
+    }
+  }
+
+  for (const p of P.planetas) dibujarPlaneta(p, t, k, e);
+  for (const f of P.flotas) dibujarFlota(f, t, e);
+
+  ctx.globalCompositeOperation = 'lighter';
+  for (const q of P.particulas) {
+    ctx.globalAlpha = Math.max(0, q.v / q.max);
+    ctx.fillStyle = q.c;
+    const s = q.t / e;
+    ctx.fillRect(q.x - s / 2, q.y - s / 2, s, s);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+  for (const o of P.ondas) {
+    ctx.strokeStyle = rgba(o.c, Math.max(0, o.v) * 0.8); ctx.lineWidth = 3 / e;
+    ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, TAU); ctx.stroke();
+  }
+
+  // números de los planetas, encima de todo
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+  for (const p of P.planetas) {
+    const fs = Math.max(12 / e, p.r * 0.6);
+    ctx.font = `800 ${fs}px Archivo, system-ui, sans-serif`;
+    ctx.lineWidth = 3.2 / e; ctx.strokeStyle = 'rgba(0,0,8,.78)';
+    const txt = String(Math.floor(p.naves));
+    ctx.strokeText(txt, p.x, p.y + fs * 0.04);
+    ctx.fillStyle = p.dueno ? '#fff' : '#d5d9e8';
+    ctx.fillText(txt, p.x, p.y + fs * 0.04);
+  }
+
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (P.modo === 'juego' && P.tutorial >= 0 && !P.fin && !P.pausa) dibujarTutorial(t);
+}
+
+function dibujarAgujero(h, t, e) {
+  const halo = ctx.createRadialGradient(h.x, h.y, h.r * 0.5, h.x, h.y, h.r * 1.5);
+  halo.addColorStop(0, 'rgba(255,120,60,.22)'); halo.addColorStop(0.45, 'rgba(180,80,255,.12)'); halo.addColorStop(1, 'rgba(120,60,255,0)');
+  ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(h.x, h.y, h.r * 1.5, 0, TAU); ctx.fill();
+  ctx.setLineDash([6 / e, 6 / e]);
+  ctx.strokeStyle = 'rgba(255,80,90,.32)'; ctx.lineWidth = 1.4 / e;
+  ctx.beginPath(); ctx.arc(h.x, h.y, h.r * HORIZONTE + 10, 0, TAU); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.save();
+  ctx.translate(h.x, h.y); ctx.rotate(h.giro);
+  ctx.scale(1, 0.62);
+  for (let i = 0; i < 16; i++) {
+    const a = i / 16 * TAU;
+    ctx.strokeStyle = `hsla(${18 + (i % 4) * 12},100%,${60 + (i % 3) * 8}%,${0.42 + 0.22 * Math.sin(t * 2 + i)})`;
+    ctx.lineWidth = h.r * 0.12;
+    ctx.beginPath(); ctx.arc(0, 0, h.r * (0.72 + (i % 3) * 0.13), a, a + 0.32); ctx.stroke();
+  }
+  ctx.restore();
+  const gr = ctx.createRadialGradient(h.x, h.y, h.r * 0.15, h.x, h.y, h.r * 0.64);
+  gr.addColorStop(0, '#000'); gr.addColorStop(0.78, '#000'); gr.addColorStop(1, 'rgba(150,60,200,.55)');
+  ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(h.x, h.y, h.r * 0.64, 0, TAU); ctx.fill();
+}
+
+function dibujarPlaneta(p, t, k, e) {
+  if (p.spriteK !== k) { p.sprite = spritePlaneta(p, k); p.spriteK = k; }
+  const col = FACCIONES[p.dueno].color;
+  if (p.dueno) {
+    const gr = ctx.createRadialGradient(p.x, p.y, p.r * 0.9, p.x, p.y, p.r + 18 / e);
+    gr.addColorStop(0, rgba(col, 0.32)); gr.addColorStop(1, rgba(col, 0));
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 18 / e, 0, TAU); ctx.fill();
+  }
+  const s = p.sprite.width / k;
+  ctx.drawImage(p.sprite, p.x - s / 2, p.y - s / 2, s, s);
+  ctx.lineWidth = 2.2 / e;
+  if (p.dueno) { ctx.strokeStyle = col; ctx.setLineDash([]); }
+  else { ctx.strokeStyle = 'rgba(160,168,195,.55)'; ctx.setLineDash([3 / e, 4 / e]); }
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 3 / e, 0, TAU); ctx.stroke();
+  ctx.setLineDash([]);
+  if (p.tipo === 'fortaleza') {
+    ctx.strokeStyle = rgba(p.dueno ? col : '#A8B0C8', 0.85); ctx.lineWidth = 1.8 / e;
+    ctx.beginPath();
+    for (let i = 0; i <= 6; i++) {
+      const a = p.giro + i / 6 * TAU, rr = p.r + 10 / e;
+      i ? ctx.lineTo(p.x + Math.cos(a) * rr, p.y + Math.sin(a) * rr) : ctx.moveTo(p.x + Math.cos(a) * rr, p.y + Math.sin(a) * rr);
+    }
+    ctx.stroke();
+  } else if (p.tipo === 'forja') {
+    ctx.strokeStyle = 'rgba(255,190,90,.9)'; ctx.lineWidth = 2.4 / e;
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = p.giro * 2 + i / 10 * TAU;
+      ctx.moveTo(p.x + Math.cos(a) * (p.r + 6 / e), p.y + Math.sin(a) * (p.r + 6 / e));
+      ctx.lineTo(p.x + Math.cos(a) * (p.r + 11 / e), p.y + Math.sin(a) * (p.r + 11 / e));
+    }
+    ctx.stroke();
+  }
+  if (p.golpe > 0) {
+    ctx.strokeStyle = `rgba(255,255,255,${p.golpe})`; ctx.lineWidth = 2 / e;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 1, 0, TAU); ctx.stroke();
+  }
+  if (p.sel) {
+    ctx.strokeStyle = 'rgba(255,255,255,.95)'; ctx.lineWidth = 2 / e;
+    ctx.setLineDash([7 / e, 5 / e]); ctx.lineDashOffset = -t * 18 / e;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 14 / e, 0, TAU); ctx.stroke();
+    ctx.setLineDash([]);
+  } else if (entrada.raton && entrada.hover === p && P.modo === 'juego') {
+    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.5 / e;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 14 / e, 0, TAU); ctx.stroke();
+  }
+}
+
+function dibujarFlota(f, t, e) {
+  const col = FACCIONES[f.dueno].color;
+  const ca = Math.cos(f.ang), sa = Math.sin(f.ang);
+  const s = Math.max(3, 2.6 / e);
+  ctx.strokeStyle = rgba(col, 0.22); ctx.lineWidth = Math.max(4, 3 / e);
+  ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.lineTo(f.x - ca * 26, f.y - sa * 26); ctx.stroke();
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  for (const m of f.enj) {
+    const w = Math.sin(t * 4 + m.ph) * 1.6;
+    const x = f.x + m.dx - sa * w, y = f.y + m.dy + ca * w;
+    ctx.moveTo(x + ca * s * 1.7, y + sa * s * 1.7);
+    ctx.lineTo(x - ca * s - sa * s * 0.9, y - sa * s + ca * s * 0.9);
+    ctx.lineTo(x - ca * s + sa * s * 0.9, y - sa * s - ca * s * 0.9);
+    ctx.closePath();
+  }
+  ctx.fill();
+  if (f.n >= 3) etiqueta(String(f.n), f.x, f.y - 16 / e, e, col, 10.5);
+}
+
+function etiqueta(txt, x, y, e, color, tam = 12) {
+  ctx.font = `800 ${tam / e}px Archivo, system-ui, sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+  ctx.lineWidth = 3 / e; ctx.strokeStyle = 'rgba(0,0,8,.8)';
+  ctx.strokeText(txt, x, y);
+  ctx.fillStyle = color; ctx.fillText(txt, x, y);
+}
+
+/* tutorial del primer sector: globos en pantalla */
+function burbuja(txt, x, y, abajo) {
+  ctx.font = '700 14px Archivo, system-ui, sans-serif';
+  const w = Math.min(AN - 24, ctx.measureText(txt).width + 28), h = 38;
+  let bx = clamp(x - w / 2, 12, AN - 12 - w);
+  const by = clamp(abajo ? y + 16 : y - h - 16, 70, AL - 120 - h);
+  ctx.fillStyle = 'rgba(12,14,34,.94)'; ctx.strokeStyle = 'rgba(255,140,80,.9)'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(bx, by, w, h, 12); else ctx.rect(bx, by, w, h);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(txt, bx + w / 2, by + h / 2 + 1, w - 20);
+}
+function dibujarTutorial(t) {
+  const tu = P.tutorial, toque = !entrada.raton;
+  const hogar = P.planetas.find(p => p.hogar && p.dueno === 1);
+  if (tu === 0 && hogar) {
+    const s = aPantalla(hogar.x, hogar.y);
+    anilloTuto(s, hogar.r * cam.esc + 18 + Math.sin(t * 5) * 4);
+    burbuja(toque ? 'Toca tu planeta naranja para elegirlo' : 'Haz clic en tu planeta naranja para elegirlo', s.x, s.y - hogar.r * cam.esc, false);
+    if (seleccion().length) { P.tutorial = 1; P.tutoT = 0; }
+  } else if (tu === 1) {
+    const o = seleccion()[0] || hogar;
+    const meta = o && P.planetas.filter(p => p.dueno === 0).sort((a, b) => dist(a, o) - dist(b, o))[0];
+    if (meta) {
+      const s = aPantalla(meta.x, meta.y);
+      anilloTuto(s, meta.r * cam.esc + 16 + Math.sin(t * 5) * 4);
+      burbuja(`Ahora ${toque ? 'toca' : 'haz clic en'} un planeta gris: le mandas la mitad de tus naves`, s.x, s.y + meta.r * cam.esc, true);
+    }
+  } else if (tu === 2) {
+    burbuja('¡Eso es! Conquista también los planetas cian para ganar', AN / 2, 72, true);
+    if (P.tutoT > 6) { P.tutorial = 3; P.tutoT = 0; }
+  } else if (tu === 3) {
+    if (P.tutoT > 10) burbuja('Abajo eliges cuántas naves salen: 25, 50, 75 o 100 %', AN / 2, AL - 170, false);
+    if (P.tutoT > 18) P.tutorial = -1;
+  }
+}
+function anilloTuto(s, r) {
+  ctx.strokeStyle = 'rgba(255,170,110,.9)'; ctx.lineWidth = 2;
+  ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Entrada: tocar, arrastrar, clic derecho y teclado
+   ══════════════════════════════════════════════════════════════════ */
+function jugando() { return P && P.modo === 'juego' && !P.pausa && !P.fin; }
+lienzo.addEventListener('contextmenu', e => e.preventDefault());
+lienzo.addEventListener('pointerdown', e => {
+  Sonido.init();
+  entrada.raton = e.pointerType === 'mouse';
+  if (!jugando()) return;
+  const w = aMundo(e.clientX, e.clientY), p = planetaEn(w.x, w.y);
+  if (e.button === 2) { if (p && seleccion().length) enviarDesde(seleccion(), p); return; }
+  try { lienzo.setPointerCapture(e.pointerId); } catch (err) {}
+  entrada.abajo = true; entrada.sx = entrada.mx = e.clientX; entrada.sy = entrada.my = e.clientY;
+  entrada.origen = p && p.dueno === 1 ? p : null;
+  entrada.arrastre = false;
+});
+lienzo.addEventListener('pointermove', e => {
+  entrada.raton = e.pointerType === 'mouse';
+  entrada.mx = e.clientX; entrada.my = e.clientY;
+  if (!P || P.modo !== 'juego') return;
+  const w = aMundo(e.clientX, e.clientY);
+  entrada.hover = planetaEn(w.x, w.y);
+  if (entrada.abajo && entrada.origen && !entrada.arrastre && Math.hypot(e.clientX - entrada.sx, e.clientY - entrada.sy) > 12) entrada.arrastre = true;
+});
+lienzo.addEventListener('pointerup', e => {
+  if (!entrada.abajo) return;
+  entrada.abajo = false;
+  if (!jugando()) { entrada.arrastre = false; return; }
+  const w = aMundo(e.clientX, e.clientY), p = planetaEn(w.x, w.y);
+  if (entrada.arrastre) {
+    entrada.arrastre = false;
+    const sel = seleccion();
+    const fuentes = sel.includes(entrada.origen) ? sel : sel.concat([entrada.origen]);
+    if (p) enviarDesde(fuentes, p);
+    return;
+  }
+  const ahora = performance.now();
+  if (p && p.dueno === 1) {
+    if (entrada.ultimo.p === p && ahora - entrada.ultimo.t < 330) {
+      P.planetas.forEach(q => { q.sel = q.dueno === 1; });
+      entrada.ultimo.p = null; Sonido.click(); return;
+    }
+    entrada.ultimo = { t: ahora, p };
+    p.sel = !p.sel; Sonido.click();
+  } else if (p) {
+    const sel = seleccion();
+    if (sel.length) enviarDesde(sel, p);
+    else avisar(entrada.raton ? 'Primero haz clic en uno de tus planetas' : 'Primero toca uno de tus planetas');
+  } else {
+    P.planetas.forEach(q => { q.sel = false; });
+  }
+});
+lienzo.addEventListener('pointercancel', () => { entrada.abajo = false; entrada.arrastre = false; });
+lienzo.addEventListener('pointerleave', () => { if (!entrada.abajo) entrada.hover = null; });
+
+addEventListener('keydown', e => {
+  if (escena !== 'juego' || !P) return;
+  const t = e.key;
+  if (t >= '1' && t <= '4' && jugando()) ponerPct([0.25, 0.5, 0.75, 1][t - 1]);
+  else if ((t === 'a' || t === 'A') && jugando()) seleccionarTodos();
+  else if (t === 'Escape' || t === 'p' || t === 'P') { if (!P.fin) pausar(!P.pausa); }
+  else if (t === 'm' || t === 'M') alternarSonido();
+});
+
+function seleccionarTodos() {
+  const mios = P.planetas.filter(q => q.dueno === 1);
+  const todos = mios.length && mios.every(q => q.sel);
+  P.planetas.forEach(q => { q.sel = !todos && q.dueno === 1; });
+  Sonido.click();
+}
+function ponerPct(v) {
+  pct = v;
+  document.querySelectorAll('[data-pct]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.pct === v)));
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Pantallas y HUD
+   ══════════════════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const hud = $('hud');
+let avisoT = 0;
+function avisar(txt) {
+  const a = $('aviso');
+  a.textContent = txt; a.classList.add('ver');
+  clearTimeout(avisoT); avisoT = setTimeout(() => a.classList.remove('ver'), 1800);
+}
+function mostrar(nombre) {
+  document.querySelectorAll('.pantalla').forEach(s => { s.hidden = s.id !== 'p-' + nombre; });
+  const s = nombre && $('p-' + nombre);
+  if (s) {
+    const b = [...s.querySelectorAll('.boton.principal, .sector:not([disabled]), button')].find(x => !x.hidden);
+    if (b) b.focus({ preventScroll: true });
+  }
+}
+document.querySelectorAll('[data-ir]').forEach(b => b.addEventListener('click', () => {
+  Sonido.init(); Sonido.click();
+  const ir = b.dataset.ir;
+  if (ir === 'campana') pintarCampana();
+  if (ir === 'menu') pintarMenu();
+  if (ir === 'ayuda' && escena === 'juego') { mostrar('ayuda'); return; }
+  mostrar(ir);
+}));
+
+function pintarMenu() {
+  const n = Math.min(progreso.desbloqueado, SECTORES.length);
+  const todos = progreso.estrellas.filter(Boolean).length >= SECTORES.length;
+  $('m-progreso').textContent = todos ? '¡Universo conquistado!' : `Sector ${n} de ${SECTORES.length}`;
+  $('m-sonido').textContent = 'Sonido: ' + (ajustes.sonido ? 'sí' : 'no');
+}
+function pintarCampana() {
+  const lista = $('c-lista');
+  lista.textContent = '';
+  let total = 0;
+  SECTORES.forEach((s, i) => {
+    const est = progreso.estrellas[i] || 0;
+    total += est;
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.className = 'sector';
+    b.disabled = i >= progreso.desbloqueado;
+    const num = document.createElement('span'); num.className = 'num'; num.textContent = String(i + 1).padStart(2, '0');
+    const nom = document.createElement('b'); nom.textContent = s.nombre;
+    const es = document.createElement('span'); es.className = 'est';
+    es.textContent = b.disabled ? 'Bloqueado' : '★'.repeat(est) + '☆'.repeat(3 - est);
+    b.append(num, nom, es);
+    b.setAttribute('aria-label', `Sector ${i + 1}: ${s.nombre}. ${b.disabled ? 'Bloqueado' : est + ' de 3 estrellas'}`);
+    b.addEventListener('click', () => { Sonido.click(); abrirSector(i); });
+    li.appendChild(b); lista.appendChild(li);
+  });
+  $('c-total').textContent = `★ ${total}/${SECTORES.length * 3}`;
+}
+let sectorAbierto = 0;
+function abrirSector(i) {
+  sectorAbierto = i;
+  const s = SECTORES[i];
+  $('s-num').textContent = 'Sector ' + String(i + 1).padStart(2, '0');
+  $('s-nombre').textContent = s.nombre;
+  $('s-texto').textContent = s.texto;
+  const chips = $('s-chips');
+  chips.textContent = '';
+  const chip = (txt, color) => {
+    const li = document.createElement('li');
+    if (color) { const d = document.createElement('i'); d.style.background = color; li.appendChild(d); }
+    li.appendChild(document.createTextNode(txt)); chips.appendChild(li);
+  };
+  chip(s.enemigos === 1 ? '1 imperio rival' : s.enemigos + ' imperios rivales', FACCIONES[2].color);
+  chip('IA ' + DIFICULTADES[s.dif].nombre.toLowerCase());
+  if (s.forjas) chip('Forjas', '#FFBE5A');
+  if (s.fortalezas) chip('Fortalezas', '#A8B0C8');
+  if (s.gigantes) chip('Gigantes gaseosos', '#C08A52');
+  if (s.nebulosas) chip('Nebulosas', '#AA6EFF');
+  if (s.agujeros) chip(s.agujeros > 1 ? 'Agujeros negros' : 'Agujero negro', '#B57BFF');
+  const est = progreso.estrellas[i] || 0;
+  $('s-mejor').textContent = est ? `${'★'.repeat(est)}${'☆'.repeat(3 - est)} · tres estrellas en menos de ${mmss(s.par)}` : `Tres estrellas si ganas en menos de ${mmss(s.par)}`;
+  mostrar('sector');
+}
+$('s-jugar').addEventListener('click', () => jugarSector(sectorAbierto));
+
+function pintarRapida() {
+  document.querySelectorAll('#p-rapida .seg').forEach(seg => {
+    const op = seg.dataset.op;
+    seg.querySelectorAll('button').forEach(b => {
+      const v = b.dataset.v;
+      const on = seg.hasAttribute('data-multi') ? rapida[op].includes(v) : String(rapida[op]) === v;
+      b.setAttribute('aria-pressed', String(on));
+    });
+  });
+}
+document.querySelectorAll('#p-rapida .seg').forEach(seg => seg.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  Sonido.click();
+  const op = seg.dataset.op, v = b.dataset.v;
+  if (seg.hasAttribute('data-multi')) {
+    const i = rapida[op].indexOf(v);
+    i >= 0 ? rapida[op].splice(i, 1) : rapida[op].push(v);
+  } else rapida[op] = op === 'tam' ? v : +v;
+  guardar('bu_rapida_v1', rapida);
+  pintarRapida();
+}));
+$('r-jugar').addEventListener('click', () => jugarRapida());
+
+function cfgRapida() {
+  const r = rapida.rarezas, gr = rapida.tam === 's' ? 4 : rapida.tam === 'm' ? 5 : 6;
+  return {
+    nombre: 'Batalla rápida', enemigos: rapida.enemigos, dif: rapida.dif, tam: rapida.tam,
+    neutrales: Math.max(3, gr - Math.floor(rapida.enemigos / 2)),
+    forjas: r.includes('forjas') ? 1 : 0, fortalezas: r.includes('fortalezas') ? 1 : 0,
+    gigantes: r.includes('gigantes') ? 1 : 0, nebulosas: r.includes('nebulosas') ? 1 : 0,
+    agujeros: r.includes('agujeros') ? 1 : 0,
+  };
+}
+function jugarSector(i) {
+  const s = SECTORES[i];
+  empezar(Object.assign({}, s, { sector: i, semilla: 7919 * (i + 1) + 101 }));
+}
+function jugarRapida() { empezar(cfgRapida()); }
+
+let ultimaCfg = null;
+function empezar(cfg) {
+  Sonido.init();
+  ultimaCfg = cfg;
+  escena = 'juego';
+  P = crearPartida(cfg, 'juego');
+  ajustarCamara();
+  ponerPct(0.5);
+  mostrar(null);
+  hud.hidden = false;
+  $('hud-nombre').textContent = cfg.sector != null ? `${String(cfg.sector + 1).padStart(2, '0')} · ${cfg.nombre}` : 'Batalla rápida';
+  $('b-vel').textContent = '×1';
+  pintarFuerzas();
+  Sonido.musicaOn();
+}
+function aMenu(pantalla) {
+  escena = 'menu';
+  hud.hidden = true;
+  Sonido.musicaOff();
+  P = crearPartida(cfgDemo(), 'demo');
+  ajustarCamara();
+  pintarMenu();
+  if (pantalla === 'campana') pintarCampana();
+  mostrar(pantalla || 'menu');
+}
+function cfgDemo() {
+  return { enemigos: 3, dif: 1, tam: 'm', neutrales: 5, forjas: 1, nebulosas: Math.random() < 0.5 ? 1 : 0, agujeros: Math.random() < 0.4 ? 1 : 0, inicioEnemigo: 30 };
+}
+
+function pausar(on) {
+  if (!P || P.modo !== 'juego' || P.fin) return;
+  P.pausa = on;
+  entrada.abajo = false; entrada.arrastre = false;
+  mostrar(on ? 'pausa' : null);
+}
+$('b-pausa').addEventListener('click', () => { Sonido.click(); pausar(true); });
+$('pa-seguir').addEventListener('click', () => pausar(false));
+$('pa-reintentar').addEventListener('click', () => empezar(ultimaCfg));
+$('pa-salir').addEventListener('click', () => aMenu(P && P.sector >= 0 ? 'campana' : 'menu'));
+$('pa-ayuda').addEventListener('click', () => mostrar('ayuda'));
+// desde la ayuda en mitad de una partida, «volver» regresa a la pausa
+document.querySelector('#p-ayuda .volver').addEventListener('click', e => {
+  if (escena === 'juego') { e.stopImmediatePropagation(); mostrar('pausa'); }
+}, true);
+$('b-vel').addEventListener('click', () => {
+  if (!P || P.modo !== 'juego') return;
+  P.vel = P.vel === 1 ? 2 : 1;
+  $('b-vel').textContent = '×' + P.vel;
+  Sonido.click();
+});
+function alternarSonido() {
+  Sonido.init();
+  Sonido.poner(!ajustes.sonido);
+  pintarSonido();
+  if (ajustes.sonido) Sonido.click();
+}
+function pintarSonido() {
+  $('i-sonido').setAttribute('d', ajustes.sonido ? 'M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12' : 'M4 9h4l5-4v14l-5-4H4zM16 9l6 6M22 9l-6 6');
+  $('b-sonido').setAttribute('aria-label', ajustes.sonido ? 'Silenciar' : 'Activar sonido');
+  $('m-sonido').textContent = 'Sonido: ' + (ajustes.sonido ? 'sí' : 'no');
+}
+$('b-sonido').addEventListener('click', alternarSonido);
+$('m-sonido').addEventListener('click', alternarSonido);
+$('b-todos').addEventListener('click', () => { if (jugando()) seleccionarTodos(); });
+document.querySelectorAll('[data-pct]').forEach(b => b.addEventListener('click', () => { ponerPct(+b.dataset.pct); Sonido.click(); }));
+document.addEventListener('visibilitychange', () => { if (document.hidden && jugando()) pausar(true); });
+
+function pintarFuerzas() {
+  const f = fuerzas(P), total = f.reduce((a, b) => a + b, 0) || 1;
+  const barra = $('fuerzas');
+  if (barra.children.length !== 6) { barra.textContent = ''; for (let i = 0; i < 6; i++) barra.appendChild(document.createElement('span')); }
+  for (let i = 1; i <= 5; i++) {
+    const s = barra.children[i];
+    s.style.width = (f[i] / total * 100) + '%';
+    s.style.background = FACCIONES[i].color;
+  }
+}
+let hudT = 0;
+function hudTick(dt) {
+  if (escena !== 'juego' || !P) return;
+  hudT -= dt;
+  if (hudT > 0) return;
+  hudT = 0.25;
+  $('hud-tiempo').textContent = mmss(P.tiempo);
+  pintarFuerzas();
+}
+
+function terminar(Pa, res) {
+  Pa.fin = res;
+  Pa.planetas.forEach(p => { p.sel = false; });
+  if (res === 'victoria') {
+    Sonido.victoria();
+    for (const p of Pa.planetas) if (p.dueno === 1) chispas(Pa, p.x, p.y, '#FFD447', 18, 140);
+  } else Sonido.derrota();
+  let estrellas = 0;
+  if (res === 'victoria' && Pa.sector >= 0) {
+    const par = SECTORES[Pa.sector].par;
+    estrellas = Pa.tiempo <= par ? 3 : Pa.tiempo <= par * 1.6 ? 2 : 1;
+    progreso.estrellas[Pa.sector] = Math.max(progreso.estrellas[Pa.sector] || 0, estrellas);
+    progreso.desbloqueado = Math.max(progreso.desbloqueado, Math.min(SECTORES.length, Pa.sector + 2));
+    guardar('bu_progreso_v1', progreso);
+  }
+  setTimeout(() => { if (P === Pa) mostrarFin(Pa, res, estrellas); }, 1500);
+}
+function mostrarFin(Pa, res, estrellas) {
+  const gana = res === 'victoria';
+  const ultimo = Pa.sector === SECTORES.length - 1;
+  $('f-sup').textContent = Pa.sector >= 0 ? `Sector ${String(Pa.sector + 1).padStart(2, '0')} · ${SECTORES[Pa.sector].nombre}` : 'Batalla rápida';
+  const tit = $('f-titulo');
+  tit.textContent = gana ? (ultimo ? '¡El universo es tuyo!' : '¡Victoria!') : 'Derrota';
+  tit.className = gana ? 'gana' : '';
+  const est = $('f-estrellas');
+  est.hidden = !(gana && Pa.sector >= 0);
+  est.textContent = '';
+  for (let i = 0; i < 3; i++) { const s = document.createElement('span'); s.textContent = '★'; if (i >= estrellas) s.className = 'no'; est.appendChild(s); }
+  est.setAttribute('aria-label', `${estrellas} de 3 estrellas`);
+  $('f-tiempo').textContent = mmss(Pa.tiempo);
+  $('f-conq').textContent = Pa.stats.conquistados;
+  $('f-env').textContent = Pa.stats.enviadas;
+  $('f-dest').textContent = Pa.stats.destruidas;
+  const sig = $('f-sig');
+  sig.hidden = !(gana && Pa.sector >= 0 && !ultimo);
+  $('f-otra').textContent = gana ? 'Jugar otra vez' : 'Reintentar';
+  hud.hidden = true;
+  mostrar('fin');
+}
+$('f-sig').addEventListener('click', () => { if (P && P.sector >= 0) jugarSector(P.sector + 1); });
+$('f-otra').addEventListener('click', () => empezar(ultimaCfg));
+$('f-menu').addEventListener('click', () => aMenu(P && P.sector >= 0 ? 'campana' : 'menu'));
+
+/* ══════════════════════════════════════════════════════════════════
+   Bucle
+   ══════════════════════════════════════════════════════════════════ */
+let ultimo = performance.now();
+function bucle(ahora) {
+  requestAnimationFrame(bucle);
+  const dt = Math.min(0.1, (ahora - ultimo) / 1000);
+  ultimo = ahora;
+  if (P && !P.pausa) {
+    const total = dt * P.vel, pasos = Math.ceil(total / 0.05);
+    for (let i = 0; i < pasos; i++) actualizar(P, total / pasos);
+    if (P.modo === 'demo' && P.fin) { P = crearPartida(cfgDemo(), 'demo'); ajustarCamara(); }
+  }
+  dibujar(ahora / 1000);
+  hudTick(dt);
+}
+
+let resizeT = 0;
+addEventListener('resize', () => { cancelAnimationFrame(resizeT); resizeT = requestAnimationFrame(redimensionar); });
+
+redimensionar();
+P = crearPartida(cfgDemo(), 'demo');
+ajustarCamara();
+pintarMenu();
+pintarRapida();
+pintarSonido();
+requestAnimationFrame(bucle);
+
+/* Gancho para pruebas automáticas: abre la página con #debug */
+if (/debug/.test(location.hash)) {
+  window.__bu = {
+    sector: i => jugarSector(i),
+    rapida: o => { Object.assign(rapida, o || {}); empezar(cfgRapida()); },
+    piloto(on = true, dif = 2) {
+      P.ias = P.ias.filter(a => a.dueno !== 1);
+      if (on) P.ias.push(crearIA(1, dif));
+    },
+    sim(seg) {
+      const pasos = Math.round(seg / 0.05);
+      for (let i = 0; i < pasos && !P.fin; i++) actualizar(P, 0.05);
+      return this.estado();
+    },
+    estado() {
+      const pl = {};
+      for (const p of P.planetas) pl[p.dueno] = (pl[p.dueno] || 0) + 1;
+      return { modo: P.modo, tiempo: Math.round(P.tiempo), fin: P.fin, planetas: pl, flotas: P.flotas.length, fuerzas: fuerzas(P).map(Math.round) };
+    },
+    partida: () => P,
+    seleccionar(ids) { P.planetas.forEach(p => { p.sel = ids.includes(p.id) && p.dueno === 1; }); },
+    enviar(ids, destino) { enviarDesde(P.planetas.filter(p => ids.includes(p.id)), P.planetas.find(p => p.id === destino)); },
+    mostrar,
+    pantalla(id) { const p = P.planetas.find(q => q.id === id); return aPantalla(p.x, p.y); },
+  };
+}
+})();
+</script>
+</body>
+</html>
