@@ -303,7 +303,7 @@ const lienzo = document.getElementById('lienzo');
 const ctx = lienzo.getContext('2d');
 const fondo = document.createElement('canvas');
 let DPR = 1, AN = 0, AL = 0;
-const cam = { esc: 1, x: 0, y: 0 };
+const cam = { esc: 1, x: 0, y: 0, giro: false };   // giro: mapa girado 90° para llenar una pantalla de la otra orientación
 
 /* ── utilidades ─────────────────────────────────────────────────── */
 const TAU = Math.PI * 2;
@@ -595,9 +595,14 @@ function crearPartida(cfg, modo) {
     enemigos: 1, dif: 1, tam: 'm', neutrales: 5, forjas: 0, fortalezas: 0, gigantes: 0, nebulosas: 0, agujeros: 0,
     inicioJugador: 30, inicioEnemigo: 30, guarnicion: 1,
   }, cfg);
-  c.horizontal = a.w >= a.h;
-  c.aspecto = Math.max(a.w, a.h) / Math.min(a.w, a.h);
-  c.compacto = Math.min(AN, AL) < 560;
+  if (cfg.sector != null || cfg.desafio) {
+    // campaña y desafío: el mismo mapa en cualquier pantalla; la cámara lo gira si hace falta
+    c.horizontal = true; c.aspecto = 1.6; c.compacto = false;
+  } else {
+    c.horizontal = a.w >= a.h;
+    c.aspecto = Math.max(a.w, a.h) / Math.min(a.w, a.h);
+    c.compacto = Math.min(AN, AL) < 560;
+  }
   const semilla = cfg.semilla != null ? cfg.semilla : (Math.random() * 1e9 | 0);
   const mapa = generarMapa(c, semilla);
   const k = c.enemigos + 1, ias = [];
@@ -887,10 +892,14 @@ function redimensionar() {
 }
 function ajustarCamara() {
   if (!P) return;
-  const a = areaJuego(P.modo);
-  cam.esc = Math.min(a.w / P.mapa.w, a.h / P.mapa.h);
-  cam.x = a.x + (a.w - P.mapa.w * cam.esc) / 2;
-  cam.y = a.y + (a.h - P.mapa.h * cam.esc) / 2;
+  const a = areaJuego(P.modo), M = P.mapa;
+  // si el mapa y la pantalla tienen distinta orientación, girar 90°: lo que queda a la izquierda del mapa va abajo
+  cam.giro = (M.w > M.h && a.h > a.w) || (M.h > M.w && a.w > a.h);
+  const vw = cam.giro ? M.h : M.w, vh = cam.giro ? M.w : M.h;
+  cam.esc = Math.min(a.w / vw, a.h / vh);
+  // (cam.x, cam.y) es dónde cae en pantalla el origen del mapa
+  cam.x = a.x + (a.w - vw * cam.esc) / 2;
+  cam.y = a.y + (a.h - vh * cam.esc) / 2 + (cam.giro ? vh * cam.esc : 0);
 }
 function pintarFondo() {
   fondo.width = Math.round(AN * DPR); fondo.height = Math.round(AL * DPR);
@@ -985,8 +994,14 @@ function spriteNebulosa(n, k) {
 }
 
 const entrada = { id: null, abajo: false, sx: 0, sy: 0, origen: null, arrastre: false, mx: -1, my: -1, hover: null, ultimo: { t: 0, p: null }, raton: false };
-const aMundo = (sx, sy) => ({ x: (sx - cam.x) / cam.esc, y: (sy - cam.y) / cam.esc });
-const aPantalla = (x, y) => ({ x: cam.x + x * cam.esc, y: cam.y + y * cam.esc });
+// con giro: pantalla = (y, −x) · esc + origen (rotación de −90°, sin espejo)
+const aMundo = (sx, sy) => cam.giro ? { x: (cam.y - sy) / cam.esc, y: (sx - cam.x) / cam.esc } : { x: (sx - cam.x) / cam.esc, y: (sy - cam.y) / cam.esc };
+const aPantalla = (x, y) => cam.giro ? { x: cam.x + y * cam.esc, y: cam.y - x * cam.esc } : { x: cam.x + x * cam.esc, y: cam.y + y * cam.esc };
+// textos derechos aunque el mapa esté girado: se dibujan en un marco local contrarrotado
+function textoDerecho(x, y, fn) {
+  if (!cam.giro) { fn(x, y); return; }
+  ctx.save(); ctx.translate(x, y); ctx.rotate(Math.PI / 2); fn(0, 0); ctx.restore();
+}
 function planetaEn(x, y) {
   let mejor = null, md = Infinity;
   const tol = 16 / cam.esc;
@@ -1010,7 +1025,8 @@ function dibujar(t) {
   ctx.globalAlpha = 1;
   if (!P) return;
   const k = cam.esc * DPR, e = cam.esc;
-  ctx.setTransform(k, 0, 0, k, cam.x * DPR, cam.y * DPR);
+  if (cam.giro) ctx.setTransform(0, -k, k, 0, cam.x * DPR, cam.y * DPR);
+  else ctx.setTransform(k, 0, 0, k, cam.x * DPR, cam.y * DPR);
   const M = P.mapa;
 
   for (const n of M.nebulosas) {
@@ -1052,7 +1068,7 @@ function dibujar(t) {
         ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 1.6 / e;
         ctx.beginPath(); ctx.arc(objetivo.x, objetivo.y, objetivo.r + 10 / e, 0, TAU); ctx.stroke();
       }
-      if (total > 0) etiqueta('→ ' + total, fin.x, fin.y - (objetivo ? objetivo.r : 0) - 18 / e, e, '#FFB38A');
+      if (total > 0) etiqueta('→ ' + total, fin.x, fin.y, e, '#FFB38A', 12, -(objetivo ? objetivo.r : 0) - 18 / e);
     }
   }
 
@@ -1080,9 +1096,11 @@ function dibujar(t) {
     ctx.font = `800 ${fs}px Archivo, system-ui, sans-serif`;
     ctx.lineWidth = 3.2 / e; ctx.strokeStyle = 'rgba(0,0,8,.78)';
     const txt = String(Math.floor(p.naves));
-    ctx.strokeText(txt, p.x, p.y + fs * 0.04);
     ctx.fillStyle = p.dueno ? '#fff' : '#d5d9e8';
-    ctx.fillText(txt, p.x, p.y + fs * 0.04);
+    textoDerecho(p.x, p.y, (x, y) => {
+      ctx.strokeText(txt, x, y + fs * 0.04);
+      ctx.fillText(txt, x, y + fs * 0.04);
+    });
   }
 
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -1177,15 +1195,16 @@ function dibujarFlota(f, t, e) {
     ctx.closePath();
   }
   ctx.fill();
-  if (f.n >= 3) etiqueta(String(f.n), f.x, f.y - 16 / e, e, col, 10.5);
+  if (f.n >= 3) etiqueta(String(f.n), f.x, f.y, e, col, 10.5, -16 / e);
 }
 
-function etiqueta(txt, x, y, e, color, tam = 12) {
+// dy: desplazamiento vertical en pantalla (negativo = encima), se respeta aunque el mapa esté girado
+function etiqueta(txt, x, y, e, color, tam = 12, dy = 0) {
   ctx.font = `800 ${tam / e}px Archivo, system-ui, sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
   ctx.lineWidth = 3 / e; ctx.strokeStyle = 'rgba(0,0,8,.8)';
-  ctx.strokeText(txt, x, y);
-  ctx.fillStyle = color; ctx.fillText(txt, x, y);
+  ctx.fillStyle = color;
+  textoDerecho(x, y, (x, y) => { ctx.strokeText(txt, x, y + dy); ctx.fillText(txt, x, y + dy); });
 }
 
 /* tutorial del primer sector: globos en pantalla */
