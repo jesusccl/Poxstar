@@ -120,6 +120,7 @@ kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--b
 .datos dd{margin:0;font:800 20px/1.3 var(--titulo)}
 .fila{display:grid;gap:10px;margin-top:20px}
 .fila .boton{justify-content:center}
+.boton[hidden]{display:none}
 
 /* — HUD — */
 #hud{position:fixed;inset:0;z-index:5;pointer-events:none}
@@ -190,6 +191,7 @@ kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--b
     <div class="menu-botones">
       <button class="boton principal" data-ir="campana">Campaña <small id="m-progreso">Sector 1 de 12</small></button>
       <button class="boton" data-ir="rapida">Batalla rápida <small>Tú contra hasta cuatro imperios</small></button>
+      <button class="boton" id="m-desafio">Desafío del día <small id="m-desafio-sub">El mismo mapa para todos</small></button>
       <button class="boton" data-ir="ayuda">Cómo se juega</button>
     </div>
     <div class="menu-pie">
@@ -269,6 +271,7 @@ kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--b
     <p class="sup" id="f-sup">Batalla rápida</p>
     <h2 id="f-titulo">¡Victoria!</h2>
     <p class="estrellas" id="f-estrellas" aria-label=""></p>
+    <p class="mejor" id="f-record" hidden></p>
     <dl class="datos">
       <div><dt>Tiempo</dt><dd id="f-tiempo">0:00</dd></div>
       <div><dt>Planetas conquistados</dt><dd id="f-conq">0</dd></div>
@@ -370,6 +373,7 @@ const SECTORES = [
 const progreso = cargar('bu_progreso_v1', { desbloqueado: 1, estrellas: [] });
 const rapida = cargar('bu_rapida_v1', { enemigos: 2, tam: 'm', dif: 1, rarezas: ['forjas', 'nebulosas'] });
 const ajustes = cargar('bu_ajustes_v1', { sonido: true });
+const desafios = cargar('bu_desafio_v1', {});
 
 /* ══════════════════════════════════════════════════════════════════
    Sonido (Web Audio, todo sintetizado)
@@ -1321,6 +1325,8 @@ function pintarMenu() {
   const todos = progreso.estrellas.filter(Boolean).length >= SECTORES.length;
   $('m-progreso').textContent = todos ? '¡Universo conquistado!' : `Sector ${n} de ${SECTORES.length}`;
   $('m-sonido').textContent = 'Sonido: ' + (ajustes.sonido ? 'sí' : 'no');
+  const hoy = fechaHoy(), mejor = desafios[hoy];
+  $('m-desafio-sub').textContent = fechaBonita(hoy) + (mejor != null ? ` · tu mejor: ${mmss(mejor)}` : ' · el mismo mapa para todos');
 }
 function pintarCampana() {
   const lista = $('c-lista');
@@ -1410,6 +1416,37 @@ function jugarSector(i) {
 }
 function jugarRapida() { empezar(cfgRapida()); }
 
+/* ── desafío del día: misma semilla (y mismo mapa) para todos según la fecha local ── */
+function fechaHoy() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+const fechaBonita = f => f.split('-').reverse().join('/');
+function semillaFecha(f) {                    // FNV-1a
+  let h = 2166136261;
+  for (let i = 0; i < f.length; i++) h = Math.imul(h ^ f.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
+function cfgDesafio(fecha) {
+  const semilla = semillaFecha(fecha), r = rng(semilla);
+  const enemigos = r() < 0.5 ? 2 : 3, tam = r() < 0.5 ? 'm' : 'l', dif = r() < 0.5 ? 1 : 2;
+  const todas = ['forjas', 'fortalezas', 'gigantes', 'nebulosas', 'agujeros'];
+  for (let i = todas.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [todas[i], todas[j]] = [todas[j], todas[i]]; }
+  const c = { nombre: 'Desafío del día', desafio: fecha, semilla, enemigos, tam, dif,
+    neutrales: Math.max(3, (tam === 'm' ? 5 : 6) - Math.floor(enemigos / 2)) };
+  todas.slice(0, r() < 0.5 ? 1 : 2).forEach(k => { c[k] = 1; });
+  return c;
+}
+function jugarDesafio() { empezar(cfgDesafio(fechaHoy())); }
+function guardarDesafio(fecha, t) {
+  const previo = desafios[fecha], nuevo = previo == null || t < previo;
+  if (nuevo) desafios[fecha] = t;
+  Object.keys(desafios).sort().reverse().slice(30).forEach(k => { delete desafios[k]; });
+  guardar('bu_desafio_v1', desafios);
+  return { nuevo, mejor: desafios[fecha] };
+}
+$('m-desafio').addEventListener('click', () => { Sonido.click(); jugarDesafio(); });
+
 let ultimaCfg = null;
 function empezar(cfg) {
   Sonido.init();
@@ -1420,7 +1457,7 @@ function empezar(cfg) {
   ponerPct(0.5);
   mostrar(null);
   hud.hidden = false;
-  $('hud-nombre').textContent = cfg.sector != null ? `${String(cfg.sector + 1).padStart(2, '0')} · ${cfg.nombre}` : 'Batalla rápida';
+  $('hud-nombre').textContent = cfg.sector != null ? `${String(cfg.sector + 1).padStart(2, '0')} · ${cfg.nombre}` : cfg.desafio ? 'Desafío del día' : 'Batalla rápida';
   $('b-vel').textContent = '×1';
   pintarFuerzas();
   Sonido.musicaOn();
@@ -1512,12 +1549,17 @@ function terminar(Pa, res) {
     progreso.desbloqueado = Math.max(progreso.desbloqueado, Math.min(SECTORES.length, Pa.sector + 2));
     guardar('bu_progreso_v1', progreso);
   }
+  if (Pa.cfg.desafio) Pa.record = res === 'victoria' ? guardarDesafio(Pa.cfg.desafio, Math.round(Pa.tiempo * 10) / 10) : { nuevo: false, mejor: desafios[Pa.cfg.desafio] };
   setTimeout(() => { if (P === Pa) mostrarFin(Pa, res, estrellas); }, 1500);
 }
 function mostrarFin(Pa, res, estrellas) {
   const gana = res === 'victoria';
   const ultimo = Pa.sector === SECTORES.length - 1;
-  $('f-sup').textContent = Pa.sector >= 0 ? `Sector ${String(Pa.sector + 1).padStart(2, '0')} · ${SECTORES[Pa.sector].nombre}` : 'Batalla rápida';
+  const fecha = Pa.cfg.desafio;
+  $('f-sup').textContent = Pa.sector >= 0 ? `Sector ${String(Pa.sector + 1).padStart(2, '0')} · ${SECTORES[Pa.sector].nombre}` : fecha ? `Desafío del día · ${fechaBonita(fecha)}` : 'Batalla rápida';
+  const rec = $('f-record');
+  rec.hidden = !fecha;
+  if (fecha) rec.textContent = Pa.record.nuevo ? '¡Nuevo récord!' : Pa.record.mejor != null ? `Récord del día: ${mmss(Pa.record.mejor)}` : 'Aún sin récord hoy';
   const tit = $('f-titulo');
   tit.textContent = gana ? (ultimo ? '¡El universo es tuyo!' : '¡Victoria!') : 'Derrota';
   tit.className = gana ? 'gana' : '';
@@ -1573,6 +1615,7 @@ if (/debug/.test(location.hash)) {
   window.__bu = {
     sector: i => jugarSector(i),
     rapida: o => { Object.assign(rapida, o || {}); empezar(cfgRapida()); },
+    desafio: jugarDesafio,
     piloto(on = true, dif = 2) {
       P.ias = P.ias.filter(a => a.dueno !== 1);
       if (on) P.ias.push(crearIA(1, dif));
