@@ -24,6 +24,7 @@
   --texto:#E9ECFF; --texto-2:#9BA4C9; --naranja:#FF6B2C; --rosa:#FF4FB0; --cian:#33D6FF;
   --fuente:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --titulo:'Orbitron','Archivo',system-ui,sans-serif;
+  --sai-l:env(safe-area-inset-left,0px); --sai-r:env(safe-area-inset-right,0px);
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--fondo);color:var(--texto);font:400 16px/1.5 var(--fuente);
@@ -38,6 +39,7 @@ h1,h2,h3,p{margin:0}
 /* — pantallas (menús) — */
 .pantalla{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;overflow:auto;
   padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
+[hidden]{display:none!important}
 .pantalla[hidden]{display:none}
 .panel{width:min(520px,100%);margin:auto;padding:28px;border:1px solid var(--borde);border-radius:24px;background:var(--panel);
   box-shadow:0 30px 80px -30px rgba(0,0,0,.8);animation:entra .35s cubic-bezier(.2,.7,.2,1)}
@@ -495,10 +497,12 @@ function generarMapa(c, semilla) {
   const r = rng(semilla);
   const k = c.enemigos + 1;
   const corto = { s: 720, m: 860, l: 1000 }[c.tam] * (c.compacto ? 0.84 : 1);
-  const asp = clamp(c.aspecto, 1.15, 1.9);
+  const asp = clamp(c.aspecto, 1.15, c.enemigos > 1 ? 1.3 : 1.9);   // con 3+ imperios el mapa es casi cuadrado: círculo justo
   const w = c.horizontal ? corto * asp : corto, h = c.horizontal ? corto : corto * asp;
   const cx = w / 2, cy = h / 2, M = 54;
-  const rx = w / 2 - M - 34, ry = h / 2 - M - 34;
+  let rx = w / 2 - M - 34, ry = h / 2 - M - 34;
+  // con tres o más imperios, girar sobre una elipse no conserva distancias: círculo
+  if (k > 2) rx = ry = Math.min(rx, ry);
   const paso = TAU / k;
   const th0 = k === 4 ? 3 * Math.PI / 4 : (c.horizontal ? Math.PI : Math.PI / 2);
   const pos = (rho, th) => ({ x: cx + Math.cos(th) * rho * rx, y: cy + Math.sin(th) * rho * ry });
@@ -574,8 +578,16 @@ let escena = 'menu';     // 'menu' | 'juego'
 let pct = 0.5;
 
 function areaJuego(modo) {
-  const arriba = modo === 'juego' ? 64 : 24, abajo = modo === 'juego' ? 104 : 24;
-  return { x: 12, y: arriba, w: Math.max(100, AN - 24), h: Math.max(100, AL - arriba - abajo) };
+  let arriba = 24, abajo = 24;
+  if (modo === 'juego') {
+    const hudVisto = !document.getElementById('hud').hidden;
+    const ar = hudVisto ? document.querySelector('.hud-arriba').getBoundingClientRect().bottom : 0;
+    const ab = hudVisto ? document.querySelector('.hud-abajo').getBoundingClientRect().top : AL;
+    arriba = Math.max(64, ar + 6); abajo = Math.max(104, AL - ab + 6);
+  }
+  const cs = getComputedStyle(document.documentElement);
+  const lado = Math.max(12, parseFloat(cs.getPropertyValue('--sai-l')) || 0, parseFloat(cs.getPropertyValue('--sai-r')) || 0);
+  return { x: lado, y: arriba, w: Math.max(100, AN - lado * 2), h: Math.max(100, AL - arriba - abajo) };
 }
 function crearPartida(cfg, modo) {
   const a = areaJuego(modo);
@@ -629,7 +641,7 @@ function enviarDesde(fuentes, destino) {
   }
   if (alguna) {
     Sonido.lanzar();
-    if (P.tutorial === 1) { P.tutorial = 2; P.tutoT = 0; }
+    if (P.tutorial === 0 || P.tutorial === 1) { P.tutorial = 2; P.tutoT = 0; }
   } else avisar('No quedan naves en esos planetas');
 }
 
@@ -681,6 +693,7 @@ function llegar(Pa, f) {
   if (choque > 0) chispas(Pa, bx, by, FACCIONES[p.dueno].color, Math.min(20, 3 + choque * 0.4), 70);
   const juego = Pa === P && Pa.modo === 'juego';
   if (f.dueno === 1 && p.dueno !== 0) Pa.stats.destruidas += Math.floor(Math.min(f.n / p.defensa, p.naves));
+  else if (p.dueno === 1) Pa.stats.destruidas += Math.floor(Math.min(f.n, def));
   if (f.n > def) {
     const antes = p.dueno;
     p.dueno = f.dueno; p.naves = f.n - def; p.pulso = 1; p.sel = false;
@@ -971,7 +984,7 @@ function spriteNebulosa(n, k) {
   return c;
 }
 
-const entrada = { abajo: false, sx: 0, sy: 0, origen: null, arrastre: false, mx: -1, my: -1, hover: null, ultimo: { t: 0, p: null }, raton: false };
+const entrada = { id: null, abajo: false, sx: 0, sy: 0, origen: null, arrastre: false, mx: -1, my: -1, hover: null, ultimo: { t: 0, p: null }, raton: false };
 const aMundo = (sx, sy) => ({ x: (sx - cam.x) / cam.esc, y: (sy - cam.y) / cam.esc });
 const aPantalla = (x, y) => ({ x: cam.x + x * cam.esc, y: cam.y + y * cam.esc });
 function planetaEn(x, y) {
@@ -1019,7 +1032,7 @@ function dibujar(t) {
       fuentes = sel.includes(entrada.origen) ? sel : sel.concat([entrada.origen]);
       const w = aMundo(entrada.mx, entrada.my);
       objetivo = planetaEn(w.x, w.y); fin = objetivo || w;
-    } else if (entrada.raton && sel.length && entrada.hover && !(entrada.hover.dueno === 1 && entrada.hover.sel)) {
+    } else if (entrada.raton && sel.length && entrada.hover && entrada.hover.dueno !== 1) {
       fuentes = sel; objetivo = entrada.hover; fin = objetivo;
     }
     if (fuentes) {
@@ -1228,12 +1241,15 @@ lienzo.addEventListener('pointerdown', e => {
   if (!jugando()) return;
   const w = aMundo(e.clientX, e.clientY), p = planetaEn(w.x, w.y);
   if (e.button === 2) { if (p && seleccion().length) enviarDesde(seleccion(), p); return; }
+  if (entrada.abajo) return;                       // un segundo dedo no rompe el gesto
   try { lienzo.setPointerCapture(e.pointerId); } catch (err) {}
+  entrada.id = e.pointerId;
   entrada.abajo = true; entrada.sx = entrada.mx = e.clientX; entrada.sy = entrada.my = e.clientY;
   entrada.origen = p && p.dueno === 1 ? p : null;
   entrada.arrastre = false;
 });
 lienzo.addEventListener('pointermove', e => {
+  if (entrada.abajo && e.pointerId !== entrada.id) return;
   entrada.raton = e.pointerType === 'mouse';
   entrada.mx = e.clientX; entrada.my = e.clientY;
   if (!P || P.modo !== 'juego') return;
@@ -1242,7 +1258,7 @@ lienzo.addEventListener('pointermove', e => {
   if (entrada.abajo && entrada.origen && !entrada.arrastre && Math.hypot(e.clientX - entrada.sx, e.clientY - entrada.sy) > 12) entrada.arrastre = true;
 });
 lienzo.addEventListener('pointerup', e => {
-  if (!entrada.abajo) return;
+  if (!entrada.abajo || e.pointerId !== entrada.id) return;
   entrada.abajo = false;
   if (!jugando()) { entrada.arrastre = false; return; }
   const w = aMundo(e.clientX, e.clientY), p = planetaEn(w.x, w.y);
@@ -1273,7 +1289,7 @@ lienzo.addEventListener('pointercancel', () => { entrada.abajo = false; entrada.
 lienzo.addEventListener('pointerleave', () => { if (!entrada.abajo) entrada.hover = null; });
 
 addEventListener('keydown', e => {
-  if (escena !== 'juego' || !P) return;
+  if (escena !== 'juego' || !P || e.repeat) return;
   const t = e.key;
   if (t >= '1' && t <= '4' && jugando()) ponerPct([0.25, 0.5, 0.75, 1][t - 1]);
   else if ((t === 'a' || t === 'A') && jugando()) seleccionarTodos();
@@ -1307,7 +1323,7 @@ function mostrar(nombre) {
   document.querySelectorAll('.pantalla').forEach(s => { s.hidden = s.id !== 'p-' + nombre; });
   const s = nombre && $('p-' + nombre);
   if (s) {
-    const b = [...s.querySelectorAll('.boton.principal, .sector:not([disabled]), button')].find(x => !x.hidden);
+    const b = s.querySelector('.boton.principal:not([hidden])') || s.querySelector('.sector:not([disabled])') || s.querySelector('button:not([hidden])');
     if (b) b.focus({ preventScroll: true });
   }
 }
@@ -1495,6 +1511,7 @@ $('b-vel').addEventListener('click', () => {
   if (!P || P.modo !== 'juego') return;
   P.vel = P.vel === 1 ? 2 : 1;
   $('b-vel').textContent = '×' + P.vel;
+  $('b-vel').setAttribute('aria-label', 'Velocidad ×' + P.vel);
   Sonido.click();
 });
 function alternarSonido() {
@@ -1512,7 +1529,11 @@ $('b-sonido').addEventListener('click', alternarSonido);
 $('m-sonido').addEventListener('click', alternarSonido);
 $('b-todos').addEventListener('click', () => { if (jugando()) seleccionarTodos(); });
 document.querySelectorAll('[data-pct]').forEach(b => b.addEventListener('click', () => { ponerPct(+b.dataset.pct); Sonido.click(); }));
-document.addEventListener('visibilitychange', () => { if (document.hidden && jugando()) pausar(true); });
+document.querySelectorAll('.hud-boton, .envio button').forEach(b => b.addEventListener('click', () => b.blur()));
+document.addEventListener('visibilitychange', () => {
+  if (Sonido.ctx) document.hidden ? Sonido.ctx.suspend() : Sonido.ctx.resume();
+  if (document.hidden && jugando()) pausar(true);
+});
 
 function pintarFuerzas() {
   const f = fuerzas(P), total = f.reduce((a, b) => a + b, 0) || 1;
@@ -1578,7 +1599,9 @@ function mostrarFin(Pa, res, estrellas) {
   hud.hidden = true;
   mostrar('fin');
 }
-$('f-sig').addEventListener('click', () => { if (P && P.sector >= 0) jugarSector(P.sector + 1); });
+$('f-sig').addEventListener('click', () => {
+  if (P && P.sector >= 0 && P.sector + 1 < SECTORES.length && P.sector + 1 < progreso.desbloqueado) jugarSector(P.sector + 1);
+});
 $('f-otra').addEventListener('click', () => empezar(ultimaCfg));
 $('f-menu').addEventListener('click', () => aMenu(P && P.sector >= 0 ? 'campana' : 'menu'));
 
