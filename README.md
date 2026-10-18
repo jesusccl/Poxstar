@@ -166,7 +166,9 @@ si la flota llega con más naves de las que lo defienden, el planeta cambia de
 dueño. Hasta cuatro imperios con IA propia hacen lo mismo y también se pelean
 entre ellos. Campaña de **12 sectores**, con hasta tres estrellas cada uno según
 el tiempo, y **batalla rápida** eligiendo rivales (1–4), tamaño de la galaxia,
-dificultad (fácil, normal, difícil o brutal) y rarezas:
+dificultad (fácil, normal, difícil o brutal) y rarezas. El **Desafío del día** saca de la fecha
+una semilla y la configuración (el mismo mapa para todos ese día) y guarda tu
+mejor tiempo en `bu_desafio_v1`. Las rarezas:
 
 - **Forja**: fabrica casi el doble. **Fortaleza**: cada defensor vale 1,6.
   **Gigante gaseoso**: enorme y con mucha guarnición. **Nebulosa**: las flotas
