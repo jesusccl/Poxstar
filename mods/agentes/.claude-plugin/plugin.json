@@ -1,0 +1,1 @@
+{ "name": "agentes", "version": "0.1.0", "description": "Panel lateral con los agentes y las tareas de la sesión, y cómo va cada uno, en vivo", "types": "./types/index.d.ts" }

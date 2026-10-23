@@ -424,6 +424,8 @@ degradados, no con sombras desenfocadas enormes.
 ├── launcher.html       # Launcher web (no enlazado desde la home)
 ├── img/                # Capturas de los juegos, tarjetas (card-*) y portadas de los arcades (arcade-*)
 ├── tools/canal.mjs     # Trae los últimos vídeos de YouTube a la portada
+├── mods/agentes/       # Mod de Claude Code: panel con los agentes trabajando (ver PROYECTO.md)
+├── PROYECTO.md         # Guía para retomar el proyecto desde otro PC
 ├── data/canal.json     # Lo que trajo la última vez
 ├── .github/workflows/canal.yml  # Lo ejecuta cada seis horas
 ├── og-image.png        # Imagen para redes sociales (1200×630)
